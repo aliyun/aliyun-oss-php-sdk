@@ -3,7 +3,6 @@
     "description": "Aliyun OSS SDK for PHP",
     "homepage": "http://www.aliyun.com/product/oss/",
     "type": "library",
-    "version" : "2.0.0",
     "license": "MIT",
     "authors": [
         {
