@@ -82,12 +82,17 @@ try {
 OssClient提供的接口返回返回数据分为两种：
 
 * Put，Delete类接口，接口返回null，如果没有OssException，即可认为操作成功
-* Get类接口，接口返回对应的数据，如果没有OssException，即可认为操作成功，举两个例子：
+* Get，List类接口，接口返回对应的数据，如果没有OssException，即可认为操作成功，举个例子：
 
-|接口 | 返回数据类型 |
-|:----|:-----------|
-|GetBucketCors|OSS\Model\CorsConfig|
-|ListBuckets|OSS\Model\BucketListInfo|
+```php
+<?php
+$bucketListInfo = $ossClient->listBuckets();
+$bucketList = $bucketListInfo->getBucketList();
+foreach($bucketList as $bucket) {
+	print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreatedate() . "\n");
+}
+```
+上面代码中的$bucketListInfo的数据类型是 `OSS\Model\BucketListInfo`
 
     
 ### 运行Sample程序
