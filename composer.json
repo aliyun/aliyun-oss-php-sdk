@@ -3,7 +3,6 @@
     "description": "Aliyun OSS SDK for PHP",
     "homepage": "http://www.aliyun.com/product/oss/",
     "type": "library",
-    "minimum-stability":"dev",
     "license": "MIT",
     "authors": [
         {
@@ -19,7 +18,7 @@
         "squizlabs/php_codesniffer": "~2.3",
 	    "phpdocumentor/phpdocumentor" : "2.*"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {"OSS\\": "src/OSS"}
     }
