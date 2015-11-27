@@ -54,7 +54,7 @@ try {
 	$ossClient->putObject($bucket, $object, $content);
 } catch (OssException $e) {
 	print $e->getMessage();
-}
+} 
 ```
 
 ### 存储空间操作
