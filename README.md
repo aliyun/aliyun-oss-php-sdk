@@ -13,8 +13,14 @@
 > - Ubuntu下可以使用apt-get包管理器安装php的cURL扩展 `sudo apt-get install php5-curl` 
 
 ## 安装方法
-- 直接下载安装， SDK没有依赖其他三方库，可以直接使用sdk根目录的autoload.php
-- 具体操作，请参考samples/目录的中的代码
+
+- 通过composer，这是推荐的方式，可以使用composer.json 声明依赖，或者运行下面的命令
+```bash
+$ composer require aliyuncs/oss-sdk-php
+```
+
+- 下载SDK包安装， SDK没有依赖其他三方库，但需要参照代码根目录中的`autoloader.php`，增加一个自己的autoloader程序。
+
 
 ## 快速使用
 
