@@ -122,7 +122,7 @@ function putObjectByRawApis($ossClient, $bucket)
         );
     }
     /**
-     * step 3.
+     * step 3. 完成上传
      */
     try {
         $ossClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
@@ -161,7 +161,13 @@ function uploadDir($ossClient, $bucket) {
  * @param $bucket   string
  */
 function listMultipartUploads($ossClient, $bucket) {
-    $options = null;
+    $options = array(
+        'delimiter' => '/',
+        'max-uploads' => 100,
+        'key-marker' => '',
+        'prefix' => '',
+        'upload-id-marker' => ''
+    );
     try {
         $listMultipartUploadInfo = $ossClient->listMultipartUploads($bucket, $options);
     } catch(OssException $e) {

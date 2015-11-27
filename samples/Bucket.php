@@ -86,11 +86,10 @@ function doesBucketExist($ossClient, $bucket) {
 
 /**
  *
- * 删除bucket
- * 如果bucket不为空则bucket无法删除成功， 不为空表示bucket既没有object，也没有未完成的multipart上传时的parts
+ * 删除bucket，如果bucket不为空则bucket无法删除成功， 不为空表示bucket既没有object，也没有未完成的multipart上传时的parts
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 要创建的存储空间名称
+ * @param string    $bucket 待删除的存储空间名称
  * @return null
  */
 function deleteBucket($ossClient, $bucket)
@@ -107,10 +106,10 @@ function deleteBucket($ossClient, $bucket)
 
 /**
  *
- * 设置bucket的acl
+ * 设置bucket的acl配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string $bucket 要创建的存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function putBucketAcl($ossClient, $bucket)
@@ -129,10 +128,10 @@ function putBucketAcl($ossClient, $bucket)
 
 
 /**
- * 获取bucket acl
+ * 获取bucket的acl配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string $bucket 要创建的存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getBucketAcl($ossClient, $bucket)
