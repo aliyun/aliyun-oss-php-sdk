@@ -37,7 +37,7 @@ use OSS\Model\ListPartsInfo;
  * Class OssClient
  *
  * Object Storage Service(OSS) 的客户端类，封装了用户通过OSS API对OSS服务的各种操作，
- * 用户通过OSSClient实例可以进行Bucket，Object，MultipartUpload, ACL等操作，具体
+ * 用户通过OssClient实例可以进行Bucket，Object，MultipartUpload, ACL等操作，具体
  * 的接口规则可以参考官方OSS API文档
  */
 class OssClient
@@ -101,7 +101,7 @@ class OssClient
     }
 
     /**
-     * 创建bucket，默认创建的bucket的ACL是OSSClient::OSS_ACL_TYPE_PRIVATE
+     * 创建bucket，默认创建的bucket的ACL是OssClient::OSS_ACL_TYPE_PRIVATE
      *
      * @param string $bucket
      * @param string $acl
@@ -1884,6 +1884,10 @@ class OssClient
         $this->connectTimeout = $connectTimeout;
     }
 
+    // 生命周期相关常量
+    const OSS_LIFECYCLE_EXPIRATION = "Expiration";
+    const OSS_LIFECYCLE_TIMING_DAYS = "Days";
+    const OSS_LIFECYCLE_TIMING_DATE = "Date";
     //OSS 内部常量
     const OSS_BUCKET = 'bucket';
     const OSS_OBJECT = 'object';

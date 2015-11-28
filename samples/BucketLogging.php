@@ -32,7 +32,7 @@ getBucketLogging($ossClient, $bucket);
 /**
  * 设置bucket的Logging配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -56,7 +56,7 @@ function putBucketLogging($ossClient, $bucket)
 /**
  * 获取bucket的Logging配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -78,7 +78,7 @@ function getBucketLogging($ossClient, $bucket)
 /**
  * 删除bucket的Logging配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */

@@ -41,7 +41,7 @@ getBucketLifecycle($ossClient, $bucket);
 /**
  * 设置bucket的生命周期配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -49,11 +49,11 @@ function putBucketLifecycle($ossClient, $bucket)
 {
     $lifecycleConfig = new LifecycleConfig();
     $actions = array();
-    $actions[] = new LifecycleAction("Expiration", "Days", 3);
+    $actions[] = new LifecycleAction(OssClient::OSS_LIFECYCLE_EXPIRATION, OssClient::OSS_LIFECYCLE_TIMING_DAYS, 3);
     $lifecycleRule = new LifecycleRule("delete obsoleted files", "obsoleted/", "Enabled", $actions);
     $lifecycleConfig->addRule($lifecycleRule);
     $actions = array();
-    $actions[] = new LifecycleAction("Expiration", "Date", '2022-10-12T00:00:00.000Z');
+    $actions[] = new LifecycleAction(OssClient::OSS_LIFECYCLE_EXPIRATION, OssClient::OSS_LIFECYCLE_TIMING_DATE, '2022-10-12T00:00:00.000Z');
     $lifecycleRule = new LifecycleRule("delete temporary files", "temporary/", "Enabled", $actions);
     $lifecycleConfig->addRule($lifecycleRule);
     try {
@@ -69,7 +69,7 @@ function putBucketLifecycle($ossClient, $bucket)
 /**
  * 获取bucket的生命周期配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -90,7 +90,7 @@ function getBucketLifecycle($ossClient, $bucket)
 /**
  * 删除bucket的生命周期配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */

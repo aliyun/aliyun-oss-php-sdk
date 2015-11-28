@@ -39,7 +39,7 @@ listMultipartUploads($ossClient, $bucket);
 /**
  * 通过multipart上传文件
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -62,7 +62,7 @@ function multiuploadFile($ossClient, $bucket)
 /**
  * 使用基本的api分阶段进行分片上传
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @throws OssException
  */

@@ -41,12 +41,10 @@ listBuckets($ossClient);
 /**
  * 创建一个存储空间
  * acl 指的是bucket的访问控制权限，有三种，私有读写，公共读私有写，公共读写。
- * 私有读写就是只有bucket的owner才有权限操作
- * 三种权限分别对应OSSClient::OSS_ACL_TYPE_PRIVATE，
- *               OssClient::OSS_ACL_TYPE_PUBLIC_READ,
- *               OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE
+ * 私有读写就是只有bucket的拥有者或授权用户才有权限操作
+ * 三种权限分别对应 (OssClient::OSS_ACL_TYPE_PRIVATE，OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 要创建的存储空间名称
  * @return null
  */
@@ -65,7 +63,7 @@ function createBucket($ossClient, $bucket)
 /**
  *  判断Bucket是否存在
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  */
 function doesBucketExist($ossClient, $bucket)
@@ -85,10 +83,9 @@ function doesBucketExist($ossClient, $bucket)
 }
 
 /**
- *
  * 删除bucket，如果bucket不为空则bucket无法删除成功， 不为空表示bucket既没有object，也没有未完成的multipart上传时的parts
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 待删除的存储空间名称
  * @return null
  */
@@ -105,16 +102,14 @@ function deleteBucket($ossClient, $bucket)
 }
 
 /**
- *
  * 设置bucket的acl配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
 function putBucketAcl($ossClient, $bucket)
 {
-    $res = null;
     $acl = OssClient::OSS_ACL_TYPE_PRIVATE;
     try {
         $ossClient->putBucketAcl($bucket, $acl);
@@ -130,7 +125,7 @@ function putBucketAcl($ossClient, $bucket)
 /**
  * 获取bucket的acl配置
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -151,7 +146,7 @@ function getBucketAcl($ossClient, $bucket)
 /**
  * 列出用户所有的Bucket
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @return null
  */
 function listBuckets($ossClient)

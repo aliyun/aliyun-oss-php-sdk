@@ -71,7 +71,7 @@ doesObjectExist($ossClient, $bucket);
 /**
  * 创建虚拟目录
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -92,7 +92,7 @@ function createObjectDir($ossClient, $bucket)
  *
  * 简单上传,上传指定变量的内存值作为object的内容
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -115,7 +115,7 @@ function putObject($ossClient, $bucket)
 /**
  * 上传指定的本地文件内容
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -139,7 +139,7 @@ function uploadFile($ossClient, $bucket)
  * 列出Bucket内所有目录和文件, 注意如果符合条件的文件数目超过设置的max-keys， 用户需要使用返回的nextMarker作为入参，通过
  * 循环调用ListObjects得到所有的文件，具体操作见下面的 listAllObjects 示例
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -182,7 +182,7 @@ function listObjects($ossClient, $bucket)
 /**
  * 列出Bucket内所有目录和文件， 根据返回的nextMarker循环得到所有Objects
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -229,7 +229,7 @@ function listAllObjects($ossClient, $bucket)
 /**
  * 获取object的内容
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -258,7 +258,7 @@ function getObject($ossClient, $bucket)
  * 获取object
  * 将object下载到指定的文件
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -277,7 +277,7 @@ function getObjectToLocalFile($ossClient, $bucket)
         printf($e->getMessage() . "\n");
         return;
     }
-    print(__FUNCTION__ . ": OK" . "\n");
+    print(__FUNCTION__ . ": OK, please check localfile: 'upload-test-object-name.txt'" . "\n");
     if (file_get_contents($localfile) === file_get_contents(__FILE__)) {
         print(__FUNCTION__ . ": FileContent checked OK" . "\n");
     } else {
@@ -292,7 +292,7 @@ function getObjectToLocalFile($ossClient, $bucket)
  * 拷贝object
  * 当目的object和源object完全相同时，表示修改object的meta信息
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -318,7 +318,7 @@ function copyObject($ossClient, $bucket)
  * 修改Object Meta
  * 利用copyObject接口的特性：当目的object和源object完全相同时，表示修改object的meta信息
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -347,7 +347,7 @@ function modifyMetaForObject($ossClient, $bucket)
 /**
  * 获取object meta, 也就是getObjectMeta接口
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -374,7 +374,7 @@ function getObjectMeta($ossClient, $bucket)
 /**
  * 删除object
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -395,7 +395,7 @@ function deleteObject($ossClient, $bucket)
 /**
  * 批量删除object
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */
@@ -417,7 +417,7 @@ function deleteObjects($ossClient, $bucket)
 /**
  * 判断object是否存在
  *
- * @param OssClient $ossClient OSSClient实例
+ * @param OssClient $ossClient OssClient实例
  * @param string $bucket 存储空间名称
  * @return null
  */

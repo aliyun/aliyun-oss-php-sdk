@@ -79,7 +79,7 @@ class ObjectListInfo
     }
 
     /**
-     * @return null
+     * @return mixed
      */
     public function getIsTruncated()
     {
