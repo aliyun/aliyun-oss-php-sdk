@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Core\OssException;
 use OSS\Model\LifecycleConfig;
 use OSS\Model\LifecycleRule;
@@ -11,7 +12,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class OssClientBucketLifecycleTest extends TestOssClientBase
 {
-    public function testBucket() {
+    public function testBucket()
+    {
         $lifecycleConfig = new LifecycleConfig();
         $actions = array();
         $actions[] = new LifecycleAction("Expiration", "Days", 3);
@@ -22,31 +24,31 @@ class OssClientBucketLifecycleTest extends TestOssClientBase
         $lifecycleRule = new LifecycleRule("delete temporary files", "temporary/", "Enabled", $actions);
         $lifecycleConfig->addRule($lifecycleRule);
 
-        try{
+        try {
             $this->ossClient->putBucketLifecycle($this->bucket, $lifecycleConfig);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
 
-        try{
+        try {
             sleep(5);
             $lifecycleConfig2 = $this->ossClient->getBucketLifecycle($this->bucket);
             $this->assertEquals($lifecycleConfig->serializeToXml(), $lifecycleConfig2->serializeToXml());
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
 
-        try{
+        try {
             $this->ossClient->deleteBucketLifecycle($this->bucket);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
 
-        try{
+        try {
             sleep(3);
             $lifecycleConfig3 = $this->ossClient->getBucketLifecycle($this->bucket);
             $this->assertNotEquals($lifecycleConfig->serializeToXml(), $lifecycleConfig3->serializeToXml());
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
 

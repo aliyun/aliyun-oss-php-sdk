@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Model\BucketInfo;
 
 /**
@@ -9,7 +10,8 @@ use OSS\Model\BucketInfo;
  */
 class BucketInfoTest extends \PHPUnit_Framework_TestCase
 {
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $bucketInfo = new BucketInfo('cn-beijing', 'name', 'today');
         $this->assertNotNull($bucketInfo);
         $this->assertEquals('cn-beijing', $bucketInfo->getLocation());

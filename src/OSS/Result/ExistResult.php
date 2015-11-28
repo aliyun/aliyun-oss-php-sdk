@@ -23,7 +23,8 @@ class ExistResult extends Result
      *
      * @return bool
      */
-    protected function isResponseOk() {
+    protected function isResponseOk()
+    {
         $status = $this->rawResponse->status;
         if ((int)(intval($status) / 100) == 2 || (int)(intval($status)) === 404) {
             return true;

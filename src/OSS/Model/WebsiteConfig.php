@@ -31,10 +31,10 @@ class WebsiteConfig implements XmlConfig
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
-        if(isset($xml->IndexDocument) && isset($xml->IndexDocument->Suffix)) {
+        if (isset($xml->IndexDocument) && isset($xml->IndexDocument->Suffix)) {
             $this->indexDocument = strval($xml->IndexDocument->Suffix);
         }
-        if(isset($xml->ErrorDocument) && isset($xml->ErrorDocument->Key)) {
+        if (isset($xml->ErrorDocument) && isset($xml->ErrorDocument->Key)) {
             $this->errorDocument = strval($xml->ErrorDocument->Key);
         }
     }

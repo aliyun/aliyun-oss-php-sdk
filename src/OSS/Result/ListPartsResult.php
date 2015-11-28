@@ -28,8 +28,8 @@ class ListPartsResult extends Result
         $maxParts = isset($xml->MaxParts) ? intval($xml->MaxParts) : "";
         $isTruncated = isset($xml->IsTruncated) ? strval($xml->IsTruncated) : "";
         $partList = array();
-        if(isset($xml->Part)) {
-            foreach($xml->Part as $part) {
+        if (isset($xml->Part)) {
+            foreach ($xml->Part as $part) {
                 $partNumber = isset($part->PartNumber) ? intval($part->PartNumber) : "";
                 $lastModified = isset($part->LastModified) ? strval($part->LastModified) : "";
                 $eTag = isset($part->ETag) ? strval($part->ETag) : "";

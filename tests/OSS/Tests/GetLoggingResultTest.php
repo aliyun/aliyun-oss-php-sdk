@@ -20,7 +20,8 @@ class GetLoggingResultTest extends \PHPUnit_Framework_TestCase
 </BucketLoggingStatus>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new GetLoggingResult($response);
         $this->assertTrue($result->isOK());
@@ -32,7 +33,8 @@ BBBB;
         $this->assertEquals("TargetPrefix", $loggingConfig->getTargetPrefix());
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 
@@ -42,7 +44,7 @@ BBBB;
         try {
             new GetLoggingResult($response);
             $this->assertTrue(false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
 
         }
     }

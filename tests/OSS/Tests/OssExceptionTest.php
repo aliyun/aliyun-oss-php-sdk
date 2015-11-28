@@ -6,7 +6,8 @@ use OSS\Core\OssException;
 
 class OssExceptionTest extends \PHPUnit_Framework_TestCase
 {
-    public function testOSS_exception () {
+    public function testOSS_exception()
+    {
         try {
             throw new OssException("ERR");
             $this->assertTrue(false);

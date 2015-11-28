@@ -147,7 +147,8 @@ class OssClient
      * @return bool
      * @throws OssException
      */
-    public function doesBucketExist($bucket) {
+    public function doesBucketExist($bucket)
+    {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
@@ -1490,10 +1491,10 @@ class OssClient
             return $this->requestUrl;
         }
 
-        if($this->timeout !== 0) {
+        if ($this->timeout !== 0) {
             $request->timeout = $this->timeout;
         }
-        if($this->connectTimeout !== 0) {
+        if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
 
@@ -1593,7 +1594,7 @@ class OssClient
      */
     private function authPrecheckObject($options)
     {
-        if(isset($options[self::OSS_OBJECT]) && $options[self::OSS_OBJECT] === '/') {
+        if (isset($options[self::OSS_OBJECT]) && $options[self::OSS_OBJECT] === '/') {
             return;
         }
 

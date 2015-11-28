@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Core\OssException;
 use OSS\Model\LoggingConfig;
 
@@ -9,31 +10,32 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class OssClientBucketLoggingTest extends TestOssClientBase
 {
-    public function testBucket() {
+    public function testBucket()
+    {
         $loggingConfig = new LoggingConfig($this->bucket, 'prefix');
-        try{
+        try {
             $this->ossClient->putBucketLogging($this->bucket, $this->bucket, 'prefix');
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             var_dump($e->getMessage());
             $this->assertTrue(false);
         }
-        try{
+        try {
             sleep(2);
             $loggingConfig2 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertEquals($loggingConfig->serializeToXml(), $loggingConfig2->serializeToXml());
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
-        try{
+        try {
             $this->ossClient->deleteBucketLogging($this->bucket);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
-        try{
+        try {
             sleep(3);
             $loggingConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($loggingConfig->serializeToXml(), $loggingConfig3->serializeToXml());
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertTrue(false);
         }
     }

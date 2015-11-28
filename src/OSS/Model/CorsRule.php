@@ -17,8 +17,9 @@ class CorsRule
      *
      * @param string $allowedOrigin
      */
-    public function addAllowedOrigin($allowedOrigin) {
-        if(!empty($allowedOrigin)) {
+    public function addAllowedOrigin($allowedOrigin)
+    {
+        if (!empty($allowedOrigin)) {
             $this->allowedOrigins[] = $allowedOrigin;
         }
     }
@@ -28,8 +29,9 @@ class CorsRule
      *
      * @param string $allowedMethod
      */
-    public function addAllowedMethod($allowedMethod) {
-        if(!empty($allowedMethod)) {
+    public function addAllowedMethod($allowedMethod)
+    {
+        if (!empty($allowedMethod)) {
             $this->allowedMethods[] = $allowedMethod;
         }
     }
@@ -39,8 +41,9 @@ class CorsRule
      *
      * @param string $allowedHeader
      */
-    public function addAllowedHeader($allowedHeader) {
-        if(!empty($allowedHeader)) {
+    public function addAllowedHeader($allowedHeader)
+    {
+        if (!empty($allowedHeader)) {
             $this->allowedHeaders[] = $allowedHeader;
         }
     }
@@ -50,8 +53,9 @@ class CorsRule
      *
      * @param string $exposeHeader
      */
-    public function addExposeHeader($exposeHeader) {
-        if(!empty($exposeHeader)) {
+    public function addExposeHeader($exposeHeader)
+    {
+        if (!empty($exposeHeader)) {
             $this->exposeHeaders[] = $exposeHeader;
         }
     }
@@ -118,20 +122,21 @@ class CorsRule
      * @param \SimpleXMLElement $xmlRule
      * @throws OssException
      */
-    public function appendToXml(&$xmlRule)  {
-        if(!isset($this->maxAgeSeconds)) {
+    public function appendToXml(&$xmlRule)
+    {
+        if (!isset($this->maxAgeSeconds)) {
             throw new OssException("maxAgeSeconds is not set in the Rule");
         }
-        foreach($this->allowedOrigins as $allowedOrigin) {
+        foreach ($this->allowedOrigins as $allowedOrigin) {
             $xmlRule->addChild(CorsConfig::OSS_CORS_ALLOWED_ORIGIN, $allowedOrigin);
         }
-        foreach($this->allowedMethods as $allowedMethod) {
+        foreach ($this->allowedMethods as $allowedMethod) {
             $xmlRule->addChild(CorsConfig::OSS_CORS_ALLOWED_METHOD, $allowedMethod);
         }
-        foreach($this->allowedHeaders as $allowedHeader) {
+        foreach ($this->allowedHeaders as $allowedHeader) {
             $xmlRule->addChild(CorsConfig::OSS_CORS_ALLOWED_HEADER, $allowedHeader);
         }
-        foreach($this->exposeHeaders as $exposeHeader) {
+        foreach ($this->exposeHeaders as $exposeHeader) {
             $xmlRule->addChild(CorsConfig::OSS_CORS_EXPOSE_HEADER, $exposeHeader);
         }
         $xmlRule->addChild(CorsConfig::OSS_CORS_MAX_AGE_SECONDS, strval($this->maxAgeSeconds));

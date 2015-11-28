@@ -6,7 +6,7 @@ use OSS\Core\OssException;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //*******************************简单使用***************************************************************
 
@@ -33,18 +33,19 @@ getBucketLogging($ossClient, $bucket);
  * 设置bucket的Logging配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
-function putBucketLogging($ossClient, $bucket) {
+function putBucketLogging($ossClient, $bucket)
+{
     $option = array();
     //访问日志存放在本bucket下
     $targetBucket = $bucket;
     $targetPrefix = "access.log";
 
-    try{
+    try {
         $ossClient->putBucketLogging($bucket, $targetBucket, $targetPrefix, $option);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -56,15 +57,16 @@ function putBucketLogging($ossClient, $bucket) {
  * 获取bucket的Logging配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
-function getBucketLogging($ossClient, $bucket) {
+function getBucketLogging($ossClient, $bucket)
+{
     $loggingConfig = null;
     $options = array();
-    try{
+    try {
         $loggingConfig = $ossClient->getBucketLogging($bucket, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -77,13 +79,14 @@ function getBucketLogging($ossClient, $bucket) {
  * 删除bucket的Logging配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
-function deleteBucketLogging($ossClient, $bucket) {
-    try{
+function deleteBucketLogging($ossClient, $bucket)
+{
+    try {
         $ossClient->deleteBucketLogging($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

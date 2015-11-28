@@ -1,10 +1,10 @@
 <?php
 
-if(is_file(__DIR__ . '/../autoload.php')) {
+if (is_file(__DIR__ . '/../autoload.php')) {
     require_once __DIR__ . '/../autoload.php';
 }
-if(is_file(__DIR__.'/../vendor/autoload.php')) {
-    require_once __DIR__.'/../vendor/autoload.php';
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
 }
 require_once __DIR__ . '/Config.php';
 
@@ -32,9 +32,9 @@ class Common
     {
         try {
             $ossClient = new OssClient(self::accessKeyId, self::accessKeySecret, self::endpoint, false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
-            printf($e->getMessage()."\n");
+            printf($e->getMessage() . "\n");
             return null;
         }
         return $ossClient;
@@ -51,30 +51,31 @@ class Common
     public static function createBucket()
     {
         $ossClient = self::getOssClient();
-        if(is_null($ossClient)) exit(1);
+        if (is_null($ossClient)) exit(1);
         $bucket = self::getBucketName();
         $acl = OssClient::OSS_ACL_TYPE_PUBLIC_READ;
         try {
-            $ossClient->createBucket($bucket,$acl);
+            $ossClient->createBucket($bucket, $acl);
         } catch (OssException $e) {
 
             $message = $e->getMessage();
-            if(\OSS\Core\OssUtil::startsWith($message, 'http status: 403')) {
+            if (\OSS\Core\OssUtil::startsWith($message, 'http status: 403')) {
                 echo "Please Check your AccessKeyId and AccessKeySecret" . "\n";
                 exit(0);
-            } elseif(strpos($message, "BucketAlreadyExists") !== false) {
+            } elseif (strpos($message, "BucketAlreadyExists") !== false) {
                 echo "Bucket already exists. Please check whether the bucket belongs to you, or it was visited with correct endpoint. " . "\n";
                 exit(0);
             }
             printf(__FUNCTION__ . ": FAILED\n");
-            printf($e->getMessage()."\n");
+            printf($e->getMessage() . "\n");
             return;
         }
         print(__FUNCTION__ . ": OK" . "\n");
     }
 
-    public static function println($message) {
-        if(!empty($message)) {
+    public static function println($message)
+    {
+        if (!empty($message)) {
             echo strval($message) . "\n";
         }
     }

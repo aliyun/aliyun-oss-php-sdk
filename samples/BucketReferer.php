@@ -7,7 +7,7 @@ use \OSS\Model\RefererConfig;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //******************************* 简单使用 ****************************************************************
 
@@ -39,7 +39,7 @@ getBucketReferer($ossClient, $bucket);
  * 设置bucket的防盗链配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function putBucketReferer($ossClient, $bucket)
@@ -48,9 +48,9 @@ function putBucketReferer($ossClient, $bucket)
     $refererConfig->setAllowEmptyReferer(true);
     $refererConfig->addReferer("www.aliiyun.com");
     $refererConfig->addReferer("www.aliiyuncs.com");
-    try{
+    try {
         $ossClient->putBucketReferer($bucket, $refererConfig);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -62,15 +62,15 @@ function putBucketReferer($ossClient, $bucket)
  * 获取bucket的防盗链配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getBucketReferer($ossClient, $bucket)
 {
     $refererConfig = null;
-    try{
+    try {
         $refererConfig = $ossClient->getBucketReferer($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -84,16 +84,15 @@ function getBucketReferer($ossClient, $bucket)
  * Referer白名单不能直接清空，只能通过重新设置来覆盖之前的规则。
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function deleteBucketReferer($ossClient, $bucket)
 {
     $refererConfig = new RefererConfig();
-    $refererConfig->setAllowEmptyReferer(false);
-    try{
+    try {
         $ossClient->putBucketReferer($bucket, $refererConfig);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

@@ -7,7 +7,7 @@ use OSS\Core\OssException;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //*******************************简单使用***************************************************************
 
@@ -17,12 +17,12 @@ if(is_null($ossClient)) exit(1);
 
 // 使用分片上传接口上传文件, 接口会根据文件大小决定是使用普通上传还是分片上传
 $ossClient->multiuploadFile($bucket, "file.php", __FILE__, array());
-Common::println("local file ".__FILE__." is uploaded to the bucket $bucket, file.php");
+Common::println("local file " . __FILE__ . " is uploaded to the bucket $bucket, file.php");
 
 
 // 上传本地目录到bucket内的targetdir子目录中
 $ossClient->uploadDir($bucket, "targetdir", __DIR__);
-Common::println("local dir ".__DIR__." is uploaded to the bucket $bucket, targetdir/");
+Common::println("local dir " . __DIR__ . " is uploaded to the bucket $bucket, targetdir/");
 
 
 // 列出当前未完成的分片上传
@@ -49,9 +49,9 @@ function multiuploadFile($ossClient, $bucket)
     $file = __FILE__;
     $options = array();
 
-    try{
+    try {
         $ossClient->multiuploadFile($bucket, $object, $file, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -72,9 +72,9 @@ function putObjectByRawApis($ossClient, $bucket)
     /**
      *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
      */
-    try{
+    try {
         $uploadId = $ossClient->initiateMultipartUpload($bucket, $object);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": initiateMultipartUpload FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -107,7 +107,7 @@ function putObjectByRawApis($ossClient, $bucket)
         //2. 将每一分片上传到OSS
         try {
             $responseUploadPart[] = $ossClient->uploadPart($bucket, $object, $uploadId, $upOptions);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             printf(__FUNCTION__ . ": initiateMultipartUpload, uploadPart - part#{$i} FAILED\n");
             printf($e->getMessage() . "\n");
             return;
@@ -126,7 +126,7 @@ function putObjectByRawApis($ossClient, $bucket)
      */
     try {
         $ossClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
-    }  catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": completeMultipartUpload FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -141,12 +141,13 @@ function putObjectByRawApis($ossClient, $bucket)
  * @param string $bucket 存储空间名称
  *
  */
-function uploadDir($ossClient, $bucket) {
+function uploadDir($ossClient, $bucket)
+{
     $localDirectory = ".";
     $prefix = "samples/codes";
     try {
         $ossClient->uploadDir($bucket, $prefix, $localDirectory);
-    }  catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -160,7 +161,8 @@ function uploadDir($ossClient, $bucket) {
  * @param $ossClient OssClient
  * @param $bucket   string
  */
-function listMultipartUploads($ossClient, $bucket) {
+function listMultipartUploads($ossClient, $bucket)
+{
     $options = array(
         'delimiter' => '/',
         'max-uploads' => 100,
@@ -170,7 +172,7 @@ function listMultipartUploads($ossClient, $bucket) {
     );
     try {
         $listMultipartUploadInfo = $ossClient->listMultipartUploads($bucket, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": listMultipartUploads FAILED\n");
         printf($e->getMessage() . "\n");
         return;

@@ -11,8 +11,9 @@ use OSS\Http\ResponseCore;
  */
 class HeaderResultTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetHeader() {
-        $response = new ResponseCore(array('key'=>'value'), "", 200);
+    public function testGetHeader()
+    {
+        $response = new ResponseCore(array('key' => 'value'), "", 200);
         $result = new HeaderResult($response);
         $this->assertTrue($result->isOK());
         $this->assertTrue(is_array($result->getData()));

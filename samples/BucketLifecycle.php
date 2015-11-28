@@ -9,7 +9,7 @@ use OSS\Model\LifecycleRule;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //******************************* 简单使用 *******************************************************
 
@@ -42,7 +42,7 @@ getBucketLifecycle($ossClient, $bucket);
  * 设置bucket的生命周期配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function putBucketLifecycle($ossClient, $bucket)
@@ -56,9 +56,9 @@ function putBucketLifecycle($ossClient, $bucket)
     $actions[] = new LifecycleAction("Expiration", "Date", '2022-10-12T00:00:00.000Z');
     $lifecycleRule = new LifecycleRule("delete temporary files", "temporary/", "Enabled", $actions);
     $lifecycleConfig->addRule($lifecycleRule);
-    try{
+    try {
         $ossClient->putBucketLifecycle($bucket, $lifecycleConfig);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -70,15 +70,15 @@ function putBucketLifecycle($ossClient, $bucket)
  * 获取bucket的生命周期配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getBucketLifecycle($ossClient, $bucket)
 {
     $lifecycleConfig = null;
-    try{
+    try {
         $lifecycleConfig = $ossClient->getBucketLifecycle($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -91,14 +91,14 @@ function getBucketLifecycle($ossClient, $bucket)
  * 删除bucket的生命周期配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function deleteBucketLifecycle($ossClient, $bucket)
 {
-    try{
+    try {
         $ossClient->deleteBucketLifecycle($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

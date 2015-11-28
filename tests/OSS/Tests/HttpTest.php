@@ -7,57 +7,65 @@ use OSS\Http\ResponseCore;
 use OSS\Http\RequestCore_Exception;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
-class HttpTest extends \PHPUnit_Framework_TestCase {
+class HttpTest extends \PHPUnit_Framework_TestCase
+{
 
-    public function testResponseCore() {
+    public function testResponseCore()
+    {
         $res = new ResponseCore(null, "", 500);
         $this->assertFalse($res->isOK());
         $this->assertTrue($res->isOK(500));
     }
 
-    public function testGet() {
+    public function testGet()
+    {
         $httpCore = new RequestCore("http://www.baidu.com");
         $httpResponse = $httpCore->send_request();
         $this->assertNotNull($httpResponse);
     }
 
-    public function testSetProxyAndTimeout() {
+    public function testSetProxyAndTimeout()
+    {
         $httpCore = new RequestCore("http://www.baidu.com");
         $httpCore->set_proxy("1.0.2.1:8888");
         $httpCore->connect_timeout = 1;
         try {
             $httpResponse = $httpCore->send_request();
             $this->assertTrue(false);
-        } catch(RequestCore_Exception $e) {
+        } catch (RequestCore_Exception $e) {
 
         }
     }
 
-    public function testSendMultiRequest() {
+    public function testSendMultiRequest()
+    {
         $httpCore = new RequestCore("http://www.baidu.com");
         @$result = $httpCore->send_multi_request(array(curl_init("http://www.baidu.com"),
             curl_init("http://www.baidu.com")));
         $this->assertNotNull($result);
     }
 
-    public function testGetParseTrue() {
+    public function testGetParseTrue()
+    {
         $httpCore = new RequestCore("http://www.baidu.com");
         $httpCore->curlopts = array(CURLOPT_HEADER => true);
         $url = $httpCore->send_request(true);
-        foreach($httpCore->get_response_header() as $key => $value) {
+        foreach ($httpCore->get_response_header() as $key => $value) {
             $this->assertEquals($httpCore->get_response_header($key), $value);
         }
         $this->assertNotNull($url);
     }
 
-    public function testParseResponse() {
+    public function testParseResponse()
+    {
         $httpCore = new RequestCore("http://www.baidu.com");
         $response = $httpCore->send_request();
         $parsed = $httpCore->process_response(null, $response);
         $this->assertNotNull($parsed);
     }
 
-    public function testExceptionGet() {
+    public function testExceptionGet()
+    {
         $httpCore = null;
         $exception = false;
         try {

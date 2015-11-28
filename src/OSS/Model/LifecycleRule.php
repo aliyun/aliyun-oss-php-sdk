@@ -106,14 +106,16 @@ class LifecycleRule
     /**
      * @param \SimpleXMLElement $xmlRule
      */
-    public function appendToXml(&$xmlRule) {
+    public function appendToXml(&$xmlRule)
+    {
         $xmlRule->addChild('ID', $this->id);
         $xmlRule->addChild('Prefix', $this->prefix);
         $xmlRule->addChild('Status', $this->status);
-        foreach($this->actions as $action) {
+        foreach ($this->actions as $action) {
             $action->appendToXml($xmlRule);
         }
     }
+
     private $id;
     private $prefix;
     private $status;

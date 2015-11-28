@@ -75,7 +75,8 @@ class LifecycleAction
      *
      * @param \SimpleXMLElement $xmlRule
      */
-    public function appendToXml(&$xmlRule) {
+    public function appendToXml(&$xmlRule)
+    {
         $xmlAction = $xmlRule->addChild($this->action);
         $xmlAction->addChild($this->timeSpec, $this->timeValue);
     }

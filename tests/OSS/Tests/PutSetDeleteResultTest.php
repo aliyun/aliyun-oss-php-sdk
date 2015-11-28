@@ -9,17 +9,19 @@ use OSS\Result\PutSetDeleteResult;
 class ResultTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testNullResponse() {
+    public function testNullResponse()
+    {
         $response = null;
         try {
             new PutSetDeleteResult($response);
             $this->assertFalse(true);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertEquals('raw response is null', $e->getMessage());
         }
     }
 
-    public function testOkResponse() {
+    public function testOkResponse()
+    {
         $response = new ResponseCore(array(), "", 200);
         $result = new PutSetDeleteResult($response);
         $this->assertTrue($result->isOK());
@@ -27,21 +29,24 @@ class ResultTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($result->getRawResponse());
     }
 
-    public function testFailResponse() {
+    public function testFailResponse()
+    {
         $response = new ResponseCore(array(), "", 301);
         try {
             new PutSetDeleteResult($response);
             $this->assertFalse(true);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
 
         }
     }
 
-    public function setUp() {
+    public function setUp()
+    {
 
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
 
     }
 }

@@ -146,12 +146,12 @@ class OssUtil
     {
         $pattern = '/^.{1,1023}$/';
         if (empty($object) || !preg_match($pattern, $object) ||
-            self::startsWith($object, '/') || self::startsWith($object, '\\')) {
+            self::startsWith($object, '/') || self::startsWith($object, '\\')
+        ) {
             return false;
         }
         return true;
     }
-
 
 
     /**
@@ -161,12 +161,13 @@ class OssUtil
      * @param string $findMe
      * @return bool
      */
-    public static function startsWith($str, $findMe) {
-       if(strpos($str, $findMe) === 0) {
-           return true;
-       } else {
-           return false;
-       }
+    public static function startsWith($str, $findMe)
+    {
+        if (strpos($str, $findMe) === 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

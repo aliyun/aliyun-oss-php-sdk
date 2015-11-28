@@ -42,7 +42,8 @@ BBBB;
 </ListAllMyBucketsResult>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new ListBucketsResult($response);
         $this->assertTrue($result->isOK());
@@ -52,7 +53,8 @@ BBBB;
         $this->assertEquals(2, count($bucketListInfo->getBucketList()));
     }
 
-    public function testParseNullXml() {
+    public function testParseNullXml()
+    {
         $response = new ResponseCore(array(), $this->nullXml, 200);
         $result = new ListBucketsResult($response);
         $this->assertTrue($result->isOK());
@@ -62,11 +64,12 @@ BBBB;
         $this->assertEquals(0, count($bucketListInfo->getBucketList()));
     }
 
-    public function test403() {
+    public function test403()
+    {
         $response = new ResponseCore(array(), "", 403);
         try {
             new ListBucketsResult($response);
-        }catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertEquals($e->getMessage(), 'http status: 403, Reason: authorization forbidden, please check your AccessKeyId and AccessKeySecret');
         }
     }

@@ -29,7 +29,8 @@ class GetLifecycleResultTest extends \PHPUnit_Framework_TestCase
 </LifecycleConfiguration>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new GetLifecycleResult($response);
         $this->assertTrue($result->isOK());
@@ -39,7 +40,8 @@ BBBB;
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($lifecycleConfig->serializeToXml()));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 
@@ -49,7 +51,7 @@ BBBB;
         try {
             new GetLifecycleResult($response);
             $this->assertTrue(false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
 
         }
     }

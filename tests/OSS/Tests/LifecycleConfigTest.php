@@ -10,7 +10,7 @@ use OSS\Model\LifecycleRule;
 class LifecycleConfigTest extends \PHPUnit_Framework_TestCase
 {
 
-private $validLifecycle = <<<BBBB
+    private $validLifecycle = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
 <LifecycleConfiguration>
 <Rule>
@@ -29,7 +29,7 @@ private $validLifecycle = <<<BBBB
 </LifecycleConfiguration>
 BBBB;
 
-private $validLifecycle2 = <<<BBBB
+    private $validLifecycle2 = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
 <LifecycleConfiguration>
 <Rule><ID>delete temporary files</ID>
@@ -41,12 +41,13 @@ private $validLifecycle2 = <<<BBBB
 </LifecycleConfiguration>
 BBBB;
 
-private $nullLifecycle = <<<BBBB
+    private $nullLifecycle = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
 <LifecycleConfiguration/>
 BBBB;
 
-    public function testConstructValidConfig() {
+    public function testConstructValidConfig()
+    {
         $lifecycleConfig = new LifecycleConfig();
         $actions = array();
         $actions[] = new LifecycleAction("Expiration", "Days", 3);
@@ -63,35 +64,39 @@ BBBB;
         } catch (OssException $e) {
             $this->assertEquals('lifecycleRule is null', $e->getMessage());
         }
-        $this->assertEquals($this->cleanXml(strval($lifecycleConfig)),  $this->cleanXml($this->validLifecycle));
+        $this->assertEquals($this->cleanXml(strval($lifecycleConfig)), $this->cleanXml($this->validLifecycle));
     }
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $lifecycleConfig = new LifecycleConfig();
         $lifecycleConfig->parseFromXml($this->validLifecycle);
-        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()),  $this->cleanXml($this->validLifecycle));
+        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()), $this->cleanXml($this->validLifecycle));
         $this->assertEquals(2, count($lifecycleConfig->getRules()));
         $rules = $lifecycleConfig->getRules();
         $this->assertEquals('delete temporary files', $rules[1]->getId());
     }
 
-    public function testParseValidXml2() {
+    public function testParseValidXml2()
+    {
         $lifecycleConfig = new LifecycleConfig();
         $lifecycleConfig->parseFromXml($this->validLifecycle2);
-        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()),  $this->cleanXml($this->validLifecycle2));
+        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()), $this->cleanXml($this->validLifecycle2));
         $this->assertEquals(1, count($lifecycleConfig->getRules()));
         $rules = $lifecycleConfig->getRules();
         $this->assertEquals('delete temporary files', $rules[0]->getId());
     }
 
-    public function testParseNullXml() {
+    public function testParseNullXml()
+    {
         $lifecycleConfig = new LifecycleConfig();
         $lifecycleConfig->parseFromXml($this->nullLifecycle);
-        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()),  $this->cleanXml($this->nullLifecycle));
+        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()), $this->cleanXml($this->nullLifecycle));
         $this->assertEquals(0, count($lifecycleConfig->getRules()));
     }
 
-    public function testLifecycleRule() {
+    public function testLifecycleRule()
+    {
         $lifecycleRule = new LifecycleRule("x", "x", "x", array('x'));
         $lifecycleRule->setId("id");
         $lifecycleRule->setPrefix("prefix");
@@ -104,7 +109,8 @@ BBBB;
         $this->assertEmpty($lifecycleRule->getActions());
     }
 
-    public function testLifecycleAction() {
+    public function testLifecycleAction()
+    {
         $action = new LifecycleAction('x', 'x', 'x');
         $this->assertEquals($action->getAction(), 'x');
         $this->assertEquals($action->getTimeSpec(), 'x');
@@ -117,7 +123,8 @@ BBBB;
         $this->assertEquals($action->getTimeValue(), 'y');
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 }

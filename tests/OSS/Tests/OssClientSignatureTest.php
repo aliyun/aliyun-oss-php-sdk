@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Core\OssException;
 use OSS\Http\RequestCore;
 use OSS\Http\ResponseCore;
@@ -16,10 +17,10 @@ class OssClientSignatureTest extends TestOssClientBase
         $object = "a.file";
         $this->ossClient->putObject($this->bucket, $object, file_get_contents(__FILE__));
         $timeout = 3600;
-        try{
+        try {
             $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout);
             var_dump($signedUrl);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertFalse(true);
         }
         sleep(5);
@@ -35,7 +36,7 @@ class OssClientSignatureTest extends TestOssClientBase
     {
         $object = "a.file";
         $timeout = 3600;
-        try{
+        try {
             $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT");
             $content = file_get_contents(__FILE__);
             sleep(5);
@@ -48,7 +49,7 @@ class OssClientSignatureTest extends TestOssClientBase
             $res = new ResponseCore($request->get_response_header(),
                 $request->get_response_body(), $request->get_response_code());
             $this->assertTrue($res->isOK());
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertFalse(true);
         }
     }
@@ -77,11 +78,13 @@ class OssClientSignatureTest extends TestOssClientBase
 
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
         $this->ossClient->deleteObject($this->bucket, "a.file");
     }
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         /**
          *  上传本地变量到bucket

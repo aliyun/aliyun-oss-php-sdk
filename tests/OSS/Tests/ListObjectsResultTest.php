@@ -52,7 +52,8 @@ BBBB;
 BBBB;
 
 
-    public function testParseValidXml1() {
+    public function testParseValidXml1()
+    {
         $response = new ResponseCore(array(), $this->validXml1, 200);
         $result = new ListObjectsResult($response);
         $this->assertTrue($result->isOK());
@@ -71,7 +72,8 @@ BBBB;
         $this->assertEquals('test/', $objectListInfo->getPrefixList()[1]->getPrefix());
     }
 
-    public function testParseValidXml2() {
+    public function testParseValidXml2()
+    {
         $response = new ResponseCore(array(), $this->validXml2, 200);
         $result = new ListObjectsResult($response);
         $this->assertTrue($result->isOK());

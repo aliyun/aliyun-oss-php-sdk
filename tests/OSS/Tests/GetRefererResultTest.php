@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Result\GetRefererResult;
 use OSS\Http\ResponseCore;
 use OSS\Core\OssException;
@@ -21,7 +22,8 @@ class GetRefererResultTest extends \PHPUnit_Framework_TestCase
 </RefererConfiguration>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new GetRefererResult($response);
         $this->assertTrue($result->isOK());
@@ -31,7 +33,8 @@ BBBB;
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($refererConfig->serializeToXml()));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 
@@ -41,7 +44,7 @@ BBBB;
         try {
             new GetRefererResult($response);
             $this->assertTrue(false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
 
         }
     }

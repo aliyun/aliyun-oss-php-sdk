@@ -29,9 +29,9 @@ class Common
     {
         try {
             $ossClient = new OssClient(self::accessKeyId, self::accessKeySecret, self::endpoint, false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
-            printf($e->getMessage()."\n");
+            printf($e->getMessage() . "\n");
             return null;
         }
         return $ossClient;
@@ -48,14 +48,14 @@ class Common
     public static function createBucket()
     {
         $ossClient = self::getOssClient();
-        if(is_null($ossClient)) exit(1);
+        if (is_null($ossClient)) exit(1);
         $bucket = self::getBucketName();
         $acl = OssClient::OSS_ACL_TYPE_PUBLIC_READ;
         try {
-            $ossClient->createBucket($bucket,$acl);
+            $ossClient->createBucket($bucket, $acl);
         } catch (OssException $e) {
             printf(__FUNCTION__ . ": FAILED\n");
-            printf($e->getMessage()."\n");
+            printf($e->getMessage() . "\n");
             return;
         }
         print(__FUNCTION__ . ": OK" . "\n");

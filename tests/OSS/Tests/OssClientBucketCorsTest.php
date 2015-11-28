@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Core\OssException;
 use OSS\Model\CorsConfig;
 use OSS\Model\CorsRule;
@@ -12,7 +13,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class OssClientBucketCorsTest extends TestOssClientBase
 {
-    public function testBucket() {
+    public function testBucket()
+    {
         $corsConfig = new CorsConfig();
         $rule = new CorsRule();
         $rule->addAllowedHeader("x-oss-test");
@@ -40,7 +42,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
 
         try {
             $this->ossClient->putBucketCors($this->bucket, $corsConfig);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertFalse(True);
         }
 
@@ -57,14 +59,14 @@ class OssClientBucketCorsTest extends TestOssClientBase
             sleep(1);
             $corsConfig2 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig2);
-            $this->assertEquals($corsConfig->serializeToXml() , $corsConfig2->serializeToXml());
-        } catch(OssException $e) {
+            $this->assertEquals($corsConfig->serializeToXml(), $corsConfig2->serializeToXml());
+        } catch (OssException $e) {
             $this->assertFalse(True);
         }
 
         try {
             $this->ossClient->deleteBucketCors($this->bucket);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertFalse(True);
         }
 
@@ -72,8 +74,8 @@ class OssClientBucketCorsTest extends TestOssClientBase
             sleep(5);
             $corsConfig3 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig3);
-            $this->assertNotEquals($corsConfig->serializeToXml() , $corsConfig3->serializeToXml());
-        } catch(OssException $e) {
+            $this->assertNotEquals($corsConfig->serializeToXml(), $corsConfig3->serializeToXml());
+        } catch (OssException $e) {
             $this->assertFalse(True);
         }
 

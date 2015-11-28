@@ -7,7 +7,7 @@ use OSS\Model\WebsiteConfig;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //*******************************简单使用***************************************************************
 
@@ -38,14 +38,12 @@ getBucketWebsite($ossClient, $bucket);
  * @param  $bucket string 存储空间名称
  * @return null
  */
-function putBucketWebsite($ossClient, $bucket) {
-    $indexHtml = "index.html";
-    $errorHtml = "error.html";
-    $websiteConfig = new WebsiteConfig($indexHtml, $errorHtml);
-
-    try{
+function putBucketWebsite($ossClient, $bucket)
+{
+    $websiteConfig = new WebsiteConfig("index.html", "error.html");
+    try {
         $ossClient->putBucketWebsite($bucket, $websiteConfig);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -57,14 +55,15 @@ function putBucketWebsite($ossClient, $bucket) {
  * 获取bucket的静态网站托管状态
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
-function getBucketWebsite($ossClient, $bucket) {
+function getBucketWebsite($ossClient, $bucket)
+{
     $websiteConfig = null;
-    try{
+    try {
         $websiteConfig = $ossClient->getBucketWebsite($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -77,13 +76,14 @@ function getBucketWebsite($ossClient, $bucket) {
  * 删除bucket的静态网站托管模式配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
-function deleteBucketWebsite($ossClient, $bucket) {
-    try{
+function deleteBucketWebsite($ossClient, $bucket)
+{
+    try {
         $ossClient->deleteBucketWebsite($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

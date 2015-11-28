@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Result\ListPartsResult;
 use OSS\Http\ResponseCore;
 
@@ -40,7 +41,8 @@ class ListPartsResultTest extends \PHPUnit_Framework_TestCase
 </ListPartsResult>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new ListPartsResult($response);
         $listPartsInfo = $result->getData();

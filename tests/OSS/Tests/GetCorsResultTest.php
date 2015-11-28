@@ -38,7 +38,8 @@ class GetCorsResultTest extends \PHPUnit_Framework_TestCase
 </CORSConfiguration>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new GetCorsResult($response);
         $this->assertTrue($result->isOK());
@@ -48,7 +49,8 @@ BBBB;
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($corsConfig->serializeToXml()));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 
@@ -58,7 +60,7 @@ BBBB;
         try {
             new GetCorsResult($response);
             $this->assertTrue(false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
 
         }
     }

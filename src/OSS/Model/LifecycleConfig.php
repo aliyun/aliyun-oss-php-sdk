@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Model;
+
 use OSS\Core\OssException;
 
 
@@ -22,19 +23,19 @@ class LifecycleConfig implements XmlConfig
     {
         $this->rules = array();
         $xml = simplexml_load_string($strXml);
-        if(!isset($xml->Rule)) return;
+        if (!isset($xml->Rule)) return;
         $this->rules = array();
-        foreach($xml->Rule as $rule) {
+        foreach ($xml->Rule as $rule) {
             $id = strval($rule->ID);
             $prefix = strval($rule->Prefix);
             $status = strval($rule->Status);
             $actions = array();
-            foreach($rule as $key=>$value) {
-                if($key === 'ID' || $key === 'Prefix' || $key === 'Status') continue;
+            foreach ($rule as $key => $value) {
+                if ($key === 'ID' || $key === 'Prefix' || $key === 'Status') continue;
                 $action = $key;
                 $timeSpec = null;
                 $timeValue = null;
-                foreach($value as $timeSpecKey=>$timeValueValue) {
+                foreach ($value as $timeSpecKey => $timeValueValue) {
                     $timeSpec = $timeSpecKey;
                     $timeValue = strval($timeValueValue);
                 }
@@ -55,7 +56,7 @@ class LifecycleConfig implements XmlConfig
     {
 
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><LifecycleConfiguration></LifecycleConfiguration>');
-        foreach($this->rules as $rule) {
+        foreach ($this->rules as $rule) {
             $xmlRule = $xml->addChild('Rule');
             $rule->appendToXml($xmlRule);
         }
@@ -69,8 +70,9 @@ class LifecycleConfig implements XmlConfig
      * @param LifecycleRule $lifecycleRule
      * @throws OssException
      */
-    public function addRule($lifecycleRule) {
-        if(!isset($lifecycleRule)) {
+    public function addRule($lifecycleRule)
+    {
+        if (!isset($lifecycleRule)) {
             throw new OssException("lifecycleRule is null");
         }
         $this->rules[] = $lifecycleRule;
@@ -81,7 +83,8 @@ class LifecycleConfig implements XmlConfig
      *
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->serializeToXml();
     }
 
@@ -90,7 +93,8 @@ class LifecycleConfig implements XmlConfig
      *
      * @return LifecycleRule[]
      */
-    public function getRules() {
+    public function getRules()
+    {
         return $this->rules;
     }
 

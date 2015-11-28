@@ -8,7 +8,7 @@ use OSS\Core\OssException;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 
 //******************************* 简单使用 ***************************************************************
 
@@ -43,14 +43,14 @@ function getSignedUrlForGettingObject($ossClient, $bucket)
 {
     $object = "test/test-signature-test-upload-and-download.txt";
     $timeout = 3600;
-    try{
+    try {
         $signedUrl = $ossClient->signUrl($bucket, $object, $timeout);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
-    print(__FUNCTION__ . ": signedUrl: " . $signedUrl. "\n");
+    print(__FUNCTION__ . ": signedUrl: " . $signedUrl . "\n");
     /**
      * 可以类似的代码来访问签名的URL，也可以输入到浏览器中去访问
      */
@@ -79,14 +79,14 @@ function getSignedUrlForPuttingObject($ossClient, $bucket)
     $object = "test/test-signature-test-upload-and-download.txt";
     $timeout = 3600;
     $options = NULL;
-    try{
+    try {
         $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT");
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
-    print(__FUNCTION__ . ": signedUrl: " . $signedUrl. "\n");
+    print(__FUNCTION__ . ": signedUrl: " . $signedUrl . "\n");
     $content = file_get_contents(__FILE__);
 
     $request = new RequestCore($signedUrl);
@@ -118,14 +118,14 @@ function getSignedUrlForPuttingObjectFromFile($ossClient, $bucket)
     $object = "test/test-signature-test-upload-and-download.txt";
     $timeout = 3600;
     $options = array('Content-Type' => 'txt');
-    try{
+    try {
         $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
-    print(__FUNCTION__ . ": signedUrl: " . $signedUrl ."\n");
+    print(__FUNCTION__ . ": signedUrl: " . $signedUrl . "\n");
 
     $request = new RequestCore($signedUrl);
     $request->set_method('PUT');

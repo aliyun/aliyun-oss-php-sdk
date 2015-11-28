@@ -6,7 +6,8 @@ namespace OSS\Model;
  * Interface XmlConfig
  * @package OSS\Model
  */
-interface XmlConfig {
+interface XmlConfig
+{
 
     /**
      * 接口定义，实现此接口的类都需要实现从xml数据解析的函数

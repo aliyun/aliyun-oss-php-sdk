@@ -7,7 +7,7 @@ use OSS\Model\CorsConfig;
 use OSS\Model\CorsRule;
 
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 $bucket = Common::getBucketName();
 
 
@@ -16,7 +16,7 @@ $bucket = Common::getBucketName();
 // 设置cors配置
 $corsConfig = new CorsConfig();
 $rule = new CorsRule();
-$rule->addAllowedHeader("x-oss-test");
+$rule->addAllowedHeader("x-oss-header");
 $rule->addAllowedOrigin("http://www.b.com");
 $rule->addAllowedMethod("POST");
 $rule->setMaxAgeSeconds(10);
@@ -43,39 +43,22 @@ getBucketCors($ossClient, $bucket);
  * 设置bucket的cors配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function putBucketCors($ossClient, $bucket)
 {
     $corsConfig = new CorsConfig();
     $rule = new CorsRule();
-    $rule->addAllowedHeader("x-oss-test");
-    $rule->addAllowedHeader("x-oss-test2");
-    $rule->addAllowedHeader("x-oss-test2");
-    $rule->addAllowedHeader("x-oss-test3");
+    $rule->addAllowedHeader("x-oss-header");
     $rule->addAllowedOrigin("http://www.b.com");
-    $rule->addAllowedOrigin("http://www.a.com");
-    $rule->addAllowedOrigin("http://www.a.com");
-    $rule->addAllowedMethod("GET");
-    $rule->addAllowedMethod("PUT");
     $rule->addAllowedMethod("POST");
-    $rule->addExposeHeader("x-oss-test1");
-    $rule->addExposeHeader("x-oss-test1");
-    $rule->addExposeHeader("x-oss-test2");
     $rule->setMaxAgeSeconds(10);
     $corsConfig->addRule($rule);
-    $rule = new CorsRule();
-    $rule->addAllowedHeader("x-oss-test");
-    $rule->addAllowedMethod("GET");
-    $rule->addAllowedOrigin("http://www.b.com");
-    $rule->addExposeHeader("x-oss-test1");
-    $rule->setMaxAgeSeconds(110);
-    $corsConfig->addRule($rule);
 
-    try{
+    try {
         $ossClient->putBucketCors($bucket, $corsConfig);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -87,15 +70,15 @@ function putBucketCors($ossClient, $bucket)
  * 获取并打印bucket的cors配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getBucketCors($ossClient, $bucket)
 {
     $corsConfig = null;
-    try{
+    try {
         $corsConfig = $ossClient->getBucketCors($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -108,14 +91,14 @@ function getBucketCors($ossClient, $bucket)
  * 删除bucket的所有的cors配置
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 存储空间名称
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function deleteBucketCors($ossClient, $bucket)
 {
-    try{
+    try {
         $ossClient->deleteBucketCors($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

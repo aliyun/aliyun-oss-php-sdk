@@ -31,13 +31,15 @@ BBBB;
 </RefererConfiguration>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $refererConfig = new RefererConfig();
         $refererConfig->parseFromXml($this->validXml);
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($refererConfig->serializeToXml()));
     }
 
-    public function testParseValidXml2() {
+    public function testParseValidXml2()
+    {
         $refererConfig = new RefererConfig();
         $refererConfig->parseFromXml($this->validXml2);
         $this->assertEquals(true, $refererConfig->isAllowEmptyReferer());
@@ -45,7 +47,8 @@ BBBB;
         $this->assertEquals($this->cleanXml($this->validXml2), $this->cleanXml(strval($refererConfig)));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 }

@@ -28,12 +28,12 @@ class LoggingConfig implements XmlConfig
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
-        if(!isset($xml->LoggingEnabled)) return;
-        foreach($xml->LoggingEnabled as $status) {
-            foreach($status as $key => $value) {
-                if($key === 'TargetBucket') {
+        if (!isset($xml->LoggingEnabled)) return;
+        foreach ($xml->LoggingEnabled as $status) {
+            foreach ($status as $key => $value) {
+                if ($key === 'TargetBucket') {
                     $this->targetBucket = strval($value);
-                } elseif($key === 'TargetPrefix') {
+                } elseif ($key === 'TargetPrefix') {
                     $this->targetPrefix = strval($value);
                 }
             }
@@ -48,7 +48,7 @@ class LoggingConfig implements XmlConfig
     public function serializeToXml()
     {
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><BucketLoggingStatus></BucketLoggingStatus>');
-        if(isset($this->targetBucket) && isset($this->targetPrefix)) {
+        if (isset($this->targetBucket) && isset($this->targetPrefix)) {
             $loggingEnabled = $xml->addChild('LoggingEnabled');
             $loggingEnabled->addChild('TargetBucket', $this->targetBucket);
             $loggingEnabled->addChild('TargetPrefix', $this->targetPrefix);
@@ -59,7 +59,8 @@ class LoggingConfig implements XmlConfig
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->serializeToXml();
     }
 

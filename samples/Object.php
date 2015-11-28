@@ -6,7 +6,7 @@ use OSS\Core\OssException;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 //*******************************简单使用***************************************************************
 
 // 简单上传变量的内容到文件
@@ -19,7 +19,7 @@ Common::println("c.file is created");
 
 // 下载object到本地变量
 $content = $ossClient->getObject($bucket, "b.file");
-Common::println("b.file is fetched, the content is: ". $content);
+Common::println("b.file is fetched, the content is: " . $content);
 
 
 // 下载object到本地文件
@@ -35,7 +35,7 @@ Common::println("c.file is copied to c.file.copy");
 
 // 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
-Common::println("file c.file.copy exist? " .($doesExist ? "yes" : "no"));
+Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
 // 删除object
 $ossClient->deleteObject($bucket, "c.file.copy");
@@ -43,7 +43,7 @@ Common::println("c.file.copy is deleted");
 
 // 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
-Common::println("file c.file.copy exist? " .($doesExist ? "yes" : "no"));
+Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
 // 批量删除object
 $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
@@ -75,10 +75,11 @@ doesObjectExist($ossClient, $bucket);
  * @param string $bucket 存储空间名称
  * @return null
  */
-function createObjectDir($ossClient, $bucket) {
-    try{
+function createObjectDir($ossClient, $bucket)
+{
+    try {
         $ossClient->createObjectDir($bucket, "dir");
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -100,9 +101,9 @@ function putObject($ossClient, $bucket)
     $object = "oss-php-sdk-test/upload-test-object-name.txt";
     $content = file_get_contents(__FILE__);
     $options = array();
-    try{
+    try {
         $ossClient->putObject($bucket, $object, $content, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -124,9 +125,9 @@ function uploadFile($ossClient, $bucket)
     $filePath = __FILE__;
     $options = array();
 
-    try{
+    try {
         $ossClient->uploadFile($bucket, $object, $filePath, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -154,23 +155,23 @@ function listObjects($ossClient, $bucket)
         'max-keys' => $maxkeys,
         'marker' => $nextMarker,
     );
-    try{
+    try {
         $listObjectInfo = $ossClient->listObjects($bucket, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    $objectList = $listObjectInfo->getObjectList();
-    $prefixList = $listObjectInfo->getPrefixList();
-    if(!empty($objectList)) {
+    $objectList = $listObjectInfo->getObjectList(); // 文件列表
+    $prefixList = $listObjectInfo->getPrefixList(); // 目录列表
+    if (!empty($objectList)) {
         print("objectList:\n");
         foreach ($objectList as $objectInfo) {
             print($objectInfo->getKey() . "\n");
         }
     }
-    if(!empty($prefixList)) {
+    if (!empty($prefixList)) {
         print("prefixList: \n");
         foreach ($prefixList as $prefixInfo) {
             print($prefixInfo->getPrefix() . "\n");
@@ -188,7 +189,7 @@ function listObjects($ossClient, $bucket)
 function listAllObjects($ossClient, $bucket)
 {
     //构造dir下的文件和虚拟目录
-    for($i = 0; $i < 100; $i += 1) {
+    for ($i = 0; $i < 100; $i += 1) {
         $ossClient->putObject($bucket, "dir/obj" . strval($i), "hi");
         $ossClient->createObjectDir($bucket, "dir/obj" . strval($i));
     }
@@ -198,7 +199,7 @@ function listAllObjects($ossClient, $bucket)
     $nextMarker = '';
     $maxkeys = 30;
 
-    while(true) {
+    while (true) {
         $options = array(
             'delimiter' => $delimiter,
             'prefix' => $prefix,
@@ -219,7 +220,9 @@ function listAllObjects($ossClient, $bucket)
         $listPrefix = $listObjectInfo->getPrefixList();
         var_dump(count($listObject));
         var_dump(count($listPrefix));
-        if($nextMarker === '') {break;}
+        if ($nextMarker === '') {
+            break;
+        }
     }
 }
 
@@ -234,18 +237,18 @@ function getObject($ossClient, $bucket)
 {
     $object = "oss-php-sdk-test/upload-test-object-name.txt";
     $options = array();
-    try{
+    try {
         $content = $ossClient->getObject($bucket, $object, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    if(file_get_contents(__FILE__) === $content) {
-        print(__FUNCTION__ . ": FileContent checked OK". "\n");
+    if (file_get_contents(__FILE__) === $content) {
+        print(__FUNCTION__ . ": FileContent checked OK" . "\n");
     } else {
-        print(__FUNCTION__ . ": FileContent checked FAILED". "\n");
+        print(__FUNCTION__ . ": FileContent checked FAILED" . "\n");
     }
 }
 
@@ -267,18 +270,18 @@ function getObjectToLocalFile($ossClient, $bucket)
         OssClient::OSS_FILE_DOWNLOAD => $localfile,
     );
 
-    try{
+    try {
         $ossClient->getObject($bucket, $object, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    if(file_get_contents($localfile) === file_get_contents(__FILE__)) {
-        print(__FUNCTION__ . ": FileContent checked OK". "\n");
+    if (file_get_contents($localfile) === file_get_contents(__FILE__)) {
+        print(__FUNCTION__ . ": FileContent checked OK" . "\n");
     } else {
-        print(__FUNCTION__ . ": FileContent checked FAILED". "\n");
+        print(__FUNCTION__ . ": FileContent checked FAILED" . "\n");
     }
     if (file_exists($localfile)) {
         unlink($localfile);
@@ -301,9 +304,9 @@ function copyObject($ossClient, $bucket)
     $toObject = $fromObject . '.copy';
     $options = array();
 
-    try{
+    try {
         $ossClient->copyObject($fromBucket, $fromObject, $toBucket, $toObject, $options);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -327,13 +330,13 @@ function modifyMetaForObject($ossClient, $bucket)
     $toObject = $fromObject;
     $copyOptions = array(
         OssClient::OSS_HEADERS => array(
-            'Expires' => '2012-10-01 08:00:00',
+            'Cache-Control' => 'max-age=60',
             'Content-Disposition' => 'attachment; filename="xxxxxx"',
         ),
     );
-    try{
+    try {
         $ossClient->copyObject($fromBucket, $fromObject, $toBucket, $toObject, $copyOptions);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -351,19 +354,20 @@ function modifyMetaForObject($ossClient, $bucket)
 function getObjectMeta($ossClient, $bucket)
 {
     $object = "oss-php-sdk-test/upload-test-object-name.txt";
-    try{
+    try {
         $objectMeta = $ossClient->getObjectMeta($bucket, $object);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    if(isset($objectMeta[strtolower('Content-Disposition')]) &&
-        'attachment; filename="xxxxxx"' === $objectMeta[strtolower('Content-Disposition')]) {
-        print(__FUNCTION__ . ": ObjectMeta checked OK". "\n");
+    if (isset($objectMeta[strtolower('Content-Disposition')]) &&
+        'attachment; filename="xxxxxx"' === $objectMeta[strtolower('Content-Disposition')]
+    ) {
+        print(__FUNCTION__ . ": ObjectMeta checked OK" . "\n");
     } else {
-        print(__FUNCTION__ . ": ObjectMeta checked FAILED". "\n");
+        print(__FUNCTION__ . ": ObjectMeta checked FAILED" . "\n");
     }
 }
 
@@ -377,9 +381,9 @@ function getObjectMeta($ossClient, $bucket)
 function deleteObject($ossClient, $bucket)
 {
     $object = "oss-php-sdk-test/upload-test-object-name.txt";
-    try{
+    try {
         $ossClient->deleteObject($bucket, $object);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -400,9 +404,9 @@ function deleteObjects($ossClient, $bucket)
     $objects = array();
     $objects[] = "oss-php-sdk-test/upload-test-object-name.txt";
     $objects[] = "oss-php-sdk-test/upload-test-object-name.txt.copy";
-    try{
+    try {
         $ossClient->deleteObjects($bucket, $objects);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -420,9 +424,9 @@ function deleteObjects($ossClient, $bucket)
 function doesObjectExist($ossClient, $bucket)
 {
     $object = "oss-php-sdk-test/upload-test-object-name.txt";
-    try{
+    try {
         $exist = $ossClient->doesObjectExist($bucket, $object);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

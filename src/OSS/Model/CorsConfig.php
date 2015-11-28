@@ -38,8 +38,9 @@ class CorsConfig implements XmlConfig
      * @param CorsRule $rule
      * @throws OssException
      */
-    public function addRule($rule) {
-        if(count($this->rules) >= self::OSS_MAX_RULES) {
+    public function addRule($rule)
+    {
+        if (count($this->rules) >= self::OSS_MAX_RULES) {
             throw new OssException("num of rules in the config exceeds self::OSS_MAX_RULES: " . strval(self::OSS_MAX_RULES));
         }
         $this->rules[] = $rule;
@@ -55,19 +56,19 @@ class CorsConfig implements XmlConfig
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
-        if(!isset($xml->CORSRule)) return;
-        foreach($xml->CORSRule as $rule) {
+        if (!isset($xml->CORSRule)) return;
+        foreach ($xml->CORSRule as $rule) {
             $corsRule = new CorsRule();
-            foreach($rule as $key => $value) {
-                if($key === self::OSS_CORS_ALLOWED_HEADER) {
+            foreach ($rule as $key => $value) {
+                if ($key === self::OSS_CORS_ALLOWED_HEADER) {
                     $corsRule->addAllowedHeader(strval($value));
-                } elseif($key === self::OSS_CORS_ALLOWED_METHOD) {
+                } elseif ($key === self::OSS_CORS_ALLOWED_METHOD) {
                     $corsRule->addAllowedMethod(strval($value));
-                } elseif($key === self::OSS_CORS_ALLOWED_ORIGIN) {
+                } elseif ($key === self::OSS_CORS_ALLOWED_ORIGIN) {
                     $corsRule->addAllowedOrigin(strval($value));
-                } elseif($key === self::OSS_CORS_EXPOSE_HEADER) {
+                } elseif ($key === self::OSS_CORS_EXPOSE_HEADER) {
                     $corsRule->addExposeHeader(strval($value));
-                } elseif($key === self::OSS_CORS_MAX_AGE_SECONDS) {
+                } elseif ($key === self::OSS_CORS_MAX_AGE_SECONDS) {
                     $corsRule->setMaxAgeSeconds(strval($value));
                 }
             }
@@ -84,7 +85,7 @@ class CorsConfig implements XmlConfig
     public function serializeToXml()
     {
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><CORSConfiguration></CORSConfiguration>');
-        foreach($this->rules as $rule) {
+        foreach ($this->rules as $rule) {
             $xmlRule = $xml->addChild('CORSRule');
             $rule->appendToXml($xmlRule);
         }

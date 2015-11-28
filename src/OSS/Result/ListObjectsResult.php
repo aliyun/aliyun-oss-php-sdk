@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Result;
+
 use OSS\Model\ObjectInfo;
 use OSS\Model\ObjectListInfo;
 use OSS\Model\PrefixInfo;
@@ -34,8 +35,8 @@ class ListObjectsResult extends Result
     private function parseObjectList($xml)
     {
         $retList = array();
-        if(isset($xml->Contents)) {
-            foreach($xml->Contents as $content) {
+        if (isset($xml->Contents)) {
+            foreach ($xml->Contents as $content) {
                 $key = isset($content->Key) ? strval($content->Key) : "";
                 $lastModified = isset($content->LastModified) ? strval($content->LastModified) : "";
                 $eTag = isset($content->ETag) ? strval($content->ETag) : "";
@@ -51,8 +52,8 @@ class ListObjectsResult extends Result
     private function parsePrefixList($xml)
     {
         $retList = array();
-        if(isset($xml->CommonPrefixes)) {
-            foreach($xml->CommonPrefixes as $commonPrefix) {
+        if (isset($xml->CommonPrefixes)) {
+            foreach ($xml->CommonPrefixes as $commonPrefix) {
                 $prefix = isset($commonPrefix->Prefix) ? strval($commonPrefix->Prefix) : "";
                 $retList[] = new PrefixInfo($prefix);
             }

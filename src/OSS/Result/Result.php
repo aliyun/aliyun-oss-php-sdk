@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Result;
+
 use OSS\Core\OssException;
 use OSS\Http\ResponseCore;
 
@@ -20,7 +21,7 @@ abstract class Result
      */
     public function __construct($response)
     {
-        if($response === null) {
+        if ($response === null) {
             throw new OssException("raw response is null");
         }
         $this->rawResponse = $response;
@@ -32,10 +33,12 @@ abstract class Result
      *
      * @return string
      */
-    public function getRequestId() {
-        if(isset($this->rawResponse) &&
+    public function getRequestId()
+    {
+        if (isset($this->rawResponse) &&
             isset($this->rawResponse->header) &&
-            isset($this->rawResponse->header['x-oss-request-id'])) {
+            isset($this->rawResponse->header['x-oss-request-id'])
+        ) {
             return $this->rawResponse->header['x-oss-request-id'];
         } else {
             return '';
@@ -47,7 +50,8 @@ abstract class Result
      *
      * $return mixed
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->parsedData;
     }
 
@@ -63,16 +67,18 @@ abstract class Result
      *
      * @return mixed
      */
-    public function isOK() {
+    public function isOK()
+    {
         return $this->isOk;
     }
 
     /**
      * @throws OssException
      */
-    public function parseResponse() {
+    public function parseResponse()
+    {
         $this->isOk = $this->isResponseOk();
-        if($this->isOk) {
+        if ($this->isOk) {
             $this->parsedData = $this->parseDataFromResponse();
         } else {
             $requestId = strval($this->getRequestId());
@@ -80,14 +86,14 @@ abstract class Result
             $message = $this->retrieveErrorMessage($this->rawResponse->body);
 
             $this->errorMessage = "http status: " . strval($this->rawResponse->status);
-            if(!empty($requestId)) {
+            if (!empty($requestId)) {
                 $this->errorMessage .= ", requestId: " . strval($this->getRequestId());
             }
-            if(!empty($code) && !empty($message)) {
+            if (!empty($code) && !empty($message)) {
                 $this->errorMessage .= ", Code: " . $code;
                 $this->errorMessage .= ", Message: " . $message;
             } else {
-                if(intval($this->rawResponse->status) === 403) {
+                if (intval($this->rawResponse->status) === 403) {
                     $this->errorMessage .= ", Reason: " . "authorization forbidden, please check your AccessKeyId and AccessKeySecret";
                 }
             }
@@ -101,12 +107,13 @@ abstract class Result
      * @param $body
      * @return string
      */
-    private function retrieveErrorMessage($body) {
-        if(empty($body) || false === strpos($body, '<?xml')) {
+    private function retrieveErrorMessage($body)
+    {
+        if (empty($body) || false === strpos($body, '<?xml')) {
             return '';
         }
         $xml = simplexml_load_string($body);
-        if(isset($xml->Message)) {
+        if (isset($xml->Message)) {
             return strval($xml->Message);
         }
         return '';
@@ -118,12 +125,13 @@ abstract class Result
      * @param $body
      * @return string
      */
-    private function retrieveErrorCode($body) {
-        if(empty($body) || false === strpos($body, '<?xml')) {
+    private function retrieveErrorCode($body)
+    {
+        if (empty($body) || false === strpos($body, '<?xml')) {
             return '';
         }
         $xml = simplexml_load_string($body);
-        if(isset($xml->Code)) {
+        if (isset($xml->Code)) {
             return strval($xml->Code);
         }
         return '';
@@ -134,7 +142,8 @@ abstract class Result
      *
      * @return bool
      */
-    protected function isResponseOk() {
+    protected function isResponseOk()
+    {
         $status = $this->rawResponse->status;
         if ((int)(intval($status) / 100) == 2) {
             return true;
@@ -145,9 +154,10 @@ abstract class Result
     /**
      * 返回原始的返回数据
      *
-     *  @return ResponseCore
+     * @return ResponseCore
      */
-    public function getRawResponse() {
+    public function getRawResponse()
+    {
         return $this->rawResponse;
     }
 

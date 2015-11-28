@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Tests;
+
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Http\ResponseCore;
 
@@ -40,7 +41,8 @@ class ListMultipartUploadResultTest extends \PHPUnit_Framework_TestCase
 </ListMultipartUploadsResult>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new ListMultipartUploadResult($response);
         $listMultipartUploadInfo = $result->getData();

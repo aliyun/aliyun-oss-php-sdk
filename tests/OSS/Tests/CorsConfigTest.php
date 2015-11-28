@@ -38,7 +38,7 @@ class CorsConfigTest extends \PHPUnit_Framework_TestCase
 </CORSConfiguration>
 BBBB;
 
-private $validXml2 = <<<BBBB
+    private $validXml2 = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
 <CORSConfiguration>
 <CORSRule>
@@ -60,10 +60,11 @@ private $validXml2 = <<<BBBB
 </CORSConfiguration>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $corsConfig = new CorsConfig();
         $corsConfig->parseFromXml($this->validXml);
-        $this->assertEquals($this->cleanXml($this->validXml),  $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($corsConfig->serializeToXml()));
         $this->assertNotNull($corsConfig->getRules());
         $this->assertNotNull($corsConfig->getRules()[0]->getAllowedHeaders());
         $this->assertNotNull($corsConfig->getRules()[0]->getAllowedMethods());
@@ -72,16 +73,18 @@ BBBB;
         $this->assertNotNull($corsConfig->getRules()[0]->getMaxAgeSeconds());
     }
 
-    public function testParseValidXml2() {
+    public function testParseValidXml2()
+    {
         $corsConfig = new CorsConfig();
         $corsConfig->parseFromXml($this->validXml2);
-        $this->assertEquals($this->cleanXml($this->validXml2),  $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertEquals($this->cleanXml($this->validXml2), $this->cleanXml($corsConfig->serializeToXml()));
     }
 
-    public function testCreateCorsConfigFromMoreThan10Rules() {
+    public function testCreateCorsConfigFromMoreThan10Rules()
+    {
         $corsConfig = new CorsConfig();
         $rule = new CorsRule();
-        for($i = 0; $i < CorsConfig::OSS_MAX_RULES; $i += 1) {
+        for ($i = 0; $i < CorsConfig::OSS_MAX_RULES; $i += 1) {
             $corsConfig->addRule($rule);
         }
         try {
@@ -92,7 +95,8 @@ BBBB;
         }
     }
 
-    public function testCreateCorsConfigParamAbsent() {
+    public function testCreateCorsConfigParamAbsent()
+    {
         $corsConfig = new CorsConfig();
         $rule = new CorsRule();
         $corsConfig->addRule($rule);
@@ -105,7 +109,8 @@ BBBB;
         }
     }
 
-    public function testCreateCorsConfigFromScratch() {
+    public function testCreateCorsConfigFromScratch()
+    {
         $corsConfig = new CorsConfig();
         $rule = new CorsRule();
         $rule->addAllowedHeader("x-oss-test");
@@ -123,11 +128,12 @@ BBBB;
         $rule->addExposeHeader("x-oss-test2");
         $rule->setMaxAgeSeconds(10);
         $corsConfig->addRule($rule);
-        $this->assertEquals($this->cleanXml($this->validXml2),  $this->cleanXml($corsConfig->serializeToXml()));
-        $this->assertEquals($this->cleanXml($this->validXml2),  $this->cleanXml(strval($corsConfig)));
+        $this->assertEquals($this->cleanXml($this->validXml2), $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertEquals($this->cleanXml($this->validXml2), $this->cleanXml(strval($corsConfig)));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 }

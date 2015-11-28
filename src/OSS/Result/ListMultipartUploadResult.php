@@ -1,6 +1,7 @@
 <?php
 
 namespace OSS\Result;
+
 use OSS\Model\ListMultipartUploadInfo;
 use OSS\Model\UploadInfo;
 
@@ -32,8 +33,8 @@ class ListMultipartUploadResult extends Result
         $isTruncated = isset($xml->IsTruncated) ? strval($xml->IsTruncated) : "";
         $listUpload = array();
 
-        if(isset($xml->Upload)) {
-            foreach($xml->Upload as $upload) {
+        if (isset($xml->Upload)) {
+            foreach ($xml->Upload as $upload) {
                 $key = isset($upload->Key) ? strval($upload->Key) : "";
                 $uploadId = isset($upload->UploadId) ? strval($upload->UploadId) : "";
                 $initiated = isset($upload->Initiated) ? strval($upload->Initiated) : "";

@@ -21,23 +21,27 @@ BBBB;
 <BucketLoggingStatus/>
 BBBB;
 
-    public function testParseValidXml() {
+    public function testParseValidXml()
+    {
         $loggingConfig = new LoggingConfig();
         $loggingConfig->parseFromXml($this->validXml);
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml(strval($loggingConfig)));
     }
 
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $loggingConfig = new LoggingConfig('TargetBucket', 'TargetPrefix');
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($loggingConfig->serializeToXml()));
     }
 
-    public function testFailedConstruct() {
+    public function testFailedConstruct()
+    {
         $loggingConfig = new LoggingConfig('TargetBucket', null);
         $this->assertEquals($this->cleanXml($this->nullXml), $this->cleanXml($loggingConfig->serializeToXml()));
     }
 
-    private function cleanXml($xml) {
+    private function cleanXml($xml)
+    {
         return str_replace("\n", "", str_replace("\r", "", $xml));
     }
 }

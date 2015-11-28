@@ -41,7 +41,7 @@ BBBB;
         try {
             new AclResult($response);
             $this->assertTrue(false);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertEquals('body is null', $e->getMessage());
         }
     }
@@ -52,7 +52,7 @@ BBBB;
         try {
             new AclResult($response);
             $this->assertFalse(true);
-        } catch(OssException $e) {
+        } catch (OssException $e) {
             $this->assertEquals("xml format exception", $e->getMessage());
         }
     }

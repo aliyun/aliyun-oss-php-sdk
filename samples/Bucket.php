@@ -5,7 +5,7 @@ use OSS\OssClient;
 use OSS\Core\OssException;
 
 $ossClient = Common::getOssClient();
-if(is_null($ossClient)) exit(1);
+if (is_null($ossClient)) exit(1);
 $bucket = Common::getBucketName();
 
 //******************************* 简单使用 ****************************************************************
@@ -16,7 +16,7 @@ Common::println("bucket $bucket created");
 
 // 判断Bucket是否存在
 $doesExist = $ossClient->doesBucketExist($bucket);
-Common::println("bucket $bucket exist? " .($doesExist ? "yes" : "no"));
+Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 
 // 获取Bucket列表
 $bucketListInfo = $ossClient->listBuckets();
@@ -26,8 +26,7 @@ $ossClient->putBucketAcl($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket acl put");
 // 获取bucket的ACL
 $acl = $ossClient->getBucketAcl($bucket);
-Common::println("bucket $bucket acl get: ". $acl);
-
+Common::println("bucket $bucket acl get: " . $acl);
 
 
 //******************************* 完整用法参考下面函数 ****************************************************
@@ -48,14 +47,14 @@ listBuckets($ossClient);
  *               OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 要创建的存储空间名称
+ * @param string $bucket 要创建的存储空间名称
  * @return null
  */
 function createBucket($ossClient, $bucket)
 {
-    try{
+    try {
         $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -69,15 +68,16 @@ function createBucket($ossClient, $bucket)
  * @param OssClient $ossClient OSSClient实例
  * @param string $bucket 存储空间名称
  */
-function doesBucketExist($ossClient, $bucket) {
-    try{
+function doesBucketExist($ossClient, $bucket)
+{
+    try {
         $res = $ossClient->doesBucketExist($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
-    if($res === true) {
+    if ($res === true) {
         print(__FUNCTION__ . ": OK" . "\n");
     } else {
         print(__FUNCTION__ . ": FAILED" . "\n");
@@ -89,14 +89,14 @@ function doesBucketExist($ossClient, $bucket) {
  * 删除bucket，如果bucket不为空则bucket无法删除成功， 不为空表示bucket既没有object，也没有未完成的multipart上传时的parts
  *
  * @param OssClient $ossClient OSSClient实例
- * @param string    $bucket 待删除的存储空间名称
+ * @param string $bucket 待删除的存储空间名称
  * @return null
  */
 function deleteBucket($ossClient, $bucket)
 {
-    try{
+    try {
         $ossClient->deleteBucket($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -116,9 +116,9 @@ function putBucketAcl($ossClient, $bucket)
 {
     $res = null;
     $acl = OssClient::OSS_ACL_TYPE_PRIVATE;
-    try{
+    try {
         $ossClient->putBucketAcl($bucket, $acl);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -136,9 +136,9 @@ function putBucketAcl($ossClient, $bucket)
  */
 function getBucketAcl($ossClient, $bucket)
 {
-    try{
+    try {
         $res = $ossClient->getBucketAcl($bucket);
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -157,16 +157,16 @@ function getBucketAcl($ossClient, $bucket)
 function listBuckets($ossClient)
 {
     $bucketList = null;
-    try{
+    try {
         $bucketListInfo = $ossClient->listBuckets();
-    } catch(OssException $e) {
+    } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
     $bucketList = $bucketListInfo->getBucketList();
-    foreach($bucketList as $bucket) {
+    foreach ($bucketList as $bucket) {
         print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreatedate() . "\n");
     }
 }
