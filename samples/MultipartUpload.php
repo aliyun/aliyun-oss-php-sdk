@@ -164,7 +164,6 @@ function uploadDir($ossClient, $bucket)
 function listMultipartUploads($ossClient, $bucket)
 {
     $options = array(
-        'delimiter' => '/',
         'max-uploads' => 100,
         'key-marker' => '',
         'prefix' => '',

@@ -426,4 +426,24 @@ BBB;
         }
         return $file_list_array;
     }
+
+    /**
+     * Decode key based on the encoding type
+     *
+     * @param string $key
+     * @param string $encoding
+     * @return string
+     */
+    public static function decodeKey($key, $encoding)
+    {
+        if ($encoding == "") {
+            return $key;
+        }
+
+        if ($encoding == "url") {
+            return rawurldecode($key);
+        } else {
+            throw new OssException("Unrecognized encoding type: " . $encoding);
+        }
+    }
 }
