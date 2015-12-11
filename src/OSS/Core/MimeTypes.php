@@ -241,6 +241,7 @@ class MimeTypes
         'vrml' => 'model/vrml',
         'vxml' => 'application/voicexml+xml',
         'webm' => 'video/webm',
+        'webp' => 'image/webp',
         'wrl' => 'model/vrml',
         'xht' => 'application/xhtml+xml',
         'xhtml' => 'application/xhtml+xml',
