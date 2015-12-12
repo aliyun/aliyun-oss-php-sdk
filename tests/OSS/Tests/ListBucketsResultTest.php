@@ -66,11 +66,32 @@ BBBB;
 
     public function test403()
     {
-        $response = new ResponseCore(array(), "", 403);
+        $errorHeader = array(
+            'x-oss-request-id' => '1a2b-3c4d'
+        );
+
+        $errorBody = <<< BBBB
+<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+  <Code>NoSuchBucket</Code>
+  <Message>The specified bucket does not exist.</Message>
+  <RequestId>566B870D207FB3044302EB0A</RequestId>
+  <HostId>hello.oss-test.aliyun-inc.com</HostId>
+  <BucketName>hello</BucketName>
+</Error>
+BBBB;
+        $response = new ResponseCore($errorHeader, $errorBody, 403);
         try {
             new ListBucketsResult($response);
         } catch (OssException $e) {
-            $this->assertEquals($e->getMessage(), 'http status: 403, Reason: authorization forbidden, please check your AccessKeyId and AccessKeySecret');
+            $this->assertEquals(
+                $e->getMessage(),
+                'NoSuchBucket: The specified bucket does not exist. RequestId: 1a2b-3c4d');
+            $this->assertEquals($e->getHTTPStatus(), '403');
+            $this->assertEquals($e->getRequestId(), '1a2b-3c4d');
+            $this->assertEquals($e->getErrorCode(), 'NoSuchBucket');
+            $this->assertEquals($e->getErrorMessage(), 'The specified bucket does not exist.');
+            $this->assertEquals($e->getDetails(), $errorBody);
         }
     }
 }
