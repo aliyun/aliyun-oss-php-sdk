@@ -49,7 +49,8 @@ class OssClientBucketTest extends TestOssClientBase
         try {
             $this->ossClient->deleteBucket($this->bucket);
         } catch (OssException $e) {
-            $this->assertTrue(OssUtil::startsWith($e->getMessage(), "http status: 409"));
+            $this->assertEquals("BucketNotEmpty", $e->getErrorCode());
+            $this->assertEquals("409", $e->getHTTPStatus());
         }
 
 

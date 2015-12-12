@@ -19,7 +19,6 @@ class OssClientSignatureTest extends TestOssClientBase
         $timeout = 3600;
         try {
             $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout);
-            var_dump($signedUrl);
         } catch (OssException $e) {
             $this->assertFalse(true);
         }

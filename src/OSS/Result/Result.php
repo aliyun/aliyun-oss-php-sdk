@@ -81,23 +81,20 @@ abstract class Result
         if ($this->isOk) {
             $this->parsedData = $this->parseDataFromResponse();
         } else {
+            $httpStatus = strval($this->rawResponse->status);
             $requestId = strval($this->getRequestId());
             $code = $this->retrieveErrorCode($this->rawResponse->body);
             $message = $this->retrieveErrorMessage($this->rawResponse->body);
+            $body = $this->rawResponse->body;
 
-            $this->errorMessage = "http status: " . strval($this->rawResponse->status);
-            if (!empty($requestId)) {
-                $this->errorMessage .= ", requestId: " . strval($this->getRequestId());
-            }
-            if (!empty($code) && !empty($message)) {
-                $this->errorMessage .= ", Code: " . $code;
-                $this->errorMessage .= ", Message: " . $message;
-            } else {
-                if (intval($this->rawResponse->status) === 403) {
-                    $this->errorMessage .= ", Reason: " . "authorization forbidden, please check your AccessKeyId and AccessKeySecret";
-                }
-            }
-            throw new OssException($this->errorMessage);
+            $details = array(
+                'status' => $httpStatus,
+                'request-id' => $requestId,
+                'code' => $code,
+                'message' => $message,
+                'body' => $body
+            );
+            throw new OssException($details);
         }
     }
 
@@ -169,10 +166,6 @@ abstract class Result
      * 由子类解析过的数据
      */
     protected $parsedData = null;
-    /**
-     * 错误提示，如果isOk非真，这个变量存放问题原因
-     */
-    protected $errorMessage = null;
     /**
      * 存放auth函数返回的原始Response
      *

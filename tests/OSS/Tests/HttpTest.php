@@ -40,8 +40,11 @@ class HttpTest extends \PHPUnit_Framework_TestCase
     public function testSendMultiRequest()
     {
         $httpCore = new RequestCore("http://www.baidu.com");
-        @$result = $httpCore->send_multi_request(array(curl_init("http://www.baidu.com"),
-            curl_init("http://www.baidu.com")));
+        $ch1 = curl_init("http://www.baidu.com");
+        curl_setopt($ch1, CURLOPT_RETURNTRANSFER, 1);
+        $ch2 = curl_init("http://cn.bing.com");
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
+        @$result = $httpCore->send_multi_request(array($ch1, $ch2));
         $this->assertNotNull($result);
     }
 
@@ -72,7 +75,6 @@ class HttpTest extends \PHPUnit_Framework_TestCase
             $httpCore = new RequestCore("http://www.notexistsitexx.com");
             $httpCore->set_body("");
             $httpCore->set_method("GET");
-//            $httpCore->set_proxy();
             $httpCore->connect_timeout = 10;
             $httpCore->timeout = 10;
             $res = $httpCore->send_request();
