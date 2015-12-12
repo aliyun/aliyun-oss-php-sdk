@@ -561,6 +561,12 @@ class OssClient
             self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
             self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '',
         );
+        $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
+        $options[self::OSS_QUERY_STRING] = array_merge(
+            $query,
+            array(self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL)
+        );
+
         $response = $this->auth($options);
         $result = new ListObjectsResult($response);
         return $result->getData();
@@ -1011,6 +1017,12 @@ class OssClient
                 unset($options[$param]);
             }
         }
+        $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
+        $options[self::OSS_QUERY_STRING] = array_merge(
+            $query,
+            array(self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL)
+        );
+
         $response = $this->auth($options);
         $result = new ListMultipartUploadResult($response);
         return $result->getData();
@@ -1962,6 +1974,9 @@ class OssClient
     const OSS_ACL_TYPE_PRIVATE = 'private';
     const OSS_ACL_TYPE_PUBLIC_READ = 'public-read';
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
+    const OSS_ENCODING_TYPE = "encoding-type";
+    const OSS_ENCODING_TYPE_URL = "url";
+
     // 域名类型
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object
     const OSS_HOST_TYPE_IP = "ip";  //http://1.1.1.1/bucket/object

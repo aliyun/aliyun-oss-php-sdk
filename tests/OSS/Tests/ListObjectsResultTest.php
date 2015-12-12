@@ -51,6 +51,31 @@ BBBB;
 </ListBucketResult>
 BBBB;
 
+    private $validXmlWithEncodedKey = <<<BBBB
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult>
+  <Name>testbucket-hf</Name>
+  <EncodingType>url</EncodingType>
+  <Prefix>php%2Fprefix</Prefix>
+  <Marker>php%2Fmarker</Marker>
+  <NextMarker>php%2Fnext-marker</NextMarker>
+  <MaxKeys>1000</MaxKeys>
+  <Delimiter>%2F</Delimiter>
+  <IsTruncated>true</IsTruncated>
+  <Contents>
+    <Key>php/a%2Bb</Key>
+    <LastModified>2015-11-18T03:36:00.000Z</LastModified>
+    <ETag>"89B9E567E7EB8815F2F7D41851F9A2CD"</ETag>
+    <Type>Normal</Type>
+    <Size>13115</Size>
+    <StorageClass>Standard</StorageClass>
+    <Owner>
+      <ID>cname_user</ID>
+      <DisplayName>cname_user</DisplayName>
+    </Owner>
+  </Contents>
+</ListBucketResult>
+BBBB;
 
     public function testParseValidXml1()
     {
@@ -89,6 +114,31 @@ BBBB;
         $this->assertEquals('/', $objectListInfo->getDelimiter());
         $this->assertEquals('false', $objectListInfo->getIsTruncated());
         $this->assertEquals('oss-php-sdk-test/upload-test-object-name.txt', $objectListInfo->getObjectList()[0]->getKey());
+        $this->assertEquals('2015-11-18T03:36:00.000Z', $objectListInfo->getObjectList()[0]->getLastModified());
+        $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objectListInfo->getObjectList()[0]->getETag());
+        $this->assertEquals('Normal', $objectListInfo->getObjectList()[0]->getType());
+        $this->assertEquals(13115, $objectListInfo->getObjectList()[0]->getSize());
+        $this->assertEquals('Standard', $objectListInfo->getObjectList()[0]->getStorageClass());
+    }
+
+    public function testParseValidXmlWithEncodedKey()
+    {
+        $response = new ResponseCore(array(), $this->validXmlWithEncodedKey, 200);
+        $result = new ListObjectsResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertNotNull($result->getData());
+        $this->assertNotNull($result->getRawResponse());
+        $objectListInfo = $result->getData();
+        $this->assertEquals(0, count($objectListInfo->getPrefixList()));
+        $this->assertEquals(1, count($objectListInfo->getObjectList()));
+        $this->assertEquals('testbucket-hf', $objectListInfo->getBucketName());
+        $this->assertEquals('php/prefix', $objectListInfo->getPrefix());
+        $this->assertEquals('php/marker', $objectListInfo->getMarker());
+        $this->assertEquals('php/next-marker', $objectListInfo->getNextMarker());
+        $this->assertEquals(1000, $objectListInfo->getMaxKeys());
+        $this->assertEquals('/', $objectListInfo->getDelimiter());
+        $this->assertEquals('true', $objectListInfo->getIsTruncated());
+        $this->assertEquals('php/a+b', $objectListInfo->getObjectList()[0]->getKey());
         $this->assertEquals('2015-11-18T03:36:00.000Z', $objectListInfo->getObjectList()[0]->getLastModified());
         $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objectListInfo->getObjectList()[0]->getETag());
         $this->assertEquals('Normal', $objectListInfo->getObjectList()[0]->getType());
