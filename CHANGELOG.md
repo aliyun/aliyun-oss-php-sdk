@@ -1,5 +1,11 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.1
+
+* 增加对ListObjects/ListMultipartUploads时特殊字符的处理
+* 提供接口获取OssException中的详细信息
+
+
 ## 2015.11.25
 
 ** 大版本升级，不再兼容以前接口，新版本对易用性做了很大的改进，建议用户迁移到新版本。 **
