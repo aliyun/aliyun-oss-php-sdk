@@ -9,18 +9,34 @@
 - PHP 5.3+
 - cURL extension
 
-> 提示：
-> - Ubuntu下可以使用apt-get包管理器安装php的cURL扩展 `sudo apt-get install php5-curl` 
+提示：
+
+- Ubuntu下可以使用apt-get包管理器安装php的cURL扩展 `sudo apt-get install php5-curl`
 
 ## 安装方法
 
-- 通过composer，这是推荐的方式，可以使用composer.json 声明依赖，或者运行下面的命令
-```bash
-$ composer require aliyuncs/oss-sdk-php
-```
+1. 如果您通过composer管理您的项目依赖，可以在你的项目根目录运行：
 
-- 下载SDK包安装， SDK没有依赖其他三方库，但需要参照代码根目录中的`autoloader.php`，增加一个自己的autoloader程序。
+        $ composer require aliyuncs/oss-sdk-php
 
+   或者在你的`composer.json`中声明对Aliyun OSS SDK for PHP的依赖：
+
+        "require": {
+            "aliyuncs/oss-sdk-php": "~2.0"
+        }
+
+   然后通过`composer install`安装依赖。composer安装完成后，在您的PHP代码中引入依赖即可：
+
+        require_once __DIR__ . '/vendor/autoload.php';
+
+2. 您也可以直接下载已经打包好的[phar文件][releases-page]，然后在你
+   的代码中引入这个文件即可：
+
+        require_once '/path/to/oss-sdk-php.phar';
+
+3. 下载SDK源码，在您的代码中引入SDK目录下的`autoload.php`文件：
+
+        require_once '/path/to/oss-sdk/autoload.php';
 
 ## 快速使用
 
@@ -117,3 +133,5 @@ foreach($bucketList as $bucket) {
 - [阿里云OSS官方论坛](http://bbs.aliyun.com)
 - [阿里云OSS官方文档中心](http://www.aliyun.com/product/oss#Docs)
 - 阿里云官方技术支持：[提交工单](https://workorder.console.aliyun.com/#/ticket/createIndex)
+
+[releases-page]: https://github.com/aliyun/aliyun-oss-php-sdk/releases
