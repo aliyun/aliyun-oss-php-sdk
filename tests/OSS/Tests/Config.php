@@ -9,8 +9,8 @@ namespace OSS\Tests;
  */
 final class Config
 {
-    const OSS_ACCESS_ID = 'vzavyumwku51cq0';
-    const OSS_ACCESS_KEY = 'a3Q3Mzhrcngzc3lsandmYmd3eXY';
-    const OSS_ENDPOINT = 'http://oss-test.aliyun-inc.com';
-    const OSS_TEST_BUCKET = 'gems';
+    const OSS_ACCESS_ID = '';
+    const OSS_ACCESS_KEY = '';
+    const OSS_ENDPOINT = '';
+    const OSS_TEST_BUCKET = '';
 }
