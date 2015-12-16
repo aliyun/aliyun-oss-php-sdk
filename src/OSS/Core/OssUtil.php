@@ -15,9 +15,9 @@ class OssUtil
     const OSS_LENGTH = 'length';
     const OSS_HEADERS = 'headers';
     const OSS_MAX_OBJECT_GROUP_VALUE = 1000;
-    const OSS_MAX_PART_SIZE = 524288000;
-    const OSS_MID_PART_SIZE = 52428800;
-    const OSS_MIN_PART_SIZE = 5242880;
+    const OSS_MAX_PART_SIZE = 1 * 1024 * 1024 * 1024;
+    const OSS_MID_PART_SIZE = 10 * 1024 * 1024;
+    const OSS_MIN_PART_SIZE = 1024 * 1024;
 
     /**
      * 生成query params
@@ -400,7 +400,6 @@ BBB;
         if ($recursive) {
             foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir)) as $new_file) {
                 if ($new_file->isDir()) continue;
-                //echo "$new_file\n";
                 $object = str_replace($base_path, '', $new_file);
                 if (!in_array(strtolower($object), $exclude_array)) {
                     $object = ltrim($object, '/');

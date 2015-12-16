@@ -609,7 +609,6 @@ class OssClient
 
         OssUtil::validateContent($content);
         $options[self::OSS_CONTENT] = $content;
-        $content_type = $this->getMimeType($object);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = $object;
@@ -620,8 +619,8 @@ class OssClient
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
 
-        if (!isset($options[self::OSS_CONTENT_TYPE]) && isset($content_type) && !empty($content_type)) {
-            $options[self::OSS_CONTENT_TYPE] = $content_type;
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -653,11 +652,12 @@ class OssClient
             $content_md5 = base64_encode(md5_file($options[self::OSS_FILE_UPLOAD], true));
             $options[self::OSS_CONTENT_MD5] = $content_md5;
         }
-        $content_type = $this->getMimeType($file);
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $file);
+        }
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_OBJECT] = $object;
-        $options[self::OSS_CONTENT_TYPE] = $content_type;
         $options[self::OSS_CONTENT_LENGTH] = $file_size;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -876,11 +876,13 @@ class OssClient
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_SUB_RESOURCE] = 'uploads';
         $options[self::OSS_CONTENT] = '';
-        $content_type = $this->getMimeType($object);
+
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
+        }
         if (!isset($options[self::OSS_HEADERS])) {
             $options[self::OSS_HEADERS] = array();
         }
-        $options[self::OSS_HEADERS][self::OSS_CONTENT_TYPE] = $content_type;
         $response = $this->auth($options);
         $result = new InitiateMultipartUploadResult($response);
         return $result->getData();
@@ -1093,6 +1095,10 @@ class OssClient
             throw new OssException("parameter invalid, file is empty");
         }
         $uploadFile = OssUtil::encodePath($file);
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $uploadFile);
+        }
+
         $upload_position = isset($options[self::OSS_SEEK_TO]) ? (integer)$options[self::OSS_SEEK_TO] : 0;
 
         if (isset($options[self::OSS_CONTENT_LENGTH])) {
@@ -1128,8 +1134,7 @@ class OssClient
             $uploadId = $options[self::OSS_UPLOAD_ID];
         } else {
             // 初始化
-            $init_options = array();
-            $uploadId = $this->initiateMultipartUpload($bucket, $object, $init_options);
+            $uploadId = $this->initiateMultipartUpload($bucket, $object, $options);
         }
 
         // 获取的分片
@@ -1360,12 +1365,21 @@ class OssClient
      * @param string $object
      * @return string
      */
-    private function getMimeType($object)
+    private function getMimeType($object, $file = null)
     {
-        $extension = explode('.', $object);
-        $extension = array_pop($extension);
-        $mime_type = MimeTypes::getMimetype(strtolower($extension));
-        return $mime_type;
+        if (!is_null($file)) {
+            $type = MimeTypes::getMimetype($file);
+            if (!is_null($type)) {
+                return $type;
+            }
+        }
+
+        $type = MimeTypes::getMimetype($object);
+        if (!is_null($type)) {
+            return $type;
+        }
+
+        return self::DEFAULT_CONTENT_TYPE;
     }
 
     /**
@@ -1430,9 +1444,6 @@ class OssClient
                     }
                 }
                 $request->set_read_stream($options[self::OSS_FILE_UPLOAD], $length);
-                if ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
-                    $headers[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
-                }
             } else {
                 $request->set_read_file($options[self::OSS_FILE_UPLOAD]);
                 $length = $request->read_stream_size;
@@ -1442,9 +1453,6 @@ class OssClient
                     $length -= (integer)$options[self::OSS_SEEK_TO];
                 }
                 $request->set_read_stream_size($length);
-                if (isset($headers[self::OSS_CONTENT_TYPE]) && ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded')) {
-                    $headers[self::OSS_CONTENT_TYPE] = self::getMimeType($options[self::OSS_FILE_UPLOAD]);;
-                }
             }
         }
         if (isset($options[self::OSS_SEEK_TO])) {
@@ -1792,7 +1800,7 @@ class OssClient
     {
         $headers = array(
             self::OSS_CONTENT_MD5 => '',
-            self::OSS_CONTENT_TYPE => isset($options[self::OSS_CONTENT_TYPE]) ? $options[self::OSS_CONTENT_TYPE] : 'application/x-www-form-urlencoded',
+            self::OSS_CONTENT_TYPE => isset($options[self::OSS_CONTENT_TYPE]) ? $options[self::OSS_CONTENT_TYPE] : self::DEFAULT_CONTENT_TYPE,
             self::OSS_DATE => isset($options[self::OSS_DATE]) ? $options[self::OSS_DATE] : gmdate('D, d M Y H:i:s \G\M\T'),
             self::OSS_HOST => $hostname,
         );
@@ -1951,6 +1959,8 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
+
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
     const OSS_URL_EXPIRES = 'Expires';

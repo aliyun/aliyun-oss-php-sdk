@@ -12,14 +12,22 @@ namespace OSS\Core;
 class MimeTypes
 {
     /**
-     * 根据文件缺省名，获取http协议header中的content-type应该填写的数据
+     * 根据文件名，获取http协议header中的content-type应该填写的数据
      *
-     * @param string $ext 缺省名
-     * @return string
+     * @param string $name 缺省名
+     * @return string content-type
      */
-    public static function getMimetype($ext)
+    public static function getMimetype($name)
     {
-        return (isset (self::$mime_types [$ext]) ? self::$mime_types [$ext] : 'application/octet-stream');
+        $parts = explode('.', $name);
+        if (count($parts) > 1) {
+            $ext = strtolower(end($parts));
+            if (isset(self::$mime_types[$ext])) {
+                return self::$mime_types[$ext];
+            }
+        }
+
+        return null;
     }
 
     private static $mime_types = array(
@@ -85,6 +93,7 @@ class MimeTypes
         'jar' => 'application/x-java-archive',
         'jnlp' => 'application/x-java-jnlp-file',
         'js' => 'application/x-javascript',
+        'json' => 'application/json',
         'ksp' => 'application/x-kspread',
         'chrt' => 'application/x-kchart',
         'kil' => 'application/x-killustrator',
