@@ -1122,10 +1122,7 @@ class OssClient
 
         $is_check_md5 = $this->isCheckMD5($options);
         // 如果上传的文件小于partSize,则直接使用普通方式上传
-        if ($upload_file_size <= $options[self::OSS_PART_SIZE] && !isset($options[self::OSS_UPLOAD_ID])) {
-            $options = array(
-                self::OSS_CHECK_MD5 => $is_check_md5,
-            );
+        if ($upload_file_size < $options[self::OSS_PART_SIZE] && !isset($options[self::OSS_UPLOAD_ID])) {
             return $this->uploadFile($bucket, $object, $uploadFile, $options);
         }
 

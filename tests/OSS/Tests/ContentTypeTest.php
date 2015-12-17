@@ -34,7 +34,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
         $file = '/tmp/x.json';
         $object = 'test/y';
-        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024000 count=2');
+        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024 count=100');
 
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
         $type = $client->getObjectMeta($bucket, $object)['content-type'];
@@ -73,7 +73,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
         $file = '/tmp/x.mp3';
         $object = 'test/y.json';
-        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024000 count=2');
+        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024 count=100');
 
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
         $type = $client->getObjectMeta($bucket, $object)['content-type'];
@@ -82,7 +82,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
         $file = '/tmp/x.none';
         $object = 'test/y.json';
-        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024000 count=2');
+        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024 count=100');
 
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
         $type = $client->getObjectMeta($bucket, $object)['content-type'];
@@ -116,7 +116,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
 
         $file = '/tmp/x.json';
         $object = 'test/y';
-        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024000 count=2');
+        $this->runCmd('dd if=/dev/random of=' . $file . ' bs=1024 count=100');
 
         $client->multiuploadFile($bucket, $object, $file, array(
             'partSize' => 100,
