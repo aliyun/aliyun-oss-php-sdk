@@ -4,7 +4,7 @@ namespace OSS\Tests;
 
 use OSS\OssClient;
 
-require __DIR__ . DIRECTORY_SEPARATOR . 'Common.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Common.php';
 
 class TestOssClientBase extends \PHPUnit_Framework_TestCase
 {

@@ -131,7 +131,7 @@ BBBB;
 
     public function testReadDir()
     {
-        $list = OssUtil::readDir(".", ".|..|.svn|.git", true);
+        $list = OssUtil::readDir("./src", ".|..|.svn|.git", true);
         $this->assertNotNull($list);
     }
 

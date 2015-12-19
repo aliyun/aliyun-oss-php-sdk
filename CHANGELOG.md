@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.2
+
+* 修复multipart上传时无法指定Content-Type的问题
+
 ## v2.0.1
 
 * 增加对ListObjects/ListMultipartUploads时特殊字符的处理
