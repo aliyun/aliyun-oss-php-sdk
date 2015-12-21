@@ -15,9 +15,9 @@ class OssUtil
     const OSS_LENGTH = 'length';
     const OSS_HEADERS = 'headers';
     const OSS_MAX_OBJECT_GROUP_VALUE = 1000;
-    const OSS_MAX_PART_SIZE = 5 * 1024 * 1024 * 1024;
-    const OSS_MID_PART_SIZE = 10 * 1024 * 1024;
-    const OSS_MIN_PART_SIZE = 100 * 1024;
+    const OSS_MAX_PART_SIZE = 5368709120; // 5GB
+    const OSS_MID_PART_SIZE = 10485760; // 10MB
+    const OSS_MIN_PART_SIZE = 102400; // 100KB
 
     /**
      * 生成query params
