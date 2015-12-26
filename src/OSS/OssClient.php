@@ -195,6 +195,50 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
+        $options[self::OSS_SUB_RESOURCE] = 'acl';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 获取object的ACL属性
+     *
+     * @param string $bucket
+     * @param string $object
+     * @throws OssException
+     * @return string
+     */
+    public function getObjectAcl($bucket, $object)
+    {
+        $options = array();
+        $this->precheckCommon($bucket, $object, $options, true);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'acl';
+        $response = $this->auth($options);
+        $result = new AclResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 设置object的ACL属性
+     *
+     * @param string $bucket bucket名称
+     * @param string $object object名称
+     * @param string $acl 读写权限，可选值 ['default', 'private', 'public-read', 'public-read-write']
+     * @throws OssException
+     * @return null
+     */
+    public function putObjectAcl($bucket, $object, $acl)
+    {
+        $this->precheckCommon($bucket, $object, $options, true);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_ACL => $acl);
+        $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1971,6 +2015,7 @@ class OssClient
     const OSS_HTTP_OPTIONS = 'OPTIONS';
     //其他常量
     const OSS_ACL = 'x-oss-acl';
+    const OSS_OBJECT_ACL = 'x-oss-object-acl';
     const OSS_OBJECT_GROUP = 'x-oss-file-group';
     const OSS_MULTI_PART = 'uploads';
     const OSS_MULTI_DELETE = 'delete';
@@ -1997,8 +2042,8 @@ class OssClient
     );
     // OssClient版本信息
     const OSS_NAME = "aliyun-sdk-php";
-    const OSS_VERSION = "2.0.3";
-    const OSS_BUILD = "20151225";
+    const OSS_VERSION = "2.0.4";
+    const OSS_BUILD = "20151226";
     const OSS_AUTHOR = "";
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';

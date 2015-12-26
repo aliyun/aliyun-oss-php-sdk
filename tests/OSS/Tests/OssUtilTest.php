@@ -60,8 +60,10 @@ class OssUtilTest extends \PHPUnit_Framework_TestCase
     {
         $str = '你好,这里是卖咖啡!';
         $this->assertEquals(OssUtil::chkChinese($str), 1);
-        $strGB = OssUtil::encodePath($str);
-        $this->assertEquals($str, iconv("GB2312", "UTF-8", $strGB));
+        if (OssUtil::isWin()) {
+            $strGB = OssUtil::encodePath($str);
+            $this->assertEquals($str, iconv("GB2312", "UTF-8", $strGB));
+        }
     }
 
     public function testValidateOption()
