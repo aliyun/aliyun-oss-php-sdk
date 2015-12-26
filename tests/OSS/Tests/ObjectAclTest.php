@@ -24,5 +24,8 @@ class ObjectAclTest extends \PHPUnit_Framework_TestCase
         $client->putObjectAcl($bucket, $object, 'public-read');
         $acl = $client->getObjectAcl($bucket, $object);
         $this->assertEquals('public-read', $acl);
+
+        $content = $client->getObject($bucket, $object);
+        $this->assertEquals('hello world', $content);
     }
 }

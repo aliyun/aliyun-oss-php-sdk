@@ -195,6 +195,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
+        $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -237,6 +238,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_ACL => $acl);
+        $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
