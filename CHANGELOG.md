@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.4
+
+* 增加Put/Get Object Acl接口
+
 ## v2.0.3
 
 * 修复Util中的常量定义在低于5.6的PHP版本中报错的问题
