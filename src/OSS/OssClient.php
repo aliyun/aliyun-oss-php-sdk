@@ -438,6 +438,72 @@ class OssClient
     }
 
     /**
+     * 为指定Bucket增加CNAME绑定
+     *
+     * @param string $bucket bucket名称
+     * @param CnameConfig $cnameConfig
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function addBucketCname($bucket, $cnameConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'cname';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 获取指定Bucket已绑定的CNAME列表
+     *
+     * @param string $bucket bucket名称
+     * @param array $options
+     * @throws OssException
+     * @return CnameConfig
+     */
+    public function getBucketCname($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'cname';
+        $response = $this->auth($options);
+        $result = new GetCnameResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 解除指定Bucket的CNAME绑定
+     *
+     * @param string $bucket bucket名称
+     * @param CnameConfig $cnameConfig
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function deleteBucketCname($bucket, $cnameConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'cname';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * 检验跨域资源请求, 发送跨域请求之前会发送一个preflight请求（OPTIONS）并带上特定的来源域，
      * HTTP方法和header信息等给OSS以决定是否发送真正的请求。 OSS可以通过putBucketCors接口
      * 来开启Bucket的CORS支持，开启CORS功能之后，OSS在收到浏览器preflight请求时会根据设定的
