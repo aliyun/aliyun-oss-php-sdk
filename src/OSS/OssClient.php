@@ -7,6 +7,7 @@ use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
+use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
@@ -15,6 +16,7 @@ use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLoggingResult;
 use OSS\Result\GetRefererResult;
 use OSS\Result\GetWebsiteResult;
+use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
 use OSS\Result\ListBucketsResult;
@@ -446,7 +448,7 @@ class OssClient
      * @throws OssException
      * @return null
      */
-    public function addBucketCname($bucket, $cnameConfig, $options = NULL)
+    public function addBucketCname($bucket, $cname, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
@@ -454,7 +456,11 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'cname';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $cnameConfig = new CnameConfig();
+        $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $options[self::OSS_CNAME_COMP] = 'add';
+
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -489,7 +495,7 @@ class OssClient
      * @throws OssException
      * @return null
      */
-    public function deleteBucketCname($bucket, $cnameConfig, $options = NULL)
+    public function deleteBucketCname($bucket, $cname, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
@@ -497,7 +503,11 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'cname';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $cnameConfig = new CnameConfig();
+        $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $options[self::OSS_CNAME_COMP] = 'delete';
+
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1836,6 +1846,7 @@ class OssClient
             'response-expires',
             'response-content-disposition',
             self::OSS_UPLOAD_ID,
+            self::OSS_CNAME_COMP
         );
 
         foreach ($signableList as $item) {
@@ -2025,6 +2036,7 @@ class OssClient
     const OSS_MAX_KEYS = 'max-keys';
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
+    const OSS_CNAME_COMP = 'comp';
     const OSS_MAX_KEYS_VALUE = 100;
     const OSS_MAX_OBJECT_GROUP_VALUE = OssUtil::OSS_MAX_OBJECT_GROUP_VALUE;
     const OSS_MAX_PART_SIZE = OssUtil::OSS_MAX_PART_SIZE;

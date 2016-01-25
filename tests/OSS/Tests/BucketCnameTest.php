@@ -13,13 +13,9 @@ class BucketCnameTest extends \PHPUnit_Framework_TestCase
     private $bucketName;
     private $client;
 
-    public function setUpBeforeClass()
-    {
-        $this->client = Common::getOssClient();
-    }
-
     public function setUp()
     {
+        $this->client = Common::getOssClient();
         $this->bucketName = 'php-sdk-test-bucket-' . strval(rand(0, 10));
         $this->client->createBucket($this->bucketName);
     }
@@ -31,50 +27,52 @@ class BucketCnameTest extends \PHPUnit_Framework_TestCase
 
     public function testBucketWithoutCname()
     {
-        $cnameConfig = $this->client->getBucketCname($this->bucketCname);
-        $this->assertEquals(0, count($cnameConfig->getCnames());
+        $cnameConfig = $this->client->getBucketCname($this->bucketName);
+        $this->assertEquals(0, count($cnameConfig->getCnames()));
     }
 
     public function testAddCname()
     {
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname('foo.com');
-        $cnameConfig->addCname('www.bar.com');
-
-        $this->client->addBucketCname($this->bucketName, $cnameConfig);
+        $this->client->addBucketCname($this->bucketName, 'www.baidu.com');
+        $this->client->addBucketCname($this->bucketName, 'www.qq.com');
 
         $ret = $this->client->getBucketCname($this->bucketName);
-        $this->assertEquals(2, $ret->getCnames());
+        $this->assertEquals(2, count($ret->getCnames()));
 
         // add another 2 cnames
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname('hello.com');
-        $cnameConfig->addCname('www.world.com');
-
-        $this->client->addBucketCname($this->bucketName, $cnameConfig);
+        $this->client->addBucketCname($this->bucketName, 'www.sina.com.cn');
+        $this->client->addBucketCname($this->bucketName, 'www.iqiyi.com');
 
         $ret = $this->client->getBucketCname($this->bucketName);
-        $this->assertEquals(4, $ret->getCnames());
+        $cnames = $ret->getCnames();
+        $cnameList = array();
+
+        foreach ($cnames as $c) {
+            $cnameList[] = $c['Domain'];
+        }
+        $should = array(
+            'www.baidu.com',
+            'www.qq.com',
+            'www.sina.com.cn',
+            'www.iqiyi.com'
+        );
+        $this->assertEquals(4, count($cnames));
+        $this->assertEquals(sort($should), sort($cnameList));
     }
 
     public function testDeleteCname()
     {
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname('foo.com');
-        $cnameConfig->addCname('www.bar.com');
-
-        $this->client->addBucketCname($this->bucketName, $cnameConfig);
+        $this->client->addBucketCname($this->bucketName, 'www.baidu.com');
+        $this->client->addBucketCname($this->bucketName, 'www.qq.com');
 
         $ret = $this->client->getBucketCname($this->bucketName);
-        $this->assertEquals(2, $ret->getCnames());
+        $this->assertEquals(2, count($ret->getCnames()));
 
         // delete one cname
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname('foo.com');
-
-        $this->client->deleteBucketCname($this->bucketName, $cnameConfig);
+        $this->client->deleteBucketCname($this->bucketName, 'www.baidu.com');
 
         $ret = $this->client->getBucketCname($this->bucketName);
-        $this->assertEquals(1, $ret->getCnames());
+        $this->assertEquals(1, count($ret->getCnames()));
+        $this->assertEquals('www.qq.com', $ret->getCnames()[0]['Domain']);
     }
 }
