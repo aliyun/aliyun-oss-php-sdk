@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.5
+
+* 增加Add/Delete/Get BucketCname接口
+
 ## v2.0.4
 
 * 增加Put/Get Object Acl接口
