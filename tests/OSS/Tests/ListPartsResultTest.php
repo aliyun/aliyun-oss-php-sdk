@@ -53,9 +53,10 @@ BBBB;
         $this->assertEquals(1000, $listPartsInfo->getMaxParts());
         $this->assertEquals("false", $listPartsInfo->getIsTruncated());
         $this->assertEquals(3, count($listPartsInfo->getListPart()));
-        $this->assertEquals(1, $listPartsInfo->getListPart()[0]->getPartNumber());
-        $this->assertEquals('2012-02-23T07:01:34.000Z', $listPartsInfo->getListPart()[0]->getLastModified());
-        $this->assertEquals('"3349DC700140D7F86A078484278075A9"', $listPartsInfo->getListPart()[0]->getETag());
-        $this->assertEquals(6291456, $listPartsInfo->getListPart()[0]->getSize());
+        $parts = $listPartsInfo->getListPart();
+        $this->assertEquals(1, $parts[0]->getPartNumber());
+        $this->assertEquals('2012-02-23T07:01:34.000Z', $parts[0]->getLastModified());
+        $this->assertEquals('"3349DC700140D7F86A078484278075A9"', $parts[0]->getETag());
+        $this->assertEquals(6291456, $parts[0]->getSize());
     }
 }

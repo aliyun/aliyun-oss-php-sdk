@@ -73,6 +73,7 @@ class BucketCnameTest extends \PHPUnit_Framework_TestCase
 
         $ret = $this->client->getBucketCname($this->bucketName);
         $this->assertEquals(1, count($ret->getCnames()));
-        $this->assertEquals('www.qq.com', $ret->getCnames()[0]['Domain']);
+        $cnames = $ret->getCnames();
+        $this->assertEquals('www.qq.com', $cnames[0]['Domain']);
     }
 }

@@ -86,9 +86,10 @@ BBBB;
         $this->assertEquals("xx", $listMultipartUploadInfo->getPrefix());
         $this->assertEquals(1000, $listMultipartUploadInfo->getMaxUploads());
         $this->assertEquals("false", $listMultipartUploadInfo->getIsTruncated());
-        $this->assertEquals("multipart.data", $listMultipartUploadInfo->getUploads()[0]->getKey());
-        $this->assertEquals("0004B999EF518A1FE585B0C9360DC4C8", $listMultipartUploadInfo->getUploads()[0]->getUploadId());
-        $this->assertEquals("2012-02-23T04:18:23.000Z", $listMultipartUploadInfo->getUploads()[0]->getInitiated());
+        $uploads = $listMultipartUploadInfo->getUploads();
+        $this->assertEquals("multipart.data", $uploads[0]->getKey());
+        $this->assertEquals("0004B999EF518A1FE585B0C9360DC4C8", $uploads[0]->getUploadId());
+        $this->assertEquals("2012-02-23T04:18:23.000Z", $uploads[0]->getInitiated());
     }
 
     public function testParseValidXmlWithEncodedKey()
@@ -105,8 +106,9 @@ BBBB;
         $this->assertEquals("php+prefix", $listMultipartUploadInfo->getPrefix());
         $this->assertEquals(1000, $listMultipartUploadInfo->getMaxUploads());
         $this->assertEquals("true", $listMultipartUploadInfo->getIsTruncated());
-        $this->assertEquals("php+key-1", $listMultipartUploadInfo->getUploads()[0]->getKey());
-        $this->assertEquals("0004B999EF518A1FE585B0C9360DC4C8", $listMultipartUploadInfo->getUploads()[0]->getUploadId());
-        $this->assertEquals("2012-02-23T04:18:23.000Z", $listMultipartUploadInfo->getUploads()[0]->getInitiated());
+        $uploads = $listMultipartUploadInfo->getUploads();
+        $this->assertEquals("php+key-1", $uploads[0]->getKey());
+        $this->assertEquals("0004B999EF518A1FE585B0C9360DC4C8", $uploads[0]->getUploadId());
+        $this->assertEquals("2012-02-23T04:18:23.000Z", $uploads[0]->getInitiated());
     }
 }
