@@ -20,7 +20,7 @@ class OssClientBucketLoggingTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(2);
+            sleep(20);
             $loggingConfig2 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertEquals($loggingConfig->serializeToXml(), $loggingConfig2->serializeToXml());
         } catch (OssException $e) {
@@ -32,7 +32,7 @@ class OssClientBucketLoggingTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(3);
+            sleep(20);
             $loggingConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($loggingConfig->serializeToXml(), $loggingConfig3->serializeToXml());
         } catch (OssException $e) {

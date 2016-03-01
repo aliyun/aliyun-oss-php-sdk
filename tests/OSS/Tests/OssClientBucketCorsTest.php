@@ -56,7 +56,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
         }
 
         try {
-            sleep(1);
+            sleep(20);
             $corsConfig2 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig2);
             $this->assertEquals($corsConfig->serializeToXml(), $corsConfig2->serializeToXml());
@@ -71,7 +71,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
         }
 
         try {
-            sleep(5);
+            sleep(20);
             $corsConfig3 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig3);
             $this->assertNotEquals($corsConfig->serializeToXml(), $corsConfig3->serializeToXml());

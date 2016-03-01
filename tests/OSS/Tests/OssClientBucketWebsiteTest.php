@@ -23,7 +23,7 @@ class OssClientBucketWebsiteTest extends TestOssClientBase
         }
 
         try {
-            sleep(2);
+            sleep(20);
             $websiteConfig2 = $this->ossClient->getBucketWebsite($this->bucket);
             $this->assertEquals($websiteConfig->serializeToXml(), $websiteConfig2->serializeToXml());
         } catch (OssException $e) {
@@ -35,7 +35,7 @@ class OssClientBucketWebsiteTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(1);
+            sleep(20);
             $websiteConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($websiteConfig->serializeToXml(), $websiteConfig3->serializeToXml());
         } catch (OssException $e) {
