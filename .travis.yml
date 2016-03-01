@@ -1,13 +1,14 @@
 language: php
 php:
-- 5.5
+  - 5.5
+before_install:
+  - composer self-update
 install:
-- composer self-update
-- composer install --no-interaction
+  - composer install --no-interaction
 script:
-- php vendor/bin/phpunit
+  - php vendor/bin/phpunit
 after_success:
-- php vendor/bin/coveralls -x coverage.xml -v
+  - php vendor/bin/coveralls -x coverage.xml -v
 env:
   global:
   - secure: dwyXNk3p4gzYXkYHLmwOUcmq6hA80JD4cv8HkP4K3OELWsp9SYwepBRBP3vaVfID4siZ+cyx0JuFP2rnKXrlbCuYhAkZUYcTBU10AV50ushsl6O+iVprtum+DXHnPIacDu4mLEfpyvTkUulY1UWg1/3HzZTqpjgyi2kiSGaRyoTdGMMKRWIsRPWNK3amhFCSARsQ/N3orrDrmbL/YIEbwhVbevADpkZLiOWbxjwvfiQYM0aaIumZk3+IffrCSMyiUeVxxUCw6/YstR2+jve3VeRRXshFLwYzdrUQi1/1Foct/g5e+U3RAYGlYW1vpl/KI6rCk/ZLFcRYMgYqL5NPYBRVSHMuTBdtEVTypC4nw3N65srhB1NmxsJh5JexwwtBtUmFR9rf9Im3AqGqSbiugBmOKWSYCElIjvpx6TOQGfVMhkOyt5TteceqnYndZ1S27Zqa31LtB9vEyWT34NqmQI3qj5zfurTc3iTb5ce5K3w+7sYRbWag3nElGWOkcqG/NJ1IxnNqpxjS4sK854rhdq+niWxLHqb7NeHJ4obIY+1yrL0i3uOnCVX44n6wpMbbfWKWkGJmonQ/nVc1jnZ8NJ0v31MmJOI0AY64LA7H6o9BLjO7K8EXB1LslJkSxC46iehkwSTyOZ4XD8KktFucDx3LMsxhbOSGlkXfwZUMt/A=
