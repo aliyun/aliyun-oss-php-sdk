@@ -1,5 +1,8 @@
 # Aliyun OSS SDK for PHP
 
+[![Latest Stable Version](https://poser.pugx.org/aliyuncs/oss-sdk-php/v/stable)](https://packagist.org/packages/aliyuncs/oss-sdk-php)
+[![Build Status](https://travis-ci.org/aliyun/aliyun-oss-php-sdk.svg?branch=master)](https://travis-ci.org/aliyun/aliyun-oss-php-sdk)
+[![Coverage Status](https://coveralls.io/repos/github/aliyun/aliyun-oss-php-sdk/badge.svg?branch=master)](https://coveralls.io/github/aliyun/aliyun-oss-php-sdk?branch=master)
 
 ## 概述
 
