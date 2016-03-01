@@ -67,7 +67,7 @@ BBBB;
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($corsConfig->serializeToXml()));
         $this->assertNotNull($corsConfig->getRules());
         $rules = $corsConfig->getRules();
-        $this->assertNotNull(->getAllowedHeaders());
+        $this->assertNotNull($rules[0]->getAllowedHeaders());
         $this->assertNotNull($rules[0]->getAllowedMethods());
         $this->assertNotNull($rules[0]->getAllowedOrigins());
         $this->assertNotNull($rules[0]->getExposeHeaders());
