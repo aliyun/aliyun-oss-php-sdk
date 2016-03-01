@@ -47,6 +47,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
         }
 
         try {
+            Common::waitMetaSync();
             $object = "cors/test.txt";
             $this->ossClient->putObject($this->bucket, $object, file_get_contents(__FILE__));
             $headers = $this->ossClient->optionsObject($this->bucket, $object, "http://www.a.com", "GET", "", null);
