@@ -57,4 +57,14 @@ class Common
         }
         print(__FUNCTION__ . ": OK" . "\n");
     }
+
+    /**
+     * Wait for bucket meta sync
+     */
+    public static function waitMetaSync()
+    {
+        if (getenv('TRAVIS')) {
+            sleep(30);
+        }
+    }
 }

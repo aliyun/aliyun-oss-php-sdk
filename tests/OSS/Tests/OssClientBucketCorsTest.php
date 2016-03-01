@@ -56,7 +56,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
         }
 
         try {
-            sleep(20);
+            Common::waitMetaSync();
             $corsConfig2 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig2);
             $this->assertEquals($corsConfig->serializeToXml(), $corsConfig2->serializeToXml());
@@ -65,13 +65,14 @@ class OssClientBucketCorsTest extends TestOssClientBase
         }
 
         try {
+            Common::waitMetaSync();
             $this->ossClient->deleteBucketCors($this->bucket);
         } catch (OssException $e) {
             $this->assertFalse(True);
         }
 
         try {
-            sleep(20);
+            Common::waitMetaSync();
             $corsConfig3 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig3);
             $this->assertNotEquals($corsConfig->serializeToXml(), $corsConfig3->serializeToXml());

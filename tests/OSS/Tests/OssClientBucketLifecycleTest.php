@@ -31,7 +31,7 @@ class OssClientBucketLifecycleTest extends TestOssClientBase
         }
 
         try {
-            sleep(5);
+            Common::waitMetaSync();
             $lifecycleConfig2 = $this->ossClient->getBucketLifecycle($this->bucket);
             $this->assertEquals($lifecycleConfig->serializeToXml(), $lifecycleConfig2->serializeToXml());
         } catch (OssException $e) {
@@ -39,13 +39,14 @@ class OssClientBucketLifecycleTest extends TestOssClientBase
         }
 
         try {
+            Common::waitMetaSync();
             $this->ossClient->deleteBucketLifecycle($this->bucket);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
 
         try {
-            sleep(3);
+            Common::waitMetaSync();
             $lifecycleConfig3 = $this->ossClient->getBucketLifecycle($this->bucket);
             $this->assertNotEquals($lifecycleConfig->serializeToXml(), $lifecycleConfig3->serializeToXml());
         } catch (OssException $e) {

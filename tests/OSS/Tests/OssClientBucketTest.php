@@ -41,7 +41,7 @@ class OssClientBucketTest extends TestOssClientBase
         $this->assertTrue(is_array($bucketList));
         $this->assertGreaterThan(0, count($bucketList));
         $this->ossClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
-        sleep(20);
+        Common::waitMetaSync();
         $this->assertEquals($this->ossClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 
         $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));

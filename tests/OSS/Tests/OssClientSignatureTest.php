@@ -22,7 +22,6 @@ class OssClientSignatureTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
-        sleep(5);
         $request = new RequestCore($signedUrl);
         $request->set_method('GET');
         $request->add_header('Content-Type', '');
@@ -38,7 +37,6 @@ class OssClientSignatureTest extends TestOssClientBase
         try {
             $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT");
             $content = file_get_contents(__FILE__);
-            sleep(5);
             $request = new RequestCore($signedUrl);
             $request->set_method('PUT');
             $request->add_header('Content-Type', '');
@@ -61,7 +59,6 @@ class OssClientSignatureTest extends TestOssClientBase
         $options = array('Content-Type' => 'txt');
         try {
             $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
-            sleep(5);
             $request = new RequestCore($signedUrl);
             $request->set_method('PUT');
             $request->add_header('Content-Type', 'txt');
