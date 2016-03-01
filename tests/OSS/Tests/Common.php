@@ -3,7 +3,6 @@
 namespace OSS\Tests;
 
 require_once __DIR__ . '/../../../autoload.php';
-require_once __DIR__ . '/Config.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
@@ -15,11 +14,6 @@ use OSS\Core\OssException;
  */
 class Common
 {
-    const endpoint = Config::OSS_ENDPOINT;
-    const accessKeyId = Config::OSS_ACCESS_ID;
-    const accessKeySecret = Config::OSS_ACCESS_KEY;
-    const bucket = Config::OSS_TEST_BUCKET;
-
     /**
      * 根据Config配置，得到一个OssClient实例
      *
@@ -28,7 +22,10 @@ class Common
     public static function getOssClient()
     {
         try {
-            $ossClient = new OssClient(self::accessKeyId, self::accessKeySecret, self::endpoint, false);
+            $ossClient = new OssClient(
+                getenv('OSS_ACCESS_KEY_ID'),
+                getenv('OSS_ACCESS_KEY_SECRET'),
+                getenv('OSS_ENDPOINT'), false);
         } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
             printf($e->getMessage() . "\n");
@@ -39,7 +36,7 @@ class Common
 
     public static function getBucketName()
     {
-        return self::bucket;
+        return getenv('OSS_BUCKET');
     }
 
     /**

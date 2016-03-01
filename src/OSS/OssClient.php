@@ -443,7 +443,7 @@ class OssClient
      * 为指定Bucket增加CNAME绑定
      *
      * @param string $bucket bucket名称
-     * @param CnameConfig $cnameConfig
+     * @param string $cname
      * @param array $options
      * @throws OssException
      * @return null
