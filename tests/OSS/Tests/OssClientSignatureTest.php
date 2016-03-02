@@ -78,6 +78,7 @@ class OssClientSignatureTest extends TestOssClientBase
     public function tearDown()
     {
         $this->ossClient->deleteObject($this->bucket, "a.file");
+        parent::tearDown();
     }
 
     public function setUp()
