@@ -268,7 +268,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
     {
         $options = null;
         try {
-            $listMultipartUploadInfo = $listMultipartUploadInfo = $this->ossClient->listMultipartUploads($this->bucket, $options);
+            $listMultipartUploadInfo = $this->ossClient->listMultipartUploads($this->bucket, $options);
             $this->assertNotNull($listMultipartUploadInfo);
         } catch (OssException $e) {
             $this->assertFalse(true);
