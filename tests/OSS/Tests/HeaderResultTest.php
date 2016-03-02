@@ -17,6 +17,7 @@ class HeaderResultTest extends \PHPUnit_Framework_TestCase
         $result = new HeaderResult($response);
         $this->assertTrue($result->isOK());
         $this->assertTrue(is_array($result->getData()));
-        $this->assertEquals($result->getData()['key'], 'value');
+        $data = $result->getData();
+        $this->assertEquals($data['key'], 'value');
     }
 }

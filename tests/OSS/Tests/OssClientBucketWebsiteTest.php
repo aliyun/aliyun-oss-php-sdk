@@ -23,19 +23,20 @@ class OssClientBucketWebsiteTest extends TestOssClientBase
         }
 
         try {
-            sleep(2);
+            Common::waitMetaSync();
             $websiteConfig2 = $this->ossClient->getBucketWebsite($this->bucket);
             $this->assertEquals($websiteConfig->serializeToXml(), $websiteConfig2->serializeToXml());
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
         try {
+            Common::waitMetaSync();
             $this->ossClient->deleteBucketWebsite($this->bucket);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
         try {
-            sleep(1);
+            Common::waitMetaSync();
             $websiteConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($websiteConfig->serializeToXml(), $websiteConfig3->serializeToXml());
         } catch (OssException $e) {

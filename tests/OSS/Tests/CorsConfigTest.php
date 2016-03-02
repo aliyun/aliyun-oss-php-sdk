@@ -66,11 +66,12 @@ BBBB;
         $corsConfig->parseFromXml($this->validXml);
         $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($corsConfig->serializeToXml()));
         $this->assertNotNull($corsConfig->getRules());
-        $this->assertNotNull($corsConfig->getRules()[0]->getAllowedHeaders());
-        $this->assertNotNull($corsConfig->getRules()[0]->getAllowedMethods());
-        $this->assertNotNull($corsConfig->getRules()[0]->getAllowedOrigins());
-        $this->assertNotNull($corsConfig->getRules()[0]->getExposeHeaders());
-        $this->assertNotNull($corsConfig->getRules()[0]->getMaxAgeSeconds());
+        $rules = $corsConfig->getRules();
+        $this->assertNotNull($rules[0]->getAllowedHeaders());
+        $this->assertNotNull($rules[0]->getAllowedMethods());
+        $this->assertNotNull($rules[0]->getAllowedOrigins());
+        $this->assertNotNull($rules[0]->getExposeHeaders());
+        $this->assertNotNull($rules[0]->getMaxAgeSeconds());
     }
 
     public function testParseValidXml2()

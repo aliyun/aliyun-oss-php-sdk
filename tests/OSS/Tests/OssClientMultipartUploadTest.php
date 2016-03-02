@@ -248,7 +248,6 @@ class OssClientMultipartUploadTest extends TestOssClientBase
             $this->assertFalse(true);
 
         }
-        sleep(1);
         $this->assertTrue($this->ossClient->doesObjectExist($this->bucket, 'samples/codes/' . "OssClientMultipartUploadTest.php"));
     }
 
@@ -269,7 +268,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
     {
         $options = null;
         try {
-            $listMultipartUploadInfo = $listMultipartUploadInfo = $this->ossClient->listMultipartUploads($this->bucket, $options);
+            $listMultipartUploadInfo = $this->ossClient->listMultipartUploads($this->bucket, $options);
             $this->assertNotNull($listMultipartUploadInfo);
         } catch (OssException $e) {
             $this->assertFalse(true);

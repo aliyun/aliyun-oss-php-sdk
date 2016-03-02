@@ -20,19 +20,20 @@ class OssClientBucketLoggingTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(2);
+            Common::waitMetaSync();
             $loggingConfig2 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertEquals($loggingConfig->serializeToXml(), $loggingConfig2->serializeToXml());
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
         try {
+            Common::waitMetaSync();
             $this->ossClient->deleteBucketLogging($this->bucket);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
         try {
-            sleep(3);
+            Common::waitMetaSync();
             $loggingConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($loggingConfig->serializeToXml(), $loggingConfig3->serializeToXml());
         } catch (OssException $e) {

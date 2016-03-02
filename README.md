@@ -1,5 +1,9 @@
 # Aliyun OSS SDK for PHP
 
+[![Latest Stable Version](https://poser.pugx.org/aliyuncs/oss-sdk-php/v/stable)](https://packagist.org/packages/aliyuncs/oss-sdk-php)
+[![Build Status](https://travis-ci.org/aliyun/aliyun-oss-php-sdk.svg?branch=master)](https://travis-ci.org/aliyun/aliyun-oss-php-sdk)
+[![Coverage Status](https://coveralls.io/repos/github/aliyun/aliyun-oss-php-sdk/badge.svg?branch=master)](https://coveralls.io/github/aliyun/aliyun-oss-php-sdk?branch=master)
+
 ## 概述
 
 阿里云对象存储（Object Storage Service，简称OSS），是阿里云对外提供的海量、安全、低成本、高可靠的云存储服务。用户可以通过调用API，在任何应用、任何时间、任何地点上传和下载数据，也可以通过用户Web控制台对数据进行简单的管理。OSS适合存放任意文件类型，适合各种网站、开发企业及开发者使用。
@@ -57,9 +61,9 @@ $accessKeyId = "<您从OSS获得的AccessKeyId>"; ;
 $accessKeySecret = "<您从OSS获得的AccessKeySecret>";
 $endpoint = "<您选定的OSS数据中心访问域名，例如oss-cn-hangzhou.aliyuncs.com>";
 try {
-	$ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+    $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
 } catch (OssException $e) {
-	print $e->getMessage();
+    print $e->getMessage();
 }
 ```
 
@@ -73,26 +77,26 @@ $bucket = "<您使用的Bucket名字，注意命名规范>";
 $object = "<您使用的Object名字，注意命名规范>";
 $content = "Hello, OSS!"; // 上传的文件内容
 try {
-	$ossClient->putObject($bucket, $object, $content);
+    $ossClient->putObject($bucket, $object, $content);
 } catch (OssException $e) {
-	print $e->getMessage();
-} 
+    print $e->getMessage();
+}
 ```
 
 ### 存储空间操作
 
 存储空间(又称Bucket)是一个用户用来管理所存储Object的存储空间,对于用户来说是一个管理Object的单元，所有的Object都必须隶属于某个Bucket。您可以按照下面的代码新建一个Bucket：
-   
+
 ```php
 <?php
 $bucket = "<您使用的Bucket名字，注意命名规范>";
 try {
-	$ossClient->createBucket($bucket);
+    $ossClient->createBucket($bucket);
 } catch (OssException $e) {
-	print $e->getMessage();
+    print $e->getMessage();
 }
 ```
-	
+
 ### 返回结果处理
 
 OssClient提供的接口返回返回数据分为两种：
@@ -105,14 +109,14 @@ OssClient提供的接口返回返回数据分为两种：
 $bucketListInfo = $ossClient->listBuckets();
 $bucketList = $bucketListInfo->getBucketList();
 foreach($bucketList as $bucket) {
-	print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreatedate() . "\n");
+    print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreatedate() . "\n");
 }
 ```
 上面代码中的$bucketListInfo的数据类型是 `OSS\Model\BucketListInfo`
 
-    
+
 ### 运行Sample程序
-	
+
 1. 修改 `samples/Config.php`， 补充配置信息
 2. 执行 `cd samples/ && php RunAll.php`
 
@@ -120,7 +124,7 @@ foreach($bucketList as $bucket) {
 
 1. 修改 `tests/OSS/Tests/Config.php`， 补充配置信息
 2. 执行 `./vendor/bin/phpunit tests/OSS/Tests/`
-    
+
 ### 生成API文档
 
 1. 到根目录下，执行 `composer install`, 下载依赖的库

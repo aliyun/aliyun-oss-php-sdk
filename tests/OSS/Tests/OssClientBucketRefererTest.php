@@ -23,13 +23,14 @@ class OssClientBucketRefererTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(5);
+            Common::waitMetaSync();
             $refererConfig2 = $this->ossClient->getBucketReferer($this->bucket);
             $this->assertEquals($refererConfig->serializeToXml(), $refererConfig2->serializeToXml());
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
         try {
+            Common::waitMetaSync();
             $nullRefererConfig = new RefererConfig();
             $nullRefererConfig->setAllowEmptyReferer(false);
             $this->ossClient->putBucketReferer($this->bucket, $nullRefererConfig);
@@ -37,7 +38,7 @@ class OssClientBucketRefererTest extends TestOssClientBase
             $this->assertTrue(false);
         }
         try {
-            sleep(5);
+            Common::waitMetaSync();
             $refererConfig3 = $this->ossClient->getBucketLogging($this->bucket);
             $this->assertNotEquals($refererConfig->serializeToXml(), $refererConfig3->serializeToXml());
         } catch (OssException $e) {

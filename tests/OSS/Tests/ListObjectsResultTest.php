@@ -93,8 +93,9 @@ BBBB;
         $this->assertEquals(1000, $objectListInfo->getMaxKeys());
         $this->assertEquals('/', $objectListInfo->getDelimiter());
         $this->assertEquals('false', $objectListInfo->getIsTruncated());
-        $this->assertEquals('oss-php-sdk-test/', $objectListInfo->getPrefixList()[0]->getPrefix());
-        $this->assertEquals('test/', $objectListInfo->getPrefixList()[1]->getPrefix());
+        $prefixes = $objectListInfo->getPrefixList();
+        $this->assertEquals('oss-php-sdk-test/', $prefixes[0]->getPrefix());
+        $this->assertEquals('test/', $prefixes[1]->getPrefix());
     }
 
     public function testParseValidXml2()
@@ -113,12 +114,13 @@ BBBB;
         $this->assertEquals(1000, $objectListInfo->getMaxKeys());
         $this->assertEquals('/', $objectListInfo->getDelimiter());
         $this->assertEquals('false', $objectListInfo->getIsTruncated());
-        $this->assertEquals('oss-php-sdk-test/upload-test-object-name.txt', $objectListInfo->getObjectList()[0]->getKey());
-        $this->assertEquals('2015-11-18T03:36:00.000Z', $objectListInfo->getObjectList()[0]->getLastModified());
-        $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objectListInfo->getObjectList()[0]->getETag());
-        $this->assertEquals('Normal', $objectListInfo->getObjectList()[0]->getType());
-        $this->assertEquals(13115, $objectListInfo->getObjectList()[0]->getSize());
-        $this->assertEquals('Standard', $objectListInfo->getObjectList()[0]->getStorageClass());
+        $objects = $objectListInfo->getObjectList();
+        $this->assertEquals('oss-php-sdk-test/upload-test-object-name.txt', $objects[0]->getKey());
+        $this->assertEquals('2015-11-18T03:36:00.000Z', $objects[0]->getLastModified());
+        $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objects[0]->getETag());
+        $this->assertEquals('Normal', $objects[0]->getType());
+        $this->assertEquals(13115, $objects[0]->getSize());
+        $this->assertEquals('Standard', $objects[0]->getStorageClass());
     }
 
     public function testParseValidXmlWithEncodedKey()
@@ -138,11 +140,12 @@ BBBB;
         $this->assertEquals(1000, $objectListInfo->getMaxKeys());
         $this->assertEquals('/', $objectListInfo->getDelimiter());
         $this->assertEquals('true', $objectListInfo->getIsTruncated());
-        $this->assertEquals('php/a+b', $objectListInfo->getObjectList()[0]->getKey());
-        $this->assertEquals('2015-11-18T03:36:00.000Z', $objectListInfo->getObjectList()[0]->getLastModified());
-        $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objectListInfo->getObjectList()[0]->getETag());
-        $this->assertEquals('Normal', $objectListInfo->getObjectList()[0]->getType());
-        $this->assertEquals(13115, $objectListInfo->getObjectList()[0]->getSize());
-        $this->assertEquals('Standard', $objectListInfo->getObjectList()[0]->getStorageClass());
+        $objects = $objectListInfo->getObjectList();
+        $this->assertEquals('php/a+b', $objects[0]->getKey());
+        $this->assertEquals('2015-11-18T03:36:00.000Z', $objects[0]->getLastModified());
+        $this->assertEquals('"89B9E567E7EB8815F2F7D41851F9A2CD"', $objects[0]->getETag());
+        $this->assertEquals('Normal', $objects[0]->getType());
+        $this->assertEquals(13115, $objects[0]->getSize());
+        $this->assertEquals('Standard', $objects[0]->getStorageClass());
     }
 }
