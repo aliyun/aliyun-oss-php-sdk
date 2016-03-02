@@ -22,6 +22,9 @@ class OssClientSignatureTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+
+        echo "signed url: " . $signedUrl . "\n";
+
         $request = new RequestCore($signedUrl);
         $request->set_method('GET');
         $request->add_header('Content-Type', '');
