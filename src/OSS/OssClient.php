@@ -9,6 +9,9 @@ use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
+use OSS\Model\LiveChannelConfig;
+use OSS\Model\LiveChannelInfo;
+use OSS\Model\LiveChannelListInfo;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
 use OSS\Result\GetCorsResult;
@@ -26,6 +29,8 @@ use OSS\Result\ListObjectsResult;
 use OSS\Result\ListPartsResult;
 use OSS\Result\PutSetDeleteResult;
 use OSS\Result\ExistResult;
+use OSS\Result\PutLiveChannelResult;
+use OSS\Result\ListLiveChannelResult;
 use OSS\Model\ObjectListInfo;
 use OSS\Result\UploadPartResult;
 use OSS\Model\BucketListInfo;
@@ -507,6 +512,84 @@ class OssClient
         $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
         $options[self::OSS_CNAME_COMP] = 'delete';
+
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 为指定Bucket创建直播流
+     *
+     * @param string $bucket bucket名称
+     * @param LiveChannelConfig $channelConfig
+     * @param array $options
+     * @throws OssException
+     * @return LiveChannelInfo
+     */
+    public function putBucketLiveChannel($bucket, $channelConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $channelConfig->getId();
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $channelConfig->serializeToXml();
+
+        $response = $this->auth($options);
+        $result = new PutLiveChannelResult($response);
+        $info = $result->getData();
+        $info->setId($channelConfig->getId());
+        $info->setDescription($channelConfig->getDescription());
+
+        return $info;
+    }
+
+    /**
+     * 获取指定Bucket的直播流列表
+     *
+     * @param string $bucket bucket名称
+     * @param array $options
+     * @throws OssException
+     * @return LiveChannelListInfo
+     */
+    public function listBucketLiveChannels($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+        $options[self::OSS_QUERY_STRING] = array(
+            'prefix' => isset($options['prefix']) ? $options['prefix'] : '',
+            'marker' => isset($options['marker']) ? $options['marker'] : '',
+            'max-keys' => isset($options['max-keys']) ? $options['max-keys'] : '',
+        );
+        $response = $this->auth($options);
+        $result = new ListLiveChannelResult($response);
+        $list = $result->getData();
+        $list->setBucketName($bucket);
+
+        return $list;
+    }
+
+    /**
+     * 删除指定Bucket的直播流
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function deleteBucketLiveChannel($bucket, $channelId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_SUB_RESOURCE] = 'live';
 
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
