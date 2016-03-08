@@ -95,7 +95,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($channels));
         $chan2 = $channels[0];
         $this->assertEquals('live-2', $chan2->getId());
-        $this->assertEquals('live channel 1', $chan2->getDescription());
+        $this->assertEquals('live channel 2', $chan2->getDescription());
         $this->assertEquals(1, count($chan2->getPublishUrls()));
         $this->assertEquals(1, count($chan2->getPlayUrls()));
     }
