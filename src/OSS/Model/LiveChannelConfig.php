@@ -19,7 +19,7 @@ class LiveChannelConfig implements XmlConfig
     private $status;
     private $type;
     private $fragDuration;
-    private $playDuration;
+    private $fragCount;
     private $playListName;
 
     public function __construct($option = array())
@@ -39,8 +39,8 @@ class LiveChannelConfig implements XmlConfig
         if (isset($option['fragDuration'])) {
             $this->fragDuration = $option['fragDuration'];
         }
-        if (isset($option['playDuration'])) {
-            $this->playDuration = $option['playDuration'];
+        if (isset($option['fragCount'])) {
+            $this->fragCount = $option['fragCount'];
         }
         if (isset($option['playListName'])) {
             $this->playListName = $option['playListName'];
@@ -72,9 +72,9 @@ class LiveChannelConfig implements XmlConfig
         return $this->fragDuration;
     }
 
-    public function getPlayDuration()
+    public function getFragCount()
     {
-        return $this->playDuration;
+        return $this->fragCount;
     }
 
     public function getPlayListName()
@@ -90,7 +90,7 @@ class LiveChannelConfig implements XmlConfig
         $target = $xml->Target;
         $this->type = strval($target->Type);
         $this->fragDuration = intval($target->FragDuration);
-        $this->playDuration = intval($target->PlayDuration);
+        $this->fragCount = intval($target->FragCount);
         $this->playListName = strval($target->PlayListName);
     }
 
@@ -117,8 +117,8 @@ EOF;
             $node->addChild('FragDuration', $this->fragDuration);
         }
 
-        if (isset($this->playDuration)) {
-            $node->addChild('PlayDuration', $this->playDuration);
+        if (isset($this->fragCount)) {
+            $node->addChild('FragCount', $this->fragCount);
         }
 
         if (isset($this->playListName)) {

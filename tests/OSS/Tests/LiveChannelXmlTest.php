@@ -18,7 +18,7 @@ class LiveChannelXmlTest extends \PHPUnit_Framework_TestCase
   <Target>
      <Type>hls</Type>
      <FragDuration>1000</FragDuration>
-     <PlayDuration>5000</PlayDuration>
+     <FragCount>5</FragCount>
      <PlayListName>hello</PlayListName>
   </Target>
 </BucketLiveChannelConfiguration>
@@ -85,7 +85,7 @@ BBBB;
         $this->assertEquals('enabled', $config->getStatus());
         $this->assertEquals('hls', $config->getType());
         $this->assertEquals(1000, $config->getFragDuration());
-        $this->assertEquals(5000, $config->getPlayDuration());
+        $this->assertEquals(5, $config->getFragCount());
         $this->assertEquals('hello', $config->getPlayListName());
 
         $xml = $config->serializeToXml();
@@ -96,7 +96,7 @@ BBBB;
         $this->assertEquals('enabled', $config2->getStatus());
         $this->assertEquals('hls', $config2->getType());
         $this->assertEquals(1000, $config2->getFragDuration());
-        $this->assertEquals(5000, $config2->getPlayDuration());
+        $this->assertEquals(5, $config2->getFragCount());
         $this->assertEquals('hello', $config2->getPlayListName());
     }
 
