@@ -122,4 +122,28 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($list->getChannelList()));
     }
     */
+
+    public function testGetLiveChannelUrl()
+    {
+        $channelId = '90475';
+        $bucket = 'douyu';
+        $now = time();
+        $url = $this->client->getLiveChannelUrl($bucket, $channelId, array(
+            'expires' => 900,
+            'params' => array(
+                'a' => 'hello',
+                'b' => 'world'
+            )
+        ));
+
+        $ret = parse_url($url);
+        $this->assertEquals('rtmp', $ret['scheme']);
+        parse_str($ret['query'], $query);
+
+        $this->assertTrue(isset($query['AccessKeyId']));
+        $this->assertTrue(isset($query['Signature']));
+        $this->assertTrue(intval($query['Expires']) - ($now + 900) < 3);
+        $this->assertEquals('hello', $query['a']);
+        $this->assertEquals('world', $query['b']);
+    }
 }

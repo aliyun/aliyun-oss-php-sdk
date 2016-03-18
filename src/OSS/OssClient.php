@@ -597,6 +597,41 @@ class OssClient
     }
 
     /**
+     * 生成签名后的推流地址
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function getLiveChannelUrl($bucket, $channelId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $channelId, $options, false);
+        $expires = isset($options['expires']) ? intval($options['expires']) : 3600;
+        $expires = time() + $expires;
+        $proto = 'rtmp://';
+        $hostname = $this->generateHostname($bucket);
+        $cano_params = '';
+        $query_items = [];
+        $params = isset($options['params']) ? $options['params'] : array();
+        uksort($params, 'strnatcasecmp');
+        foreach ($params as $key => $value) {
+            $cano_params = $cano_params . $key . ':' . $value . '\n';
+            $query_items[] = rawurlencode($key) . '=' . rawurlencode($value);
+        }
+        $resource = '/' . $bucket . '/' . $channelId;
+
+        $string_to_sign = $expires . '\n' . $cano_params . $resource;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $this->accessKeySecret, true));
+        $query_items[] = 'AccessKeyId=' . rawurlencode($this->accessKeyId);
+        $query_items[] = 'Expires=' . rawurlencode($expires);
+        $query_items[] = 'Signature=' . rawurlencode($signature);
+
+        return $proto . $hostname . '/live/' . $channelId . '?' . implode('&', $query_items);
+    }
+
+    /**
      * 检验跨域资源请求, 发送跨域请求之前会发送一个preflight请求（OPTIONS）并带上特定的来源域，
      * HTTP方法和header信息等给OSS以决定是否发送真正的请求。 OSS可以通过putBucketCors接口
      * 来开启Bucket的CORS支持，开启CORS功能之后，OSS在收到浏览器preflight请求时会根据设定的
@@ -1604,7 +1639,7 @@ class OssClient
         // 获得当次请求使用的协议头，是https还是http
         $scheme = $this->useSSL ? 'https://' : 'http://';
         // 获得当次请求使用的hostname，如果是公共域名或者专有域名，bucket拼在前面构成三级域名
-        $hostname = $this->generateHostname($options);
+        $hostname = $this->generateHostname($options[self::OSS_BUCKET]);
         $string_to_sign = '';
         $headers = $this->generateHeaders($options, $hostname);
         $signable_query_string_params = $this->generateSignableQueryStringParam($options);
@@ -1865,10 +1900,10 @@ class OssClient
      * 获得档次请求使用的域名
      * bucket在前的三级域名，或者二级域名，如果是cname或者ip的话，则是二级域名
      *
-     * @param $options
+     * @param $bucket
      * @return string 剥掉协议头的域名
      */
-    private function generateHostname($options)
+    private function generateHostname($bucket)
     {
         if ($this->hostType === self::OSS_HOST_TYPE_IP) {
             $hostname = $this->hostname;
@@ -1876,7 +1911,7 @@ class OssClient
             $hostname = $this->hostname;
         } else {
             // 专有域或者官网endpoint
-            $hostname = ($options[self::OSS_BUCKET] == '') ? $this->hostname : ($options[self::OSS_BUCKET] . '.') . $this->hostname;
+            $hostname = ($bucket == '') ? $this->hostname : ($bucket . '.') . $this->hostname;
         }
         return $hostname;
     }
