@@ -613,7 +613,7 @@ class OssClient
         $proto = 'rtmp://';
         $hostname = $this->generateHostname($bucket);
         $cano_params = '';
-        $query_items = [];
+        $query_items = array();
         $params = isset($options['params']) ? $options['params'] : array();
         uksort($params, 'strnatcasecmp');
         foreach ($params as $key => $value) {
