@@ -14,6 +14,7 @@ class OssUtil
     const OSS_CONTENT = 'content';
     const OSS_LENGTH = 'length';
     const OSS_HEADERS = 'headers';
+    const OSS_TRIM_CHARLIST = " \t\n\r\0\x0B/";
     const OSS_MAX_OBJECT_GROUP_VALUE = 1000;
     const OSS_MAX_PART_SIZE = 5368709120; // 5GB
     const OSS_MID_PART_SIZE = 10485760; // 10MB
