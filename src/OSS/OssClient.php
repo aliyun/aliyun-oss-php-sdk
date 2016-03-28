@@ -67,7 +67,7 @@ class OssClient
     {
     	$accessKeyId = trim($accessKeyId);
 	$accessKeySecret = trim($accessKeySecret);
-	$endpoint = trim($endpoint, OssUtil::OSS_TRIM_CHARLIST);
+	$endpoint = trim(trim($endpoint), "/");
 
         if (empty($accessKeyId)) {
             throw new OssException("access key id is empty");
