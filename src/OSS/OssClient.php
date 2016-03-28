@@ -65,6 +65,10 @@ class OssClient
      */
     public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
     {
+    	$accessKeyId = trim($accessKeyId);
+	$accessKeySecret = trim($accessKeySecret);
+	$endpoint = trim(trim($endpoint), "/");
+
         if (empty($accessKeyId)) {
             throw new OssException("access key id is empty");
         }
