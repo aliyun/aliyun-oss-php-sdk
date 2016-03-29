@@ -138,7 +138,7 @@ foreach($bucketList as $bucket) {
 1. 提交代码后，确保travis CI是PASS的
 2. 每发布一个新的版本：
   - 运行`build-phar.sh`生成相应的phar包（需要安装[phar-composer][phar-composer])
-  - 在[Release页面][releases]发布一个版本
+  - 在[Release页面][releases-page]发布一个版本
   - 将生成的phar包上传到相应的Release下面
 
 ## 联系我们
