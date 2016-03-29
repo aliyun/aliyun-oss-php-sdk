@@ -1,5 +1,10 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.6
+
+* Trim access key id/secret and endpoint
+* Refine tests and setup travis CI
+
 ## v2.0.5
 
 * 增加Add/Delete/Get BucketCname接口

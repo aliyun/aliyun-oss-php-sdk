@@ -65,9 +65,9 @@ class OssClient
      */
     public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
     {
-    	$accessKeyId = trim($accessKeyId);
-	$accessKeySecret = trim($accessKeySecret);
-	$endpoint = trim(trim($endpoint), "/");
+        $accessKeyId = trim($accessKeyId);
+        $accessKeySecret = trim($accessKeySecret);
+        $endpoint = trim(trim($endpoint), "/");
 
         if (empty($accessKeyId)) {
             throw new OssException("access key id is empty");
@@ -2124,8 +2124,8 @@ class OssClient
     );
     // OssClient版本信息
     const OSS_NAME = "aliyun-sdk-php";
-    const OSS_VERSION = "2.0.5";
-    const OSS_BUILD = "20160126";
+    const OSS_VERSION = "2.0.6";
+    const OSS_BUILD = "20160329";
     const OSS_AUTHOR = "";
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
