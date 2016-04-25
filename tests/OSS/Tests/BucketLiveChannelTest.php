@@ -32,9 +32,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $config = new LiveChannelConfig(array(
             'id' => 'live-1',
             'description' => 'live channel 1',
-            'type' => 'hls',
-            'fragDuration' => 1000,
-            'playDuration' => 5000,
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
             'playListName' => 'hello'
         ));
         $info = $this->client->putBucketLiveChannel($this->bucketName, $config);
@@ -50,9 +50,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $config = new LiveChannelConfig(array(
             'id' => 'live-1',
             'description' => 'live channel 1',
-            'type' => 'hls',
-            'fragDuration' => 1000,
-            'playDuration' => 5000,
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
             'playListName' => 'hello'
         ));
         $this->client->putBucketLiveChannel($this->bucketName, $config);
@@ -60,9 +60,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $config = new LiveChannelConfig(array(
             'id' => 'live-2',
             'description' => 'live channel 2',
-            'type' => 'hls',
-            'fragDuration' => 1000,
-            'playDuration' => 5000,
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
             'playListName' => 'hello'
         ));
         $this->client->putBucketLiveChannel($this->bucketName, $config);
@@ -107,9 +107,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $config = new LiveChannelConfig(array(
             'id' => $channelId,
             'description' => 'live channel to delete',
-            'type' => 'hls',
-            'fragDuration' => 1000,
-            'playDuration' => 5000,
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
             'playListName' => 'hello'
         ));
         $this->client->putBucketLiveChannel($this->bucketName, $config);

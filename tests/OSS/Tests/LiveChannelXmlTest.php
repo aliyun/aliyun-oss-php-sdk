@@ -2,6 +2,7 @@
 
 namespace OSS\Tests;
 
+require_once __DIR__ . '/Common.php';
 
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
@@ -12,7 +13,7 @@ class LiveChannelXmlTest extends \PHPUnit_Framework_TestCase
 {
     private $config = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
-<BucketLiveChannelConfiguration>
+<LiveChannelConfiguration>
   <Description>xxx</Description>
   <Status>enabled</Status>
   <Target>
@@ -21,12 +22,12 @@ class LiveChannelXmlTest extends \PHPUnit_Framework_TestCase
      <FragCount>5</FragCount>
      <PlayListName>hello</PlayListName>
   </Target>
-</BucketLiveChannelConfiguration>
+</LiveChannelConfiguration>
 BBBB;
 
     private $info = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
-<BucketCnameConfiguration>
+<CreateLiveChannelResult>
   <Id>live-1</Id>
   <Description>xxx</Description>
   <PublishUrls>
@@ -37,12 +38,12 @@ BBBB;
   </PlayUrls>
   <Status>enabled</Status>
   <LastModified>2015-11-24T14:25:31.000Z</LastModified>
-</BucketCnameConfiguration>
+</CreateLiveChannelResult>
 BBBB;
 
     private $list = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
-<BucketCnameConfiguration>
+<ListLiveChannelResult>
 <Prefix>xxx</Prefix>
   <Marker>yyy</Marker>
   <MaxKeys>100</MaxKeys>
@@ -72,7 +73,7 @@ BBBB;
     <Status>enabled</Status>
     <LastModified>2016-11-24T14:25:31.000Z</LastModified>
   </LiveChannel>
-</BucketCnameConfiguration>
+</ListLiveChannelResult>
 BBBB;
 
     public function testConfig()

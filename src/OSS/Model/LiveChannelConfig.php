@@ -98,8 +98,8 @@ class LiveChannelConfig implements XmlConfig
     {
         $strXml = <<<EOF
 <?xml version="1.0" encoding="utf-8"?>
-<BucketLiveChannelConfiguration>
-</BucketLiveChannelConfiguration>
+<LiveChannelConfiguration>
+</LiveChannelConfiguration>
 EOF;
         $xml = new \SimpleXMLElement($strXml);
         if (isset($this->description)) {
