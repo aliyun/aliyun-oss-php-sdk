@@ -862,12 +862,7 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'append';
         $options[self::OSS_POSITION] = strval($position);
 
-        print "appendfile\n";
-
         $response = $this->auth($options);
-
-        print "appendfile\n";
-
         $result = new AppendResult($response);
         return $result->getData();
     }
@@ -2210,8 +2205,8 @@ class OssClient
     );
     // OssClient版本信息
     const OSS_NAME = "aliyun-sdk-php";
-    const OSS_VERSION = "2.0.7";
-    const OSS_BUILD = "20160613";
+    const OSS_VERSION = "2.0.6";
+    const OSS_BUILD = "20160329";
     const OSS_AUTHOR = "";
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';

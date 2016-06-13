@@ -297,13 +297,10 @@ class OssClientObjectTest extends TestOssClientBase
          */
         try {
             $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, 0);
-            print "position: $position \n";
-            //$this->assertEquals($position, filesize(__FILE__));
+            $this->assertEquals($position, filesize(__FILE__));
             $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, $position);
-            print "position: $position \n";
             $this->assertEquals($position, filesize(__FILE__) * 2);
         } catch (OssException $e) {
-            print "oss exception:" . $e . "\n";
             $this->assertFalse(true);
         }
 
