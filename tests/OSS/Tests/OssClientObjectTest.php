@@ -253,6 +253,117 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testAppendObject()
+    {
+        $object = "oss-php-sdk-test/append-test-object-name.txt";
+        $content_array = array('Hello OSS', 'Hi OSS', 'OSS OK');
+        
+        /**
+         * 追加上传字符串
+         */
+        try {
+            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[0], 0);
+            $this->assertEquals($position, strlen($content_array[0]));
+            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[1], $position);
+            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]));
+            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[2], $position);
+            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]) + strlen($content_array[1]));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        /**
+         * 检查内容的是否相同
+         */
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, implode($content_array));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        
+        /**
+         * 删除测试object
+         */
+        try {
+            $this->ossClient->deleteObject($this->bucket, $object);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+        
+        /**
+         * 追加上传本地文件
+         */
+        try {
+            $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, 0);
+            print "position: $position \n";
+            //$this->assertEquals($position, filesize(__FILE__));
+            $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, $position);
+            print "position: $position \n";
+            $this->assertEquals($position, filesize(__FILE__) * 2);
+        } catch (OssException $e) {
+            print "oss exception:" . $e . "\n";
+            $this->assertFalse(true);
+        }
+
+        /**
+         * 检查复制的是否相同
+         */
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, file_get_contents(__FILE__) . file_get_contents(__FILE__));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+        
+        /**
+         * 删除测试object
+         */
+        try {
+            $this->ossClient->deleteObject($this->bucket, $object);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+
+        $options = array(
+            OssClient::OSS_HEADERS => array(
+                'Expires' => '2012-10-01 08:00:00',
+                'Content-Disposition' => 'attachment; filename="xxxxxx"',
+            ),
+        );
+
+        /**
+         * 带option的追加上传
+         */
+        try {
+            $position = $this->ossClient->appendObject($this->bucket, $object, "Hello OSS, ", 0, $options);
+            $position = $this->ossClient->appendObject($this->bucket, $object, "Hi OSS.", $position);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        /**
+         * 获取文件的meta信息
+         */
+        try {
+            $objectMeta = $this->ossClient->getObjectMeta($this->bucket, $object);
+            $this->assertEquals('attachment; filename="xxxxxx"', $objectMeta[strtolower('Content-Disposition')]);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        /**
+         * 删除测试object
+         */
+        try {
+            $this->ossClient->deleteObject($this->bucket, $object);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
     public function setUp()
     {
         parent::setUp();

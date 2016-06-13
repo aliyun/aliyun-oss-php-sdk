@@ -696,8 +696,16 @@ class RequestCore
                 break;
 
             case self::HTTP_POST:
-                curl_setopt($curl_handle, CURLOPT_POST, true);
-                curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $this->request_body);
+                curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, 'POST');
+                if (isset($this->read_stream)) {
+                    if (!isset($this->read_stream_size) || $this->read_stream_size < 0) {
+                        throw new RequestCore_Exception('The stream size for the streaming upload cannot be determined.');
+                    }
+                    curl_setopt($curl_handle, CURLOPT_INFILESIZE, $this->read_stream_size);
+                    curl_setopt($curl_handle, CURLOPT_UPLOAD, true);
+                } else {
+                    curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $this->request_body);
+                }
                 break;
 
             case self::HTTP_HEAD:
