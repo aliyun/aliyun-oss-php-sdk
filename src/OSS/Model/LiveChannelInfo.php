@@ -8,29 +8,29 @@ namespace OSS\Model;
  */
 class LiveChannelInfo implements XmlConfig
 {
-    private $id;
+    private $name;
     private $description;
     private $publishUrls;
     private $playUrls;
     private $status;
     private $lastModified;
 
-    public function __construct($id = null, $description = null)
+    public function __construct($name = null, $description = null)
     {
-        $this->id = $id;
+        $this->name = $name;
         $this->description = $description;
         $this->publishUrls = array();
         $this->playUrls = array();
     }
 
-    public function getId()
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
-    public function setId($id)
+    public function setName($name)
     {
-        $this->id = $id;
+        $this->name = $name;
     }
 
     public function getPublishUrls()
@@ -65,8 +65,8 @@ class LiveChannelInfo implements XmlConfig
 
     public function parseFromXmlNode($xml)
     {
-        if (isset($xml->Id)) {
-            $this->id = strval($xml->Id);
+        if (isset($xml->Name)) {
+            $this->name = strval($xml->Name);
         }
 
         if (isset($xml->Description)) {

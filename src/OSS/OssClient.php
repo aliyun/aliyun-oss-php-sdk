@@ -532,7 +532,7 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_OBJECT] = $channelConfig->getId();
+        $options[self::OSS_OBJECT] = $channelConfig->getName();
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $channelConfig->serializeToXml();
@@ -540,7 +540,7 @@ class OssClient
         $response = $this->auth($options);
         $result = new PutLiveChannelResult($response);
         $info = $result->getData();
-        $info->setId($channelConfig->getId());
+        $info->setName($channelConfig->getName());
         $info->setDescription($channelConfig->getDescription());
 
         return $info;

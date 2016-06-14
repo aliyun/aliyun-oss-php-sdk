@@ -14,7 +14,7 @@ use OSS\Core\OssException;
  */
 class LiveChannelConfig implements XmlConfig
 {
-    private $id;
+    private $name;
     private $description;
     private $status;
     private $type;
@@ -24,8 +24,8 @@ class LiveChannelConfig implements XmlConfig
 
     public function __construct($option = array())
     {
-        if (isset($option['id'])) {
-            $this->id = $option['id'];
+        if (isset($option['name'])) {
+            $this->name = $option['name'];
         }
         if (isset($option['description'])) {
             $this->description = $option['description'];
@@ -47,9 +47,9 @@ class LiveChannelConfig implements XmlConfig
         }
     }
 
-    public function getId()
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
     public function getDescription()

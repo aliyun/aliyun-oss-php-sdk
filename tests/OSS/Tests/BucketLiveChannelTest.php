@@ -30,7 +30,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
     public function testPutLiveChannel()
     {
         $config = new LiveChannelConfig(array(
-            'id' => 'live-1',
+            'name' => 'live-1',
             'description' => 'live channel 1',
             'type' => 'HLS',
             'fragDuration' => 10,
@@ -39,7 +39,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         ));
         $info = $this->client->putBucketLiveChannel($this->bucketName, $config);
 
-        $this->assertEquals('live-1', $info->getId());
+        $this->assertEquals('live-1', $info->getName());
         $this->assertEquals('live channel 1', $info->getDescription());
         $this->assertEquals(1, count($info->getPublishUrls()));
         $this->assertEquals(1, count($info->getPlayUrls()));
@@ -48,7 +48,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
     public function testListLiveChannels()
     {
         $config = new LiveChannelConfig(array(
-            'id' => 'live-1',
+            'name' => 'live-1',
             'description' => 'live channel 1',
             'type' => 'HLS',
             'fragDuration' => 10,
@@ -58,7 +58,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->client->putBucketLiveChannel($this->bucketName, $config);
 
         $config = new LiveChannelConfig(array(
-            'id' => 'live-2',
+            'name' => 'live-2',
             'description' => 'live channel 2',
             'type' => 'HLS',
             'fragDuration' => 10,
@@ -75,13 +75,13 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($channels));
 
         $chan1 = $channels[0];
-        $this->assertEquals('live-1', $chan1->getId());
+        $this->assertEquals('live-1', $chan1->getName());
         $this->assertEquals('live channel 1', $chan1->getDescription());
         $this->assertEquals(1, count($chan1->getPublishUrls()));
         $this->assertEquals(1, count($chan1->getPlayUrls()));
 
         $chan2 = $channels[1];
-        $this->assertEquals('live-2', $chan2->getId());
+        $this->assertEquals('live-2', $chan2->getName());
         $this->assertEquals('live channel 2', $chan2->getDescription());
         $this->assertEquals(1, count($chan2->getPublishUrls()));
         $this->assertEquals(1, count($chan2->getPlayUrls()));
@@ -94,7 +94,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $channels = $list->getChannelList();
         $this->assertEquals(1, count($channels));
         $chan2 = $channels[0];
-        $this->assertEquals('live-2', $chan2->getId());
+        $this->assertEquals('live-2', $chan2->getName());
         $this->assertEquals('live channel 2', $chan2->getDescription());
         $this->assertEquals(1, count($chan2->getPublishUrls()));
         $this->assertEquals(1, count($chan2->getPlayUrls()));
@@ -105,7 +105,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
     {
         $channelId = 'live-to-delete';
         $config = new LiveChannelConfig(array(
-            'id' => $channelId,
+            'name' => $channelId,
             'description' => 'live channel to delete',
             'type' => 'HLS',
             'fragDuration' => 10,
