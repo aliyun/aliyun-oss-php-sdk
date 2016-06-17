@@ -46,14 +46,5 @@ class OssClientBucketTest extends TestOssClientBase
 
         $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
         $this->assertFalse($this->ossClient->doesBucketExist($this->bucket . '-notexist'));
-
-        try {
-            $this->ossClient->deleteBucket($this->bucket);
-        } catch (OssException $e) {
-            $this->assertEquals("BucketNotEmpty", $e->getErrorCode());
-            $this->assertEquals("409", $e->getHTTPStatus());
-        }
-
-
     }
 }
