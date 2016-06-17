@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.7 / 2016-06-17
+
+* Support append object
+
 ## v2.0.6
 
 * Trim access key id/secret and endpoint
