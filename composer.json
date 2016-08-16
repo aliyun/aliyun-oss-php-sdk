@@ -1,5 +1,5 @@
 {
-    "name": "aliyuncs/oss-sdk-php",
+    "name": "kollway/oss-sdk-php",
     "description": "Aliyun OSS SDK for PHP",
     "homepage": "http://www.aliyun.com/product/oss/",
     "type": "library",
