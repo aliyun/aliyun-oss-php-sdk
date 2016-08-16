@@ -1441,7 +1441,9 @@ class OssClient
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = '';
         }
-        $timeout = time() + $timeout;
+        //$timeout = time() + $timeout;
+        //改成固定时间
+        $timeout = strtotime(date('Y-m-d')) + $timeout;
         $options[self::OSS_PREAUTH] = $timeout;
         $options[self::OSS_DATE] = $timeout;
         $this->setSignStsInUrl(true);
