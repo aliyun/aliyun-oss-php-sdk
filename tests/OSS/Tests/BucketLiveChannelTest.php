@@ -18,12 +18,49 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->client = Common::getOssClient();
-        $this->bucketName = 'php-sdk-test-bucket-' . strval(rand(0, 10));
+        $this->bucketName = 'php-sdk-test-bucket-name-' . strval(rand(0, 10));
         $this->client->createBucket($this->bucketName);
-    }
+        $this->client->putBucketAcl($this->bucketName, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+   }
 
     public function tearDown()
     {
+    ////to delete created bucket
+    //1. delele live channel
+        $list = $this->client->listBucketLiveChannels($this->bucketName);
+        if (count($list->getChannelList()) != 0)
+        {
+            foreach($list->getChannelList() as $list)
+            {
+                $this->client->deleteBucketLiveChannel($this->bucketName, $list->getName());
+            }
+        }
+    //2. delete exsited object
+        $prefix = 'live-test/';
+        $delimiter = '/';
+        $nextMarker = '';
+        $maxkeys = 1000;
+        $options = array(
+            'delimiter' => $delimiter,
+            'prefix' => $prefix,
+            'max-keys' => $maxkeys,
+            'marker' => $nextMarker,
+        );
+
+        try {
+            $listObjectInfo = $this->client->listObjects($this->bucketName, $options);
+        } catch (OssException $e) {
+            printf($e->getMessage() . "\n");
+            return;
+        }
+
+        $objectList = $listObjectInfo->getObjectList(); // 文件列表
+        if (!empty($objectList))
+        {   
+            foreach($objectList as $objectInfo)
+                $this->client->deleteObject($this->bucketName, $objectInfo->getKey());     
+        }
+    //3. delete the bucket
         $this->client->deleteBucket($this->bucketName);
     }
 
@@ -38,6 +75,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'playListName' => 'hello'
         ));
         $info = $this->client->putBucketLiveChannel($this->bucketName, $config);
+        $this->client->deleteBucketLiveChannel($this->bucketName, 'live-1');
 
         $this->assertEquals('live-1', $info->getName());
         $this->assertEquals('live channel 1', $info->getDescription());
@@ -47,7 +85,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
 
     public function testListLiveChannels()
     {
-        $config = new LiveChannelConfig(array(
+       $config = new LiveChannelConfig(array(
             'name' => 'live-1',
             'description' => 'live channel 1',
             'type' => 'HLS',
@@ -98,9 +136,15 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('live channel 2', $chan2->getDescription());
         $this->assertEquals(1, count($chan2->getPublishUrls()));
         $this->assertEquals(1, count($chan2->getPlayUrls()));
-    }
 
-    /*
+        $this->client->deleteBucketLiveChannel($this->bucketName, 'live-1');
+        $this->client->deleteBucketLiveChannel($this->bucketName, 'live-2');
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => 'live-'
+        ));
+        $this->assertEquals(0, count($list->getChannelList()));
+   }
+
     public function testDeleteLiveChannel()
     {
         $channelId = 'live-to-delete';
@@ -114,14 +158,13 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         ));
         $this->client->putBucketLiveChannel($this->bucketName, $config);
 
-        $this->client->deleteBucketLiveChannel($channelId);
-        $list = $this->listLiveChannels($this->bucketName, array(
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
             'prefix' => $channelId
         ));
 
         $this->assertEquals(0, count($list->getChannelList()));
     }
-    */
 
     public function testGetLiveChannelUrl()
     {
@@ -140,10 +183,129 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('rtmp', $ret['scheme']);
         parse_str($ret['query'], $query);
 
-        $this->assertTrue(isset($query['AccessKeyId']));
+        $this->assertTrue(isset($query['OSSAccessKeyId']));
         $this->assertTrue(isset($query['Signature']));
         $this->assertTrue(intval($query['Expires']) - ($now + 900) < 3);
         $this->assertEquals('hello', $query['a']);
         $this->assertEquals('world', $query['b']);
+    }
+
+/****
+    public function testLiveChannelStatus()
+    {
+        $channelId = 'live-1';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'live channel to delete',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+       
+        $status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
+        $this->assertEquals('', $status->getStatus());
+        $this->assertEquals('', $status->getConnectedTime());
+        $this->assertEquals(672, $status->getVideoWidth());
+        $this->assertEquals(378, $status->getVideoHeight());
+        $this->assertEquals(29, $status->getVideoFrameRate());
+        $this->assertEquals(72513, $status->getVideoBandwidth());
+        $this->assertEquals('H264', $status->getVideoCodec());
+        $this->assertEquals(6519, $status->getAudioBandwidth());
+        $this->assertEquals(22050, $status->getAudioSampleRate());
+        $this->assertEquals('AAC', $status->getAudioCodec());
+
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => $channelId
+        ));
+
+        $this->assertEquals(0, count($list->getChannelList()));
+    }
+****/
+    public function testLiveChannelInfo()
+    {
+        $channelId = 'live-to-put-status';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'test live channel info',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+
+        //getLiveChannelInfo
+        $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
+        $this->assertEquals('test live channel info', $info->getDescription());
+        $this->assertEquals('enabled', $info->getStatus());
+        $this->assertEquals('HLS', $info->getType());
+        $this->assertEquals(10, $info->getFragDuration());
+        $this->assertEquals(5, $info->getFragCount());
+        $this->assertEquals('playlist.m3u8', $info->getPlayListName());
+
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => $channelId
+        ));
+        $this->assertEquals(0, count($list->getChannelList()));
+    }
+
+    public function testLiveChannelHistory()
+    {
+        $channelId = 'live-test';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'test live channel info',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+       
+        
+        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv \"rtmp://$this->bucketName.oss-cn-shenzhen.aliyuncs.com/live/live-test?playlistName=test.m3u8\" ");
+        sleep(2);
+        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv \"rtmp://$this->bucketName.oss-cn-shenzhen.aliyuncs.com/live/live-test?playlistName=test.m3u8\" ");
+        
+        $history = $this->client->getLiveChannelHistory($this->bucketName, $channelId);
+        $this->assertEquals(2, count($history->getLiveRecordList()));
+        $this->assertNotEquals('', $history->getLiveRecordList()[0]->getStartTime());
+        $this->assertNotEquals('', $history->getLiveRecordList()[0]->getEndTime());
+        $this->assertNotEquals('', $history->getLiveRecordList()[0]->getRemoteAddr());
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+    }
+
+    public function testPostVodPlayList()
+    {
+        $channelId = 'live-test';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'live channel to delete',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+
+        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv \"rtmp://$this->bucketName.oss-cn-shenzhen.aliyuncs.com/live/live-test?playlistName=test.m3u8\" ");
+        sleep(1);
+        
+        $ts = time();
+        $info = $this->client->postVodPlaylist($this->bucketName, $channelId, "playback.m3u8",
+                                        array('StartTime' => $ts - 86400, 
+                                        'EndTime' => $ts)
+        );
+
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => $channelId
+        ));
+
+        $this->assertEquals(0, count($list->getChannelList()));
     }
 }

@@ -30,6 +30,9 @@ use OSS\Result\ListPartsResult;
 use OSS\Result\PutSetDeleteResult;
 use OSS\Result\ExistResult;
 use OSS\Result\PutLiveChannelResult;
+use OSS\Result\GetLiveChannelHistoryResult;
+use OSS\Result\GetLiveChannelInfoResult;
+use OSS\Result\GetLiveChannelStatusResult;
 use OSS\Result\ListLiveChannelResult;
 use OSS\Model\ObjectListInfo;
 use OSS\Result\UploadPartResult;
@@ -547,6 +550,98 @@ class OssClient
     }
 
     /**
+     * 设置LiveChannel的status
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId 操作的channelName
+     * @param string $channelStatus 为 enabled或disabled
+     * @param array $options
+     * @throws OssException
+     * @return null 
+     */
+    public function putLiveChannelStatus($bucket, $channelId, $channelStatus, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+        $options[self::OSS_LIVE_CHANNEL_STATUS] = $channelStatus;
+
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 获取LiveChannel信息
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId 指定的LiveChannel
+     * @param array $options
+     * @throws OssException
+     * @return GetLiveChannelInfo
+     */
+    public function getLiveChannelInfo($bucket, $channelId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+
+        $response = $this->auth($options);
+        $result = new GetLiveChannelInfoResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 获取LiveChannel状态信息
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId 指定的LiveChannel
+     * @param array $options
+     * @throws OssException
+     * @return GetLiveChannelStatus
+     */
+    public function getLiveChannelStatus($bucket, $channelId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+        $options[self::OSS_CNAME_COMP] = 'stat';
+      
+        $response = $this->auth($options);
+        $result = new GetLiveChannelStatusResult($response);
+        return $result->getData();
+    }
+
+     /**
+     * 获取LiveChannel历史信息
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId 指定的LiveChannel
+     * @param array $options
+     * @throws OssException
+     * @return GetLiveChannelHistory
+     */
+   public function getLiveChannelHistory($bucket, $channelId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_SUB_RESOURCE] = 'live';
+        $options[self::OSS_CNAME_COMP] = 'history';
+
+        $response = $this->auth($options);
+        $result = new GetLiveChannelHistoryResult($response);
+        return $result->getData();
+    }
+  
+    /**
      * 获取指定Bucket的直播流列表
      *
      * @param string $bucket bucket名称
@@ -572,6 +667,31 @@ class OssClient
         $list->setBucketName($bucket);
 
         return $list;
+    }
+
+    /**
+     * 为指定LiveChannel生成播放列表
+     *
+     * @param string $bucket bucket名称
+     * @param string $channelId 指定的LiveChannel
+     * @param string $playlistName 指定生成的点播播放列表的名称，必须以“.m3u8”结尾
+     * @param array $options
+     * @throws OssException
+     * @return GetLiveChannelStatus
+     */
+    public function postVodPlaylist($bucket, $channelId, $playlistName, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $channelId . '/' . $playlistName;
+        $options[self::OSS_SUB_RESOURCE] = 'vod';
+        $options[self::OSS_LIVE_CHANNEL_END_TIME] = $options['EndTime'];
+        $options[self::OSS_LIVE_CHANNEL_START_TIME] = $options['StartTime'];
+       
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
     }
 
     /**
@@ -623,8 +743,11 @@ class OssClient
         $resource = '/' . $bucket . '/' . $channelId;
 
         $string_to_sign = $expires . '\n' . $cano_params . $resource;
+        printf("\n********\n");
+        print($string_to_sign);
+        printf("\n********\n");
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $this->accessKeySecret, true));
-        $query_items[] = 'AccessKeyId=' . rawurlencode($this->accessKeyId);
+        $query_items[] = 'OSSAccessKeyId=' . rawurlencode($this->accessKeyId);
         $query_items[] = 'Expires=' . rawurlencode($expires);
         $query_items[] = 'Signature=' . rawurlencode($signature);
 
@@ -1736,7 +1859,11 @@ class OssClient
         // 生成 signable_resource
         $signable_resource = $this->generateSignableResource($options);
         $string_to_sign .= rawurldecode($signable_resource) . urldecode($signable_query_string);
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $this->accessKeySecret, true));
+
+        //对?后面的要签名的string字母序排序
+        $string_to_sign_ordered = $this->stringToSignSorted($string_to_sign);
+        
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
         $request->add_header('Authorization', 'OSS ' . $this->accessKeyId . ':' . $signature);
 
         if (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0) {
@@ -1775,7 +1902,7 @@ class OssClient
                 $data = $this->auth($options);
             }
         }
-
+        
         $this->redirects = 0;
         return $data;
     }
@@ -1964,7 +2091,10 @@ class OssClient
             'response-expires',
             'response-content-disposition',
             self::OSS_UPLOAD_ID,
-            self::OSS_CNAME_COMP
+            self::OSS_CNAME_COMP,
+            self::OSS_LIVE_CHANNEL_STATUS,
+            self::OSS_LIVE_CHANNEL_START_TIME,
+            self::OSS_LIVE_CHANNEL_END_TIME
         );
 
         foreach ($signableList as $item) {
@@ -2023,6 +2153,27 @@ class OssClient
             $queryStringParams = array_merge($queryStringParams, $options[self::OSS_QUERY_STRING]);
         }
         return OssUtil::toQueryString($queryStringParams);
+    }
+
+    private function stringToSignSorted($string_to_sign)
+    {
+        $queryStringSorted = '';
+        $explodeResult = explode('?', $string_to_sign);
+        $index = count($explodeResult);
+        if ($index === 1)
+            return $string_to_sign;
+
+        $queryStringParams = explode('&', $explodeResult[$index - 1]);
+        sort($queryStringParams);
+
+        foreach($queryStringParams as $params)
+        {
+             $queryStringSorted .= $params . '&';    
+        }
+
+        $queryStringSorted = substr($queryStringSorted, 0, -1);
+
+        return $explodeResult[0] . '?' . $queryStringSorted;
     }
 
     /**
@@ -2121,7 +2272,7 @@ class OssClient
     }
 
     /**
-     * 设置http库的请求超时时间，单位秒
+     //* 设置http库的请求超时时间，单位秒
      *
      * @param int $timeout
      */
@@ -2155,6 +2306,9 @@ class OssClient
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
     const OSS_CNAME_COMP = 'comp';
+    const OSS_LIVE_CHANNEL_STATUS = 'status';
+    const OSS_LIVE_CHANNEL_START_TIME = 'startTime';
+    const OSS_LIVE_CHANNEL_END_TIME = 'endTime';
     const OSS_MAX_KEYS_VALUE = 100;
     const OSS_MAX_OBJECT_GROUP_VALUE = OssUtil::OSS_MAX_OBJECT_GROUP_VALUE;
     const OSS_MAX_PART_SIZE = OssUtil::OSS_MAX_PART_SIZE;
