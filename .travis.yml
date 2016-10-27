@@ -9,8 +9,7 @@ install:
   - composer install --no-interaction
 before_script:
   - cd /tmp
-  - wget http://yueqiankun.oss-cn-hangzhou.aliyuncs.com/ffmpeg.tgz  ./
-  - wget http://yueqiankun.oss-cn-hangzhou.aliyuncs.com/allstar.flv  ./
+  - wget http://yueqiankun.oss-cn-hangzhou.aliyuncs.com/allstar.flv
   - tar xvf ffmpeg.tgz 
   - cd ffmpeg 
   - ./configure
