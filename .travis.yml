@@ -9,8 +9,10 @@ install:
   - composer install --no-interaction
 before_script:
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
-  - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/ffmpeg.tgz 
-  - tar xvf ffmpeg.tgz && cd ffmpeg && ./configure && sudo make install && cd -
+  - apt-get install software-properties-common
+  - sudo apt-add-repository ppa:mc3man/trusty-media
+  - sudo apt-get update
+  - sudo apt-get install ffmpeg
 script:
   - php vendor/bin/phpunit
 after_success:
