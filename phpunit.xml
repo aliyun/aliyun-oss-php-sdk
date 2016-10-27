@@ -11,7 +11,6 @@
     <testsuite name="FunctionTest">
       <directory>./tests</directory>
       <exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
-      <exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
     </testsuite>
   </testsuites>
 </phpunit>

@@ -553,18 +553,18 @@ class OssClient
      * 设置LiveChannel的status
      *
      * @param string $bucket bucket名称
-     * @param string $channelId 操作的channelName
+     * @param string $channelName 操作的channelName
      * @param string $channelStatus 为 enabled或disabled
      * @param array $options
      * @throws OssException
      * @return null 
      */
-    public function putLiveChannelStatus($bucket, $channelId, $channelStatus, $options = NULL)
+    public function putLiveChannelStatus($bucket, $channelName, $channelStatus, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_LIVE_CHANNEL_STATUS] = $channelStatus;
 
@@ -577,17 +577,17 @@ class OssClient
      * 获取LiveChannel信息
      *
      * @param string $bucket bucket名称
-     * @param string $channelId 指定的LiveChannel
+     * @param string $channelName 指定的LiveChannel
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelInfo
      */
-    public function getLiveChannelInfo($bucket, $channelId, $options = NULL)
+    public function getLiveChannelInfo($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
 
         $response = $this->auth($options);
@@ -599,17 +599,17 @@ class OssClient
      * 获取LiveChannel状态信息
      *
      * @param string $bucket bucket名称
-     * @param string $channelId 指定的LiveChannel
+     * @param string $channelName 指定的LiveChannel
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelStatus
      */
-    public function getLiveChannelStatus($bucket, $channelId, $options = NULL)
+    public function getLiveChannelStatus($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_CNAME_COMP] = 'stat';
       
@@ -622,17 +622,17 @@ class OssClient
      * 获取LiveChannel历史信息
      *
      * @param string $bucket bucket名称
-     * @param string $channelId 指定的LiveChannel
+     * @param string $channelName 指定的LiveChannel
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelHistory
      */
-   public function getLiveChannelHistory($bucket, $channelId, $options = NULL)
+   public function getLiveChannelHistory($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_CNAME_COMP] = 'history';
 
@@ -673,18 +673,18 @@ class OssClient
      * 为指定LiveChannel生成播放列表
      *
      * @param string $bucket bucket名称
-     * @param string $channelId 指定的LiveChannel
+     * @param string $channelName 指定的LiveChannel
      * @param string $playlistName 指定生成的点播播放列表的名称，必须以“.m3u8”结尾
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelStatus
      */
-    public function postVodPlaylist($bucket, $channelId, $playlistName, $options = NULL)
+    public function postVodPlaylist($bucket, $channelName, $playlistName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
-        $options[self::OSS_OBJECT] = $channelId . '/' . $playlistName;
+        $options[self::OSS_OBJECT] = $channelName . '/' . $playlistName;
         $options[self::OSS_SUB_RESOURCE] = 'vod';
         $options[self::OSS_LIVE_CHANNEL_END_TIME] = $options['EndTime'];
         $options[self::OSS_LIVE_CHANNEL_START_TIME] = $options['StartTime'];
@@ -698,17 +698,17 @@ class OssClient
      * 删除指定Bucket的直播流
      *
      * @param string $bucket bucket名称
-     * @param string $channelId
+     * @param string $channelName
      * @param array $options
      * @throws OssException
      * @return null
      */
-    public function deleteBucketLiveChannel($bucket, $channelId, $options = NULL)
+    public function deleteBucketLiveChannel($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_OBJECT] = $channelId;
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
 
         $response = $this->auth($options);
@@ -720,14 +720,14 @@ class OssClient
      * 生成签名后的推流地址
      *
      * @param string $bucket bucket名称
-     * @param string $channelId
+     * @param string $channelName
      * @param array $options
      * @throws OssException
      * @return null
      */
-    public function getLiveChannelUrl($bucket, $channelId, $options = NULL)
+    public function getLiveChannelUrl($bucket, $channelName, $options = NULL)
     {
-        $this->precheckCommon($bucket, $channelId, $options, false);
+        $this->precheckCommon($bucket, $channelName, $options, false);
         $expires = isset($options['expires']) ? intval($options['expires']) : 3600;
         $expires = time() + $expires;
         $proto = 'rtmp://';
@@ -737,21 +737,19 @@ class OssClient
         $params = isset($options['params']) ? $options['params'] : array();
         uksort($params, 'strnatcasecmp');
         foreach ($params as $key => $value) {
-            $cano_params = $cano_params . $key . ':' . $value . '\n';
+            $cano_params = $cano_params . $key . ':' . $value . "\n";
             $query_items[] = rawurlencode($key) . '=' . rawurlencode($value);
         }
-        $resource = '/' . $bucket . '/' . $channelId;
+        $resource = '/' . $bucket . '/' . $channelName;
 
-        $string_to_sign = $expires . '\n' . $cano_params . $resource;
-        printf("\n********\n");
-        print($string_to_sign);
-        printf("\n********\n");
+        $string_to_sign = $expires . "\n" . $cano_params . $resource;
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $this->accessKeySecret, true));
+
         $query_items[] = 'OSSAccessKeyId=' . rawurlencode($this->accessKeyId);
         $query_items[] = 'Expires=' . rawurlencode($expires);
         $query_items[] = 'Signature=' . rawurlencode($signature);
 
-        return $proto . $hostname . '/live/' . $channelId . '?' . implode('&', $query_items);
+        return $proto . $hostname . '/live/' . $channelName . '?' . implode('&', $query_items);
     }
 
     /**

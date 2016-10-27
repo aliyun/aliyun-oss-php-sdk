@@ -11,7 +11,9 @@ if (is_null($ossClient)) exit(1);
 
 //******************************* 简单使用 *******************************************************
 
-//putLiveChannel
+/**
+    putLiveChannel
+ */
 $config = new LiveChannelConfig(array(
             'name' => 'live-1',
             'description' => 'live channel 1',
@@ -27,7 +29,9 @@ Common::println("bucket $bucket liveChannel created:\n" .
 "publishurls: ". $info->getPublishUrls()[0] . "\n" .
 "playurls: ". $info->getPlayUrls()[0] . "\n");
 
-//listLiveChannel
+/**
+    listLiveChannel
+ */
 $list = $ossClient->listBucketLiveChannels($bucket);
 Common::println("bucket $bucket listLiveChannel:\n" . 
 "list live channel prefix: ". $list->getPrefix() . "\n" .
@@ -37,14 +41,20 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "list live channel getNextMarker: ". $list->getNextMarker() . "\n" .
 "list live channel list: ". $list->getChannelList()[0]->getName() . "\n");
 
-//getLiveChannelUrl
+/**getLiveChannelUrl
+
+ */
 $url = $ossClient->getLiveChannelUrl($bucket, "live-1");
 Common::println("bucket $bucket rtmp url: \n" . $url);
 
-//putLiveChannelStatus
+/**
+    putLiveChannelStatus
+ */
 $resp = $ossClient->putLiveChannelStatus($bucket, "live-1", "enabled");
 
-//getLiveChannelInfo
+/**
+    getLiveChannelInfo
+*/
 $info = $ossClient->getLiveChannelInfo($bucket, 'live-1');
 Common::println("bucket $bucket listLiveChannel:\n" . 
 "live channel info description: ". $info->getDescription() . "\n" .
@@ -54,7 +64,9 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "live channel info fragCount: ". $info->getFragCount() . "\n" .
 "live channel info playListName: ". $info->getPlayListName() . "\n");
 
-//getLiveChannelHistory
+/**
+    getLiveChannelHistory
+ */
 $history = $ossClient->getLiveChannelHistory($bucket, "live-1");
 if (count($history->getLiveRecordList()) != 0)
 {
@@ -64,7 +76,9 @@ if (count($history->getLiveRecordList()) != 0)
     "live channel history remoteAddr: ". $history->getLiveRecordList()[0]->getRemoteAddr() . "\n");
 }
 
-//getLiveChannelStatus
+/**
+    getLiveChannelStatus
+ */
 $status = $ossClient->getLiveChannelStatus($bucket, "live-1");
 Common::println("bucket $bucket listLiveChannel:\n" . 
 "live channel status status: ". $status->getStatus() . "\n" .
@@ -78,12 +92,17 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "live channel status AudioSampleRate: ". $status->getAudioSampleRate() . "\n" .
 "live channel status AdioCodec: ". $status->getAudioCodec() . "\n");
 
-//postVodPlaylist
-$info = $ossClient->postVodPlaylist($bucket,
+/**
+    postVodPlaylist
+    依赖ts文件,必须先推流
+ */
+/*$info = $ossClient->postVodPlaylist($bucket,
  "live-1", "playback.m3u8", 
  array('StartTime' => '1476844172', 
  'EndTime' => '1476864172')
 );
-
-//deleteLiveChannel
+*/
+/**
+    deleteLiveChannel
+ */
 $info = $ossClient->deleteBucketLiveChannel($bucket, "live-1");
