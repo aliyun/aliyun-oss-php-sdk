@@ -8,9 +8,9 @@ install:
   - composer self-update
   - composer install --no-interaction
 before_script:
-  - cd /tmp
-  - wget http://yueqiankun.oss-cn-hangzhou.aliyuncs.com/allstar.flv
-  - ls allstar.flv 
+  - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
+  - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/ffmpeg.tgz 
+  - tar xvf ffmpeg.tgz && cd ffmpeg && ./configure && sudo make install && cd -
 script:
   - php vendor/bin/phpunit
 after_success:
