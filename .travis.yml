@@ -10,15 +10,11 @@ install:
 before_script:
   - cd /tmp
   - wget http://yueqiankun.oss-cn-hangzhou.aliyuncs.com/allstar.flv
-  - tar xvf ffmpeg.tgz 
-  - cd ffmpeg 
-  - ./configure
-  - sudo make install
+  - ls allstar.flv 
 script:
   - php vendor/bin/phpunit
 after_success:
   - php vendor/bin/coveralls -v
-  - cd /tmp && rm ffmpeg.tgz && rm allstar.flv
 env:
   global:
     - secure: SzmQ854lQmhV6ZkAG7lQNTY3CkazrXnDSb6VMwPU/sdaLGxPO159AW3fJS5d0sO/XN1P8x5WNkoA4i9soDlLBRibEEISNUM/2EMnpszsRymZ9o97PrS2IgORXTUL/OF+rpATzyNVB2p+2l9hBLiGf17exMSA5iOeY7W6E+VKPGi8TFykgbGUnLKU0h1hV3rzmtfGjOXcSpvYU/hxeZD/J/+6m5Gic9b/pNS+AbfTj7Y7Ru9tNsnyUP29V/vtEYtpQir3ZxQiSiUv9idybgGnJBOMYydJofb/mpFYHhYLSWqtMKGNLpeawmqs4z8S1Tvx5U5uzW5+h/mpzhvBaFlWGpm8t89BQxun5LVX5NiYCrV7TqaLitGp1cSpMjMDnrnSTNzk1exVz+rWZZcWS7yB9ULYA681GA8StXWk167qB7Y30iK1dFK3+2mDN2cEY+qLs8+bupDowQ4eOM+eqfhxX8F8+ouKcKomETsjiIwL+CUsIe6wjvnYFWb1YlRhbsI75bblHApflohnt6gVSJ78ZPqID+u2oUMjmIWXLTnRR2Y2tgEW8uqHeIoQ8BBntLdQDmv0BO4FpnGQIwrUUwQYeNzEM0DOr3hWZhyDR6Xvl+9H0l52xjANaSqpuTZfC3zmeFTG7kIjydvxNePRrony6XAawL9BvI7aKWuVF6YVjPM=
