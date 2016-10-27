@@ -271,9 +271,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
                 'playlistName' => 'playlist.m3u8',
             )
         ));
-        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
+        system(" sudo ffmpeg \-re \-i /tmp/allstar.flv \-c copy \-f flv '$url' ");
         sleep(2);
-        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
+        system(" sudo ffmpeg \-re \-i /tmp/allstar.flv \-c copy \-f flv '$url' ");
         
         $history = $this->client->getLiveChannelHistory($this->bucketName, $channelId);
         $this->assertEquals(2, count($history->getLiveRecordList()));
@@ -303,7 +303,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             )
         ));
 
-        system(" sudo ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
+        system(" sudo ffmpeg \-re \-i /tmp/allstar.flv \-c copy \-f flv '$url' ");
         sleep(1);
         
         $ts = time();
