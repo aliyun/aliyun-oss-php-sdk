@@ -9,7 +9,7 @@ install:
   - composer install --no-interaction
 before_script:
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
-  - apt-get install software-properties-common
+  - sudo apt-get install software-properties-common
   - sudo apt-add-repository ppa:mc3man/trusty-media
   - sudo apt-get update
   - sudo apt-get install ffmpeg
