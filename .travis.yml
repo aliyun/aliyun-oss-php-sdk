@@ -1,18 +1,15 @@
 language: php
 php:
   - 5.6
-  - 5.5
-  - 5.4
-  - 5.3
 install:
   - composer self-update
   - composer install --no-interaction
 before_script:
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
   - sudo apt-get install software-properties-common
-  - sudo apt-add-repository ppa:mc3man/trusty-media
+  - sudo apt-add-repository ppa:samrog131/ppa
   - sudo apt-get update
-  - sudo apt-get install ffmpeg
+  - sudo ln -sf /opt/FFmpeg/bin/FFmpeg /usr/bin/FFmpeg
 script:
   - php vendor/bin/phpunit
 after_success:
