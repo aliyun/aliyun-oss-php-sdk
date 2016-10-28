@@ -271,9 +271,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
                 'playlistName' => 'playlist.m3u8',
             )
         ));
-        system(" sudo ./ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
+        system("./ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
         sleep(2);
-        system(" sudo ./ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
+        system("./ffmpeg \-re \-i ./allstar.flv \-c copy \-f flv '$url' ");
         
         $history = $this->client->getLiveChannelHistory($this->bucketName, $channelId);
         $this->assertEquals(2, count($history->getLiveRecordList()));
