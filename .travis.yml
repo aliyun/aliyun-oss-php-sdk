@@ -1,16 +1,13 @@
 language: php
 php:
   - 5.6
-  - 5.5
-  - 5.4
-  - 5.3
 install:
   - composer self-update
   - composer install --no-interaction
 before_script:
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/ffmpeg.tgz
-  - apt-get install yasm
+  - sudo apt-get install yasm
   - tar xvf ffmpeg.tgz && cd ffmpeg && ./configure && sudo make install && cd -
 script:
   - php vendor/bin/phpunit
