@@ -6,9 +6,8 @@ install:
   - composer install --no-interaction
 before_script:
   - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/allstar.flv 
-  - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/ffmpeg.tgz
-  - sudo apt-get install yasm
-  - tar xvf ffmpeg.tgz && cd ffmpeg && ./configure && sudo make install && cd -
+  - wget http://yueqiankun-meixi.oss-us-west-1.aliyuncs.com/ffmpeg
+  - chmod +x ffmpeg
 script:
   - php vendor/bin/phpunit
 after_success:
