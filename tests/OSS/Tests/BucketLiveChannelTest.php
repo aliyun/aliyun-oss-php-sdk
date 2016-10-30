@@ -20,6 +20,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->client = Common::getOssClient();
         $this->bucketName = 'php-sdk-test-bucket-name-' . strval(rand(0, 10));
         $this->client->createBucket($this->bucketName);
+        sleep(15);
     }
 
     public function tearDown()
