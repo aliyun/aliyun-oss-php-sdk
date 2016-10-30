@@ -188,9 +188,80 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hello', $query['a']);
         $this->assertEquals('world', $query['b']);
     }
+    public function testLiveChannelInfo()
+    {
+        $channelId = 'live-to-put-status';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'test live channel info',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
 
+        //getLiveChannelInfo
+        $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
+        $this->assertEquals('test live channel info', $info->getDescription());
+        $this->assertEquals('enabled', $info->getStatus());
+        $this->assertEquals('HLS', $info->getType());
+        $this->assertEquals(10, $info->getFragDuration());
+        $this->assertEquals(5, $info->getFragCount());
+        $this->assertEquals('playlist.m3u8', $info->getPlayListName());
+
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => $channelId
+        ));
+        $this->assertEquals(0, count($list->getChannelList()));
+    }
+
+    public function testPutLiveChannelStatus()
+    {
+        $channelId = 'live-to-put-status';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'test live channel info',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+       
+        $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
+        $this->assertEquals('test live channel info', $info->getDescription());
+        $this->assertEquals('enabled', $info->getStatus());
+        $this->assertEquals('HLS', $info->getType());
+        $this->assertEquals(10, $info->getFragDuration());
+        $this->assertEquals(5, $info->getFragCount());
+        $this->assertEquals('playlist.m3u8', $info->getPlayListName());
+        //$status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
+        //$this->assertEquals('enabled', $status->getStatus());
+
+
+        $resp = $this->client->putLiveChannelStatus($this->bucketName, $channelId, "disabled"); 
+        $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
+        $this->assertEquals('test live channel info', $info->getDescription());
+        $this->assertEquals('disabled', $info->getStatus());
+        $this->assertEquals('HLS', $info->getType());
+        $this->assertEquals(10, $info->getFragDuration());
+        $this->assertEquals(5, $info->getFragCount());
+        $this->assertEquals('playlist.m3u8', $info->getPlayListName());
+        //$status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
+        //$this->assertEquals('disabled', $status->getStatus());
+
+
+        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
+        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
+            'prefix' => $channelId
+        ));
+        $this->assertEquals(0, count($list->getChannelList()));
+
+    }
 /****
-    public function testLiveChannelStatus()
+    public function testGetLiveChannelStatus()
     {
         $channelId = 'live-1';
         $config = new LiveChannelConfig(array(
@@ -223,36 +294,8 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($list->getChannelList()));
     }
 ****/
-    public function testLiveChannelInfo()
-    {
-        $channelId = 'live-to-put-status';
-        $config = new LiveChannelConfig(array(
-            'name' => $channelId,
-            'description' => 'test live channel info',
-            'type' => 'HLS',
-            'fragDuration' => 10,
-            'fragCount' => 5,
-            'playListName' => 'hello'
-        ));
-        $this->client->putBucketLiveChannel($this->bucketName, $config);
 
-        //getLiveChannelInfo
-        $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
-        $this->assertEquals('test live channel info', $info->getDescription());
-        $this->assertEquals('enabled', $info->getStatus());
-        $this->assertEquals('HLS', $info->getType());
-        $this->assertEquals(10, $info->getFragDuration());
-        $this->assertEquals(5, $info->getFragCount());
-        $this->assertEquals('playlist.m3u8', $info->getPlayListName());
-
-        $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
-        $list = $this->client->listBucketLiveChannels($this->bucketName, array(
-            'prefix' => $channelId
-        ));
-        $this->assertEquals(0, count($list->getChannelList()));
-    }
-
-    public function testLiveChannelHistory()
+/****    public function testLiveChannelHistory()
     {
         $channelId = 'live-test';
         $config = new LiveChannelConfig(array(
@@ -282,8 +325,8 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals('', $history->getLiveRecordList()[0]->getRemoteAddr());
         $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
     }
-
-    public function testPostVodPlayList()
+****/
+/****    public function testPostVodPlayList()
     {
         $channelId = 'live-test';
         $config = new LiveChannelConfig(array(
@@ -319,4 +362,5 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(0, count($list->getChannelList()));
     }
+****/
 }
