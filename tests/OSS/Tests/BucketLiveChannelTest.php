@@ -20,7 +20,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->client = Common::getOssClient();
         $this->bucketName = 'php-sdk-test-bucket-name-' . strval(rand(0, 10));
         $this->client->createBucket($this->bucketName);
-        sleep(15);
+        Common::waitMetaSync();
     }
 
     public function tearDown()
@@ -156,6 +156,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
+        sleep(30);
         $this->client->putBucketLiveChannel($this->bucketName, $config);
 
         $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);

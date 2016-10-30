@@ -23,11 +23,11 @@ class TestOssClientBase extends \PHPUnit_Framework_TestCase
         $this->bucket = Common::getBucketName() . rand(100000, 999999);
         $this->ossClient = Common::getOssClient();
         $this->ossClient->createBucket($this->bucket);
-        sleep(30);
     }
 
     public function tearDown()
     {
+        sleep(60);
         if (!$this->ossClient->doesBucketExist($this->bucket)) {
             return;
         }
