@@ -2088,6 +2088,7 @@ class OssClient
             'response-content-encoding',
             'response-expires',
             'response-content-disposition',
+            'x-oss-process',
             self::OSS_UPLOAD_ID,
             self::OSS_CNAME_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
