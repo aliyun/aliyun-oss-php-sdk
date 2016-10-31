@@ -74,6 +74,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
+        sleep(30);
         $info = $this->client->putBucketLiveChannel($this->bucketName, $config);
         $this->client->deleteBucketLiveChannel($this->bucketName, 'live-1');
 
@@ -93,6 +94,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
+        sleep(30);
         $this->client->putBucketLiveChannel($this->bucketName, $config);
 
         $config = new LiveChannelConfig(array(
@@ -172,6 +174,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $channelId = '90475';
         $bucket = 'douyu';
         $now = time();
+        sleep(30);
         $url = $this->client->getLiveChannelUrl($bucket, $channelId, array(
             'expires' => 900,
             'params' => array(
@@ -201,9 +204,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
+        sleep(30);
         $this->client->putBucketLiveChannel($this->bucketName, $config);
 
-        //getLiveChannelInfo
         $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
         $this->assertEquals('test live channel info', $info->getDescription());
         $this->assertEquals('enabled', $info->getStatus());
@@ -230,6 +233,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
+        sleep(30);
         $this->client->putBucketLiveChannel($this->bucketName, $config);
        
         $info = $this->client->getLiveChannelInfo($this->bucketName, $channelId);
@@ -239,8 +243,8 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(10, $info->getFragDuration());
         $this->assertEquals(5, $info->getFragCount());
         $this->assertEquals('playlist.m3u8', $info->getPlayListName());
-        //$status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
-        //$this->assertEquals('enabled', $status->getStatus());
+        $status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
+        $this->assertEquals('', $status->getStatus());
 
 
         $resp = $this->client->putLiveChannelStatus($this->bucketName, $channelId, "disabled"); 
@@ -251,9 +255,9 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(10, $info->getFragDuration());
         $this->assertEquals(5, $info->getFragCount());
         $this->assertEquals('playlist.m3u8', $info->getPlayListName());
-        //$status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
-        //$this->assertEquals('disabled', $status->getStatus());
 
+        $status = $this->client->getLiveChannelStatus($this->bucketName, $channelId);
+        $this->assertEquals('', $status->getStatus());
 
         $this->client->deleteBucketLiveChannel($this->bucketName, $channelId);
         $list = $this->client->listBucketLiveChannels($this->bucketName, array(
@@ -261,6 +265,23 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         ));
         $this->assertEquals(0, count($list->getChannelList()));
 
+    }
+    public function testLiveChannelHistory()
+    {
+        $channelId = 'live-test-history';
+        $config = new LiveChannelConfig(array(
+            'name' => $channelId,
+            'description' => 'test live channel info',
+            'type' => 'HLS',
+            'fragDuration' => 10,
+            'fragCount' => 5,
+            'playListName' => 'hello'
+        ));
+        sleep(30);
+        $this->client->putBucketLiveChannel($this->bucketName, $config);
+        
+        $history = $this->client->getLiveChannelHistory($this->bucketName, $channelId);
+        $this->assertEquals(0, count($history->getLiveRecordList()));
     }
 /****
     public function testGetLiveChannelStatus()
