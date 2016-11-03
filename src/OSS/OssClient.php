@@ -522,7 +522,7 @@ class OssClient
     }
 
     /**
-     * 为指定Bucket创建直播流
+     * 为指定Bucket创建LiveChannel
      *
      * @param string $bucket bucket名称
      * @param LiveChannelConfig $channelConfig
@@ -545,7 +545,7 @@ class OssClient
         $info = $result->getData();
         $info->setName($channelConfig->getName());
         $info->setDescription($channelConfig->getDescription());
-
+        
         return $info;
     }
 
@@ -611,7 +611,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
-        $options[self::OSS_CNAME_COMP] = 'stat';
+        $options[self::OSS_LIVE_CHANNEL_PARAMS] = 'stat';
       
         $response = $this->auth($options);
         $result = new GetLiveChannelStatusResult($response);
@@ -619,7 +619,7 @@ class OssClient
     }
 
      /**
-     * 获取LiveChannel历史信息
+     *获取LiveChannel推流记录
      *
      * @param string $bucket bucket名称
      * @param string $channelName 指定的LiveChannel
@@ -634,7 +634,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
-        $options[self::OSS_CNAME_COMP] = 'history';
+        $options[self::OSS_LIVE_CHANNEL_PARAMS] = 'history';
 
         $response = $this->auth($options);
         $result = new GetLiveChannelHistoryResult($response);
@@ -642,7 +642,7 @@ class OssClient
     }
   
     /**
-     * 获取指定Bucket的直播流列表
+     *获取指定Bucket下的live channel列表
      *
      * @param string $bucket bucket名称
      * @param array $options
@@ -695,7 +695,7 @@ class OssClient
     }
 
     /**
-     * 删除指定Bucket的直播流
+     * 删除指定Bucket的LiveChannel
      *
      * @param string $bucket bucket名称
      * @param string $channelName
@@ -717,15 +717,15 @@ class OssClient
     }
 
     /**
-     * 生成签名后的推流地址
+     * 生成带签名的推流地址
      *
      * @param string $bucket bucket名称
      * @param string $channelName
      * @param array $options
      * @throws OssException
-     * @return null
+     * @return 推流地址
      */
-    public function getLiveChannelUrl($bucket, $channelName, $options = NULL)
+    public function signRtmpUrl($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, $channelName, $options, false);
         $expires = isset($options['expires']) ? intval($options['expires']) : 3600;
@@ -2088,12 +2088,13 @@ class OssClient
             'response-content-encoding',
             'response-expires',
             'response-content-disposition',
-            'x-oss-process',
             self::OSS_UPLOAD_ID,
             self::OSS_CNAME_COMP,
+            self::OSS_LIVE_CHANNEL_PARAMS,
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
-            self::OSS_LIVE_CHANNEL_END_TIME
+            self::OSS_LIVE_CHANNEL_END_TIME,
+            self::OSS_IMAGE_PROCESS
         );
 
         foreach ($signableList as $item) {
@@ -2305,6 +2306,7 @@ class OssClient
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
     const OSS_CNAME_COMP = 'comp';
+    const OSS_LIVE_CHANNEL_PARAMS = 'comp';
     const OSS_LIVE_CHANNEL_STATUS = 'status';
     const OSS_LIVE_CHANNEL_START_TIME = 'startTime';
     const OSS_LIVE_CHANNEL_END_TIME = 'endTime';
@@ -2370,6 +2372,7 @@ class OssClient
     const OSS_MULTI_DELETE = 'delete';
     const OSS_OBJECT_COPY_SOURCE = 'x-oss-copy-source';
     const OSS_OBJECT_COPY_SOURCE_RANGE = "x-oss-copy-source-range";
+    const OSS_IMAGE_PROCESS = "x-oss-process";
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';

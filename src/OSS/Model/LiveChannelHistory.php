@@ -8,10 +8,6 @@ namespace OSS\Model;
  */
 class LiveChannelHistory implements XmlConfig
 {
-    private $startTime;
-    private $endTime;
-    private $remoteAddr;
-
     public function __construct()
     {
     }
@@ -56,4 +52,8 @@ class LiveChannelHistory implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $startTime;
+    private $endTime;
+    private $remoteAddr;
 }

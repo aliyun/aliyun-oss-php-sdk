@@ -4,13 +4,10 @@ namespace OSS\Model;
 /**
  * Class GetLiveChannelHistory
  * @package OSS\Model
- *
  */
 class GetLiveChannelHistory implements XmlConfig
 {
-    private $liveRecordList = array();
-
-    public function getLiveRecordList()
+     public function getLiveRecordList()
     {
         return $this->liveRecordList;
     }
@@ -32,4 +29,6 @@ class GetLiveChannelHistory implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $liveRecordList = array();
 }

@@ -8,13 +8,6 @@ namespace OSS\Model;
  */
 class LiveChannelInfo implements XmlConfig
 {
-    private $name;
-    private $description;
-    private $publishUrls;
-    private $playUrls;
-    private $status;
-    private $lastModified;
-
     public function __construct($name = null, $description = null)
     {
         $this->name = $name;
@@ -104,4 +97,11 @@ class LiveChannelInfo implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $name;
+    private $description;
+    private $publishUrls;
+    private $playUrls;
+    private $status;
+    private $lastModified;
 }

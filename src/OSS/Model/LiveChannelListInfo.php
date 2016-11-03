@@ -7,20 +7,11 @@ namespace OSS\Model;
  *
  * ListBucketLiveChannels接口返回数据
  *
- * TODO fix link
  * @package OSS\Model
  * @link http://help.aliyun.com/document_detail/oss/api-reference/bucket/GetBucket.html
  */
 class LiveChannelListInfo implements XmlConfig
 {
-    private $bucketName;
-    private $prefix;
-    private $marker;
-    private $nextMarker;
-    private $maxKeys;
-    private $isTruncated;
-    private $channelList = array();
-
     /**
      * @return string
      */
@@ -105,4 +96,12 @@ class LiveChannelListInfo implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $bucketName;
+    private $prefix;
+    private $marker;
+    private $nextMarker;
+    private $maxKeys = 100;
+    private $isTruncated;
+    private $channelList = array();
 }

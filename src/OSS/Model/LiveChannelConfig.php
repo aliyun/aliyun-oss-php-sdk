@@ -14,14 +14,6 @@ use OSS\Core\OssException;
  */
 class LiveChannelConfig implements XmlConfig
 {
-    private $name;
-    private $description;
-    private $status;
-    private $type;
-    private $fragDuration;
-    private $fragCount;
-    private $playListName;
-
     public function __construct($option = array())
     {
         if (isset($option['name'])) {
@@ -132,4 +124,12 @@ EOF;
     {
         return $this->serializeToXml();
     }
+    
+    private $name;
+    private $description;
+    private $status = "enabled";
+    private $type;
+    private $fragDuration = 5;
+    private $fragCount = 3;
+    private $playListName = "playlist.m3u8";
 }

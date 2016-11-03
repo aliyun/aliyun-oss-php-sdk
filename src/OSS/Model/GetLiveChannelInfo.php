@@ -4,17 +4,9 @@ namespace OSS\Model;
 /**
  * Class GetLiveChannelInfo
  * @package OSS\Model
- *
  */
 class GetLiveChannelInfo implements XmlConfig
 {
-    private $description;
-    private $status;
-    private $type;
-    private $fragDuration;
-    private $fragCount;
-    private $playlistName;
-
     public function getDescription()
     {
         return $this->description;
@@ -66,4 +58,11 @@ class GetLiveChannelInfo implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $description;
+    private $status;
+    private $type;
+    private $fragDuration;
+    private $fragCount;
+    private $playlistName;
 }

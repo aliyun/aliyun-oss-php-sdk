@@ -4,25 +4,9 @@ namespace OSS\Model;
 /**
  * Class GetLiveChannelStatus
  * @package OSS\Model
- *
  */
 class GetLiveChannelStatus implements XmlConfig
 {
-    private $status;
-    private $connectedTime;
-    private $remoteAddr;
-
-
-    private $videoWidth;
-    private $videoHeight;
-    private $videoFrameRate;
-    private $videoBandwidth;
-    private $videoCodec;
-
-    private $audioBandwidth;
-    private $audioSampleRate;
-    private $audioCodec;
-    
     public function getStatus()
     {
         return $this->status;
@@ -104,4 +88,20 @@ class GetLiveChannelStatus implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
+    
+    private $status;
+    private $connectedTime;
+    private $remoteAddr;
+
+    private $videoWidth;
+    private $videoHeight;
+    private $videoFrameRate;
+    private $videoBandwidth;
+    private $videoCodec;
+
+    private $audioBandwidth;
+    private $audioSampleRate;
+    private $audioCodec;
+    
+
 }
