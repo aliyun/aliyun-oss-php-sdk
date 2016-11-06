@@ -6,9 +6,6 @@ use OSS\Model\LiveChannelInfo;
 
 class PutLiveChannelResult extends Result
 {
-    /**
-     * @return
-     */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;

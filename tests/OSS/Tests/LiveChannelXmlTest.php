@@ -83,7 +83,7 @@ BBBB;
 <LiveChannelStat>
     <Status>Live</Status>
     <ConnectedTime>2016-10-20T14:25:31.000Z</ConnectedTime>
-    <RemoteAddr>10.1.2.4.:47745</RemoteAddr>
+    <RemoteAddr>10.1.2.4:47745</RemoteAddr>
     <Video>
         <Width>1280</Width>
         <Height>536</Height>
@@ -120,14 +120,14 @@ BBBB;
 </LiveChannelHistory>
 BBBB;
 
-    public function testStatus()
+    public function testLiveChannelStatus()
     {
         $stat = new GetLiveChannelStatus();
         $stat->parseFromXml($this->status);
   
         $this->assertEquals('Live', $stat->getStatus());
         $this->assertEquals('2016-10-20T14:25:31.000Z', $stat->getConnectedTime());
-        $this->assertEquals('10.1.2.4.:47745', $stat->getRemoteAddr());
+        $this->assertEquals('10.1.2.4:47745', $stat->getRemoteAddr());
 
         $this->assertEquals(1280, $stat->getVideoWidth());
         $this->assertEquals(536, $stat->getVideoHeight());
@@ -140,7 +140,7 @@ BBBB;
 
     }
 
-    public function testHistory()
+    public function testLiveChannelHistory()
     {
         $history = new GetLiveChannelHistory();
         $history->parseFromXml($this->history);
@@ -165,12 +165,11 @@ BBBB;
 
     }
 
-    public function testConfig()
+    public function testLiveChannelConfig()
     {
         $config = new LiveChannelConfig(array('name' => 'live-1'));
         $config->parseFromXml($this->config);
 
-        $this->assertEquals('live-1', $config->getName());
         $this->assertEquals('xxx', $config->getDescription());
         $this->assertEquals('enabled', $config->getStatus());
         $this->assertEquals('hls', $config->getType());
@@ -181,7 +180,6 @@ BBBB;
         $xml = $config->serializeToXml();
         $config2 = new LiveChannelConfig(array('name' => 'live-2'));
         $config2->parseFromXml($xml);
-        $this->assertEquals('live-2', $config2->getName());
         $this->assertEquals('xxx', $config2->getDescription());
         $this->assertEquals('enabled', $config2->getStatus());
         $this->assertEquals('hls', $config2->getType());
@@ -190,7 +188,7 @@ BBBB;
         $this->assertEquals('hello', $config2->getPlayListName());
     }
 
-    public function testInfo()
+    public function testLiveChannelInfo()
     {
         $info = new LiveChannelInfo(array('name' => 'live-1'));
         $info->parseFromXml($this->info);
@@ -208,7 +206,7 @@ BBBB;
         $this->assertEquals('http://bucket.oss-cn-hangzhou.aliyuncs.com/213443245345/播放列表.m3u8', $plays[0]);
     }
 
-    public function testList()
+    public function testLiveChannelList()
     {
         $list = new LiveChannelListInfo();
         $list->parseFromXml($this->list);

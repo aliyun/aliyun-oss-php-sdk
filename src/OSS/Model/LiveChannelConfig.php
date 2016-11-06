@@ -16,9 +16,6 @@ class LiveChannelConfig implements XmlConfig
 {
     public function __construct($option = array())
     {
-        if (isset($option['name'])) {
-            $this->name = $option['name'];
-        }
         if (isset($option['description'])) {
             $this->description = $option['description'];
         }
@@ -37,11 +34,6 @@ class LiveChannelConfig implements XmlConfig
         if (isset($option['playListName'])) {
             $this->playListName = $option['playListName'];
         }
-    }
-
-    public function getName()
-    {
-        return $this->name;
     }
 
     public function getDescription()
@@ -125,7 +117,6 @@ EOF;
         return $this->serializeToXml();
     }
     
-    private $name;
     private $description;
     private $status = "enabled";
     private $type;

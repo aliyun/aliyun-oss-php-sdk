@@ -6,9 +6,6 @@ use OSS\Model\LiveChannelListInfo;
 
 class ListLiveChannelResult extends Result
 {
-    /**
-     * @return
-     */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;

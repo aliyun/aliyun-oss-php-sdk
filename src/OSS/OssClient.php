@@ -467,7 +467,7 @@ class OssClient
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
-        $options[self::OSS_CNAME_COMP] = 'add';
+        $options[self::OSS_COMP] = 'add';
 
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -514,7 +514,7 @@ class OssClient
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
-        $options[self::OSS_CNAME_COMP] = 'delete';
+        $options[self::OSS_COMP] = 'delete';
 
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -526,16 +526,17 @@ class OssClient
      *
      * @param string $bucket bucket名称
      * @param LiveChannelConfig $channelConfig
+     * @param channelName     $channelName
      * @param array $options
      * @throws OssException
      * @return LiveChannelInfo
      */
-    public function putBucketLiveChannel($bucket, $channelConfig, $options = NULL)
+    public function putBucketLiveChannel($bucket, $channelName, $channelConfig, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_OBJECT] = $channelConfig->getName();
+        $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $channelConfig->serializeToXml();
@@ -543,7 +544,7 @@ class OssClient
         $response = $this->auth($options);
         $result = new PutLiveChannelResult($response);
         $info = $result->getData();
-        $info->setName($channelConfig->getName());
+        $info->setName($channelName);
         $info->setDescription($channelConfig->getDescription());
         
         return $info;
@@ -611,7 +612,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
-        $options[self::OSS_LIVE_CHANNEL_PARAMS] = 'stat';
+        $options[self::OSS_COMP] = 'stat';
       
         $response = $this->auth($options);
         $result = new GetLiveChannelStatusResult($response);
@@ -634,7 +635,7 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = $channelName;
         $options[self::OSS_SUB_RESOURCE] = 'live';
-        $options[self::OSS_LIVE_CHANNEL_PARAMS] = 'history';
+        $options[self::OSS_COMP] = 'history';
 
         $response = $this->auth($options);
         $result = new GetLiveChannelHistoryResult($response);
@@ -675,19 +676,19 @@ class OssClient
      * @param string $bucket bucket名称
      * @param string $channelName 指定的LiveChannel
      * @param string $playlistName 指定生成的点播播放列表的名称，必须以“.m3u8”结尾
-     * @param array $options
+     * @param array $setTime
      * @throws OssException
-     * @return GetLiveChannelStatus
+     * @return null
      */
-    public function postVodPlaylist($bucket, $channelName, $playlistName, $options = NULL)
+    public function postVodPlaylist($bucket, $channelName, $playlistName, $setTime)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = $channelName . '/' . $playlistName;
         $options[self::OSS_SUB_RESOURCE] = 'vod';
-        $options[self::OSS_LIVE_CHANNEL_END_TIME] = $options['EndTime'];
-        $options[self::OSS_LIVE_CHANNEL_START_TIME] = $options['StartTime'];
+        $options[self::OSS_LIVE_CHANNEL_END_TIME] = $setTime['EndTime'];
+        $options[self::OSS_LIVE_CHANNEL_START_TIME] = $setTime['StartTime'];
        
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -725,11 +726,10 @@ class OssClient
      * @throws OssException
      * @return 推流地址
      */
-    public function signRtmpUrl($bucket, $channelName, $options = NULL)
+    public function signRtmpUrl($bucket, $channelName, $timeout, $options = NULL)
     {
         $this->precheckCommon($bucket, $channelName, $options, false);
-        $expires = isset($options['expires']) ? intval($options['expires']) : 3600;
-        $expires = time() + $expires;
+        $expires = time() + $timeout;
         $proto = 'rtmp://';
         $hostname = $this->generateHostname($bucket);
         $cano_params = '';
@@ -2089,8 +2089,7 @@ class OssClient
             'response-expires',
             'response-content-disposition',
             self::OSS_UPLOAD_ID,
-            self::OSS_CNAME_COMP,
-            self::OSS_LIVE_CHANNEL_PARAMS,
+            self::OSS_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
@@ -2305,8 +2304,7 @@ class OssClient
     const OSS_MAX_KEYS = 'max-keys';
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
-    const OSS_CNAME_COMP = 'comp';
-    const OSS_LIVE_CHANNEL_PARAMS = 'comp';
+    const OSS_COMP = 'comp';
     const OSS_LIVE_CHANNEL_STATUS = 'status';
     const OSS_LIVE_CHANNEL_START_TIME = 'startTime';
     const OSS_LIVE_CHANNEL_END_TIME = 'endTime';

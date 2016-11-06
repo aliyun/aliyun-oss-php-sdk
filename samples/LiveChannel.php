@@ -16,14 +16,13 @@ if (is_null($ossClient)) exit(1);
     频道的名称是test_rtmp_live。直播生成的m3u8文件叫做test.m3u8，该索引文件包含3片ts文件，每片ts文件的时长为5秒（这只是一个建议值，具体的时长取决于关键帧）。
  */
 $config = new LiveChannelConfig(array(
-            'name' => 'test_rtmp_live',
             'description' => 'live channel test',
             'type' => 'HLS',
             'fragDuration' => 10,
             'fragCount' => 5,
             'playListName' => 'hello'
         ));
-$info = $ossClient->putBucketLiveChannel($bucket, $config);
+$info = $ossClient->putBucketLiveChannel($bucket, 'test_rtmp_live', $config);
 Common::println("bucket $bucket liveChannel created:\n" . 
 "live channel name: ". $info->getName() . "\n" .
 "live channel description: ". $info->getDescription() . "\n" .
@@ -41,17 +40,26 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "list live channel marker: ". $list->getMarker() . "\n" .
 "list live channel maxkey: ". $list->getMaxKeys() . "\n" .
 "list live channel IsTruncated: ". $list->getIsTruncated() . "\n" .
-"list live channel getNextMarker: ". $list->getNextMarker() . "\n" .
-"list live channel list: ". $list->getChannelList()[0]->getName() . "\n");
+"list live channel getNextMarker: ". $list->getNextMarker() . "\n");
 
+foreach($list->getChannelList()  as $list)
+{
+    Common::println("bucket $bucket listLiveChannel:\n" . 
+    "list live channel IsTruncated: ". $list->getName() . "\n" .
+    "list live channel Description: ". $list->getDescription() . "\n" .
+    "list live channel Status: ". $list->getStatus() . "\n" .
+    "list live channel getNextMarker: ". $list->getLastModified() . "\n");
+}
 /**
-    创建直播频道之后拿到推流用的play_url（rtmp推流的url，如果Bucket不是公共读写权限那么还需要带上签名，见下文示例）和观流用的publish_url（推流产生的m3u8文件的url）
+    创建直播频道之后拿到推流用的play_url（rtmp推流的url，如果Bucket不是公共读写权限那么还需要带上签名，见下文示例）和推流用的publish_url（推流产生的m3u8文件的url）
  */
-$play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live");
+$play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600, array('params' => array('playlistName' => 'playlist.m3u8')));
+Common::println("bucket $bucket rtmp url: \n" . $play_url);
+$play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600);
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
 
 /**
-   创建好直播频道，如果想把这个频道禁用掉（断掉正在推的流或者不再允许向一个地址推流），应该使用putLiveChannelStatus接口，将频道的status改成“disabled”，如果要将一个禁用状态的频道启用，那么也是调用这个接口，将status改成“enabled”
+   创建好直播频道，如果想把这个频道禁用掉（断掉正在推的流或者不再允许向一个地址推流），应该使用putLiveChannelStatus接口，将频道的status改成“Disabled”，如果要将一个禁用状态的频道启用，那么也是调用这个接口，将status改成“Enabled”
  */
 $resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
 
@@ -59,7 +67,7 @@ $resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
     创建好直播频道之后调用getLiveChannelInfo可以得到频道相关的信息
 */
 $info = $ossClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
-Common::println("bucket $bucket listLiveChannel:\n" . 
+Common::println("bucket $bucket LiveChannelInfo:\n" . 
 "live channel info description: ". $info->getDescription() . "\n" .
 "live channel info status: ". $info->getStatus() . "\n" .
 "live channel info type: ". $info->getType() . "\n" .
@@ -76,21 +84,16 @@ if (count($history->getLiveRecordList()) != 0)
     foreach($history->getLiveRecordList() as $recordList)
     {
         Common::println("bucket $bucket liveChannelHistory:\n" . 
-        "live channel history startTime: ". $revordList->getStartTime() . "\n" .
+        "live channel history startTime: ". $recordList->getStartTime() . "\n" .
         "live channel history endTime: ". $recordList->getEndTime() . "\n" .
         "live channel history remoteAddr: ". $recordList->getRemoteAddr() . "\n");
     }
-
-    //Common::println("bucket $bucket liveChannelHistory:\n" . 
-    //"live channel history startTime: ". $history->getLiveRecordList()[0]->getStartTime() . "\n" .
-    //"live channel history endTime: ". $history->getLiveRecordList()[0]->getEndTime() . "\n" .
-    //"live channel history remoteAddr: ". $history->getLiveRecordList()[0]->getRemoteAddr() . "\n");
 }
 
 /**
     对于正在推流的频道调用get_live_channel_stat可以获得流的状态信息。
     如果频道正在推流，那么stat_result中的所有字段都有意义。
-    如果频道闲置或者处于“disabled”状态，那么status为“Idle”或“Disabled”，其他字段无意义。
+    如果频道闲置或者处于“Disabled”状态，那么status为“Idle”或“Disabled”，其他字段无意义。
  */
 $status = $ossClient->getLiveChannelStatus($bucket, "test_rtmp_live");
 Common::println("bucket $bucket listLiveChannel:\n" . 

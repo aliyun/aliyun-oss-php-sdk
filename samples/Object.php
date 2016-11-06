@@ -214,7 +214,6 @@ function listAllObjects($ossClient, $bucket)
             printf($e->getMessage() . "\n");
             return;
         }
-        print("\n***********\n");
         // 得到nextMarker，从上一次listObjects读到的最后一个文件的下一个文件开始继续获取文件列表
         $nextMarker = $listObjectInfo->getNextMarker();
         $listObject = $listObjectInfo->getObjectList();
