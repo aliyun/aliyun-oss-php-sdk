@@ -122,14 +122,24 @@ foreach($bucketList as $bucket) {
 
 ### 运行单元测试
 
-1. 修改 `tests/OSS/Tests/Config.php`， 补充配置信息
-2. 执行 `./vendor/bin/phpunit tests/OSS/Tests/`
+1. 执行`composer install`下载依赖的库
+2. 设置环境变量
 
-### 生成API文档
+        export OSS_ACCESS_KEY_ID=access-key-id
+        export OSS_ACCESS_KEY_SECRET=access-key-secret
+        export OSS_ENDPOINT=endpoint
+        export OSS_BUCKET=bucket-name
 
-1. 到根目录下，执行 `composer install`, 下载依赖的库
-2. 执行`mkdir phpdoc && vendor/bin/phpdoc -d src -t phpdoc`，生成html格式的api文档在phpdoc目录中
-3. 注意，需要php的版本是5.3，5.4，新版本的php不能正常使用phpdoc工具
+3. 执行 `php vendor/bin/phpunit`
+
+## 贡献代码
+
+0. 开发流程参考：https://github.com/rockuw/oss-sdk-status#development-oss-members-only
+1. 提交代码后，确保travis CI是PASS的
+2. 每发布一个新的版本：
+  - 运行`build-phar.sh`生成相应的phar包（需要安装[phar-composer][phar-composer])
+  - 在[Release页面][releases-page]发布一个版本
+  - 将生成的phar包上传到相应的Release下面
 
 ## 联系我们
 
@@ -139,3 +149,4 @@ foreach($bucketList as $bucket) {
 - 阿里云官方技术支持：[提交工单](https://workorder.console.aliyun.com/#/ticket/createIndex)
 
 [releases-page]: https://github.com/aliyun/aliyun-oss-php-sdk/releases
+[phar-composer]: https://github.com/clue/phar-composer

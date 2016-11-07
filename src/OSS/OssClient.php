@@ -34,6 +34,7 @@ use OSS\Result\GetLiveChannelHistoryResult;
 use OSS\Result\GetLiveChannelInfoResult;
 use OSS\Result\GetLiveChannelStatusResult;
 use OSS\Result\ListLiveChannelResult;
+use OSS\Result\AppendResult;
 use OSS\Model\ObjectListInfo;
 use OSS\Result\UploadPartResult;
 use OSS\Model\BucketListInfo;
@@ -73,6 +74,10 @@ class OssClient
      */
     public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
     {
+        $accessKeyId = trim($accessKeyId);
+        $accessKeySecret = trim($accessKeySecret);
+        $endpoint = trim(trim($endpoint), "/");
+
         if (empty($accessKeyId)) {
             throw new OssException("access key id is empty");
         }
@@ -1020,6 +1025,84 @@ class OssClient
         $options[self::OSS_CONTENT_LENGTH] = $file_size;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 追加上传内存中的内容
+     *
+     * @param string $bucket bucket名称
+     * @param string $object objcet名称
+     * @param string $content 本次追加上传的内容
+     * @param array $options
+     * @return int next append position
+     * @throws OssException
+     */
+    public function appendObject($bucket, $object, $content, $position, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+
+        OssUtil::validateContent($content);
+        $options[self::OSS_CONTENT] = $content;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'append';
+        $options[self::OSS_POSITION] = strval($position);
+
+        if (!isset($options[self::OSS_LENGTH])) {
+            $options[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
+        } else {
+            $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
+        }
+
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
+        }
+        $response = $this->auth($options);
+        $result = new AppendResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 追加上传本地文件
+     *
+     * @param string $bucket bucket名称
+     * @param string $object object名称
+     * @param string $file 追加上传的本地文件路径
+     * @param array $options
+     * @return int next append position
+     * @throws OssException
+     */
+    public function appendFile($bucket, $object, $file, $position, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+
+        OssUtil::throwOssExceptionWithMessageIfEmpty($file, "file path is invalid");
+        $file = OssUtil::encodePath($file);
+        if (!file_exists($file)) {
+            throw new OssException($file . " file does not exist");
+        }
+        $options[self::OSS_FILE_UPLOAD] = $file;
+        $file_size = filesize($options[self::OSS_FILE_UPLOAD]);
+        $is_check_md5 = $this->isCheckMD5($options);
+        if ($is_check_md5) {
+            $content_md5 = base64_encode(md5_file($options[self::OSS_FILE_UPLOAD], true));
+            $options[self::OSS_CONTENT_MD5] = $content_md5;
+        }
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $file);
+        }
+
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_CONTENT_LENGTH] = $file_size;
+        $options[self::OSS_SUB_RESOURCE] = 'append';
+        $options[self::OSS_POSITION] = strval($position);
+
+        $response = $this->auth($options);
+        $result = new AppendResult($response);
         return $result->getData();
     }
 
@@ -2094,6 +2177,7 @@ class OssClient
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_IMAGE_PROCESS
+            self::OSS_POSITION
         );
 
         foreach ($signableList as $item) {
@@ -2304,10 +2388,15 @@ class OssClient
     const OSS_MAX_KEYS = 'max-keys';
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
+<<<<<<< HEAD
     const OSS_COMP = 'comp';
     const OSS_LIVE_CHANNEL_STATUS = 'status';
     const OSS_LIVE_CHANNEL_START_TIME = 'startTime';
     const OSS_LIVE_CHANNEL_END_TIME = 'endTime';
+=======
+    const OSS_CNAME_COMP = 'comp';
+    const OSS_POSITION = 'position';
+>>>>>>> master
     const OSS_MAX_KEYS_VALUE = 100;
     const OSS_MAX_OBJECT_GROUP_VALUE = OssUtil::OSS_MAX_OBJECT_GROUP_VALUE;
     const OSS_MAX_PART_SIZE = OssUtil::OSS_MAX_PART_SIZE;
@@ -2392,8 +2481,8 @@ class OssClient
     );
     // OssClient版本信息
     const OSS_NAME = "aliyun-sdk-php";
-    const OSS_VERSION = "2.0.5";
-    const OSS_BUILD = "20160126";
+    const OSS_VERSION = "2.0.7";
+    const OSS_BUILD = "20160617";
     const OSS_AUTHOR = "";
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';

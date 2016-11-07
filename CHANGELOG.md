@@ -1,5 +1,14 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.0.7 / 2016-06-17
+
+* Support append object
+
+## v2.0.6
+
+* Trim access key id/secret and endpoint
+* Refine tests and setup travis CI
+
 ## v2.0.5
 
 * 增加Add/Delete/Get BucketCname接口
@@ -24,7 +33,7 @@
 
 ## 2015.11.25
 
-** 大版本升级，不再兼容以前接口，新版本对易用性做了很大的改进，建议用户迁移到新版本。 **
+* **大版本升级，不再兼容以前接口，新版本对易用性做了很大的改进，建议用户迁移到新版本。**
 
 ## 修改内容
 
