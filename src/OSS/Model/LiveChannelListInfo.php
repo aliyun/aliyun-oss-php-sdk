@@ -17,12 +17,12 @@ class LiveChannelListInfo implements XmlConfig
      */
     public function getBucketName()
     {
-        return $this->bucketName;
+        return $this->bucket;
     }
 
     public function setBucketName($name)
     {
-        $this->bucketName = $name;
+        $this->bucket = $name;
     }
 
     /**
@@ -97,11 +97,11 @@ class LiveChannelListInfo implements XmlConfig
         throw new OssException("Not implemented.");
     }
     
-    private $bucketName;
-    private $prefix;
-    private $marker;
-    private $nextMarker;
+    private $bucket;
+    private $prefix = '';
+    private $marker = '';
+    private $nextMarker = '';
     private $maxKeys = 100;
-    private $isTruncated;
+    private $isTruncated = 'false';
     private $channelList = array();
 }

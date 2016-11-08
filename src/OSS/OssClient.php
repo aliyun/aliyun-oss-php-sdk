@@ -530,8 +530,8 @@ class OssClient
      * 为指定Bucket创建LiveChannel
      *
      * @param string $bucket bucket名称
+     * @param string channelName  $channelName
      * @param LiveChannelConfig $channelConfig
-     * @param channelName     $channelName
      * @param array $options
      * @throws OssException
      * @return LiveChannelInfo
@@ -559,8 +559,8 @@ class OssClient
      * 设置LiveChannel的status
      *
      * @param string $bucket bucket名称
-     * @param string $channelName 操作的channelName
-     * @param string $channelStatus 为 enabled或disabled
+     * @param string channelName $channelName
+     * @param string channelStatus $channelStatus 为enabled或disabled
      * @param array $options
      * @throws OssException
      * @return null 
@@ -583,7 +583,7 @@ class OssClient
      * 获取LiveChannel信息
      *
      * @param string $bucket bucket名称
-     * @param string $channelName 指定的LiveChannel
+     * @param string channelName $channelName
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelInfo
@@ -605,7 +605,7 @@ class OssClient
      * 获取LiveChannel状态信息
      *
      * @param string $bucket bucket名称
-     * @param string $channelName 指定的LiveChannel
+     * @param string channelName $channelName
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelStatus
@@ -628,7 +628,7 @@ class OssClient
      *获取LiveChannel推流记录
      *
      * @param string $bucket bucket名称
-     * @param string $channelName 指定的LiveChannel
+     * @param string channelName $channelName
      * @param array $options
      * @throws OssException
      * @return GetLiveChannelHistory
@@ -679,9 +679,9 @@ class OssClient
      * 为指定LiveChannel生成播放列表
      *
      * @param string $bucket bucket名称
-     * @param string $channelName 指定的LiveChannel
+     * @param string channelName $channelName 
      * @param string $playlistName 指定生成的点播播放列表的名称，必须以“.m3u8”结尾
-     * @param array $setTime
+     * @param array $setTime  startTime和EndTime以unix时间戳格式给定,跨度不能超过一天
      * @throws OssException
      * @return null
      */
@@ -704,7 +704,7 @@ class OssClient
      * 删除指定Bucket的LiveChannel
      *
      * @param string $bucket bucket名称
-     * @param string $channelName
+     * @param string channelName $channelName
      * @param array $options
      * @throws OssException
      * @return null
@@ -726,12 +726,13 @@ class OssClient
      * 生成带签名的推流地址
      *
      * @param string $bucket bucket名称
-     * @param string $channelName
+     * @param string channelName $channelName
+     * @param int timeout 设置超时时间，单位为秒
      * @param array $options
      * @throws OssException
      * @return 推流地址
      */
-    public function signRtmpUrl($bucket, $channelName, $timeout, $options = NULL)
+    public function signRtmpUrl($bucket, $channelName, $timeout = 60, $options = NULL)
     {
         $this->precheckCommon($bucket, $channelName, $options, false);
         $expires = time() + $timeout;
@@ -2176,7 +2177,7 @@ class OssClient
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
-            self::OSS_IMAGE_PROCESS,
+            self::OSS_PROCESS,
             self::OSS_POSITION
         );
 
@@ -2455,7 +2456,7 @@ class OssClient
     const OSS_MULTI_DELETE = 'delete';
     const OSS_OBJECT_COPY_SOURCE = 'x-oss-copy-source';
     const OSS_OBJECT_COPY_SOURCE_RANGE = "x-oss-copy-source-range";
-    const OSS_IMAGE_PROCESS = "x-oss-process";
+    const OSS_PROCESS = "x-oss-process";
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';

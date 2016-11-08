@@ -20,7 +20,7 @@ $config = new LiveChannelConfig(array(
             'type' => 'HLS',
             'fragDuration' => 10,
             'fragCount' => 5,
-            'playListName' => 'hello'
+            'playListName' => 'hello.m3u8'
         ));
 $info = $ossClient->putBucketLiveChannel($bucket, 'test_rtmp_live', $config);
 Common::println("bucket $bucket liveChannel created:\n" . 
@@ -114,7 +114,7 @@ Common::println("bucket $bucket listLiveChannel:\n" .
     播放列表指定为“vod_playlist.m3u8”，也就是说这个接口调用成功之后会在OSS上生成一个名叫“vod_playlist.m3u8”的播放列表文件。
  */
 $current_time = time();
-$info = $ossClient->postVodPlaylist($bucket,
+$ossClient->postVodPlaylist($bucket,
     "test_rtmp_live", "vod_playlist.m3u8", 
     array('StartTime' => $current_time - 60, 
           'EndTime' => $current_time)
@@ -123,4 +123,4 @@ $info = $ossClient->postVodPlaylist($bucket,
 /**
     如果一个直播频道已经不打算再使用了，那么可以调用delete_live_channel来删除频道。
  */
-$info = $ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");
+$ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");

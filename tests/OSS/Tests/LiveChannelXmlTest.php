@@ -22,7 +22,7 @@ class LiveChannelXmlTest extends \PHPUnit_Framework_TestCase
      <Type>hls</Type>
      <FragDuration>1000</FragDuration>
      <FragCount>5</FragCount>
-     <PlayListName>hello</PlayListName>
+     <PlayListName>hello.m3u8</PlayListName>
   </Target>
 </LiveChannelConfiguration>
 BBBB;
@@ -175,7 +175,7 @@ BBBB;
         $this->assertEquals('hls', $config->getType());
         $this->assertEquals(1000, $config->getFragDuration());
         $this->assertEquals(5, $config->getFragCount());
-        $this->assertEquals('hello', $config->getPlayListName());
+        $this->assertEquals('hello.m3u8', $config->getPlayListName());
 
         $xml = $config->serializeToXml();
         $config2 = new LiveChannelConfig(array('name' => 'live-2'));
@@ -185,7 +185,7 @@ BBBB;
         $this->assertEquals('hls', $config2->getType());
         $this->assertEquals(1000, $config2->getFragDuration());
         $this->assertEquals(5, $config2->getFragCount());
-        $this->assertEquals('hello', $config2->getPlayListName());
+        $this->assertEquals('hello.m3u8', $config2->getPlayListName());
     }
 
     public function testLiveChannelInfo()

@@ -8,9 +8,6 @@ use OSS\Core\OssException;
 /**
  * Class LiveChannelConfig
  * @package OSS\Model
- *
- * TODO: fix link
- * @link http://help.aliyun.com/document_detail/oss/api-reference/cors/PutBucketcors.html
  */
 class LiveChannelConfig implements XmlConfig
 {
