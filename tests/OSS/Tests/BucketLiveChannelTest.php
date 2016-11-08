@@ -18,7 +18,7 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->client = Common::getOssClient();
-        $this->bucketName = 'php-sdk-test-bucket-name-' . strval(rand(0, 10));
+        $this->bucketName = 'php-sdk-test-rtmp-bucket-name-' . strval(rand(0, 10));
         $this->client->createBucket($this->bucketName);
         Common::waitMetaSync();
         sleep(30);

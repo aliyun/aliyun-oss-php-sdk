@@ -2176,7 +2176,7 @@ class OssClient
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
-            self::OSS_IMAGE_PROCESS
+            self::OSS_IMAGE_PROCESS,
             self::OSS_POSITION
         );
 
@@ -2388,15 +2388,11 @@ class OssClient
     const OSS_MAX_KEYS = 'max-keys';
     const OSS_UPLOAD_ID = 'uploadId';
     const OSS_PART_NUM = 'partNumber';
-<<<<<<< HEAD
     const OSS_COMP = 'comp';
     const OSS_LIVE_CHANNEL_STATUS = 'status';
     const OSS_LIVE_CHANNEL_START_TIME = 'startTime';
     const OSS_LIVE_CHANNEL_END_TIME = 'endTime';
-=======
-    const OSS_CNAME_COMP = 'comp';
     const OSS_POSITION = 'position';
->>>>>>> master
     const OSS_MAX_KEYS_VALUE = 100;
     const OSS_MAX_OBJECT_GROUP_VALUE = OssUtil::OSS_MAX_OBJECT_GROUP_VALUE;
     const OSS_MAX_PART_SIZE = OssUtil::OSS_MAX_PART_SIZE;
