@@ -12,6 +12,7 @@ if (is_null($ossClient)) exit(1);
 //*******************************简单使用***************************************************************
 // 先把本地的example.jpg上传到指定$bucket, 命名为$object
 $ossClient->uploadFile($bucketName, $object, "example.jpg");
+
 // 图片缩放
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => $download_file,

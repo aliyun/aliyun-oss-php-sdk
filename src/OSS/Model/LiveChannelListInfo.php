@@ -97,7 +97,7 @@ class LiveChannelListInfo implements XmlConfig
         throw new OssException("Not implemented.");
     }
     
-    private $bucket;
+    private $bucket = '';
     private $prefix = '';
     private $marker = '';
     private $nextMarker = '';
