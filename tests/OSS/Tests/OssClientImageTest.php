@@ -23,10 +23,10 @@ class OssClinetImageTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->client = Common::getOssClient();
-        $this->bucketName = 'php-sdk-test-bucket-image-' . strval(rand(0, 10));
+        $this->bucketName = 'php-sdk-test-bucket-image-' . strval(rand(0, 10000));
         $this->client->createBucket($this->bucketName);
         Common::waitMetaSync();
-        sleep(30);
+        sleep(15);
         $this->local_file = "example.jpg";
         $this->object = "oss-example.jpg";
         $this->download_file = "image.jpg";

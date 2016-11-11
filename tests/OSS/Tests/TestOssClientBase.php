@@ -27,7 +27,7 @@ class TestOssClientBase extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        sleep(60);
+        sleep(30);
         if (!$this->ossClient->doesBucketExist($this->bucket)) {
             return;
         }
