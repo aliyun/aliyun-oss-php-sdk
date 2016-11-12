@@ -26,7 +26,6 @@ class OssClinetImageTest extends \PHPUnit_Framework_TestCase
         $this->bucketName = 'php-sdk-test-bucket-image-' . strval(rand(0, 10000));
         $this->client->createBucket($this->bucketName);
         Common::waitMetaSync();
-        sleep(15);
         $this->local_file = "example.jpg";
         $this->object = "oss-example.jpg";
         $this->download_file = "image.jpg";
