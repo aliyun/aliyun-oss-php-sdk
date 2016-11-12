@@ -64,7 +64,7 @@ class Common
     public static function waitMetaSync()
     {
         if (getenv('TRAVIS')) {
-            sleep(30);
+            sleep(10);
         }
     }
 }
