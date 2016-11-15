@@ -21,7 +21,6 @@ class BucketLiveChannelTest extends \PHPUnit_Framework_TestCase
         $this->bucketName = 'php-sdk-test-rtmp-bucket-name-' . strval(rand(0, 10000));
         $this->client->createBucket($this->bucketName);
         Common::waitMetaSync();
-        sleep(15);
     }
 
     public function tearDown()

@@ -1,5 +1,10 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.1.0 / 2016-11-12
+
+* 增加[RTMP](https://help.aliyun.com/document_detail/44297.html)接口
+* 增加支持[图片服务](https://help.aliyun.com/document_detail/44686.html)
+
 ## v2.0.7 / 2016-06-17
 
 * Support append object
