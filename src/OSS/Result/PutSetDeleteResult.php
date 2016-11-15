@@ -10,10 +10,11 @@ namespace OSS\Result;
 class PutSetDeleteResult extends Result
 {
     /**
-     * @return null
+     * @return array()
      */
     protected function parseDataFromResponse()
     {
-        return null;
+        $body = array('body' => $this->rawResponse->body);
+        return array_merge($this->rawResponse->header, $body);
     }
 }
