@@ -38,19 +38,11 @@ $options = array(
 $result = $ossClient->getObject($bucket, "c.file", $options);
 Common::println("b.file is fetched to the local file: c.file.localcopy");
 Common::println("b.file is created");
-Common::println($result['x-oss-request-id']);
-Common::println($result['etag']);
-Common::println($result['content-md5']);
-Common::println($result['body']);
 
 // 拷贝object
 $result = $ossClient->copyObject($bucket, "c.file", $bucket, "c.file.copy");
-Common::println("c.file is copied to c.file.copy");
-Common::println("b.file is created");
-Common::println($result['x-oss-request-id']);
-Common::println($result['etag']);
-Common::println($result['content-md5']);
-Common::println($result['body']);
+foreach($result as $val)
+    print($val);
 
 // 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
@@ -61,9 +53,6 @@ $result = $ossClient->deleteObject($bucket, "c.file.copy");
 Common::println("c.file.copy is deleted");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
-Common::println($result['etag']);
-Common::println($result['content-md5']);
-Common::println($result['body']);
 
 // 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
@@ -71,12 +60,8 @@ Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
 // 批量删除object
 $result = $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
-Common::println("b.file, c.file are deleted");
-Common::println("b.file is created");
-Common::println($result['x-oss-request-id']);
-Common::println($result['etag']);
-Common::println($result['content-md5']);
-Common::println($result['body']);
+foreach($result as $object)
+    print($object);
 
 sleep(2);
 unlink("c.file.localcopy");

@@ -71,8 +71,9 @@ class OssClientObjectTest extends TestOssClientBase
         }
 
         try {
-            $this->ossClient->deleteObjects($this->bucket, "stringtype", $options);
+            $result = $this->ossClient->deleteObjects($this->bucket, "stringtype", $options);
             $this->assertFalse(true);
+            $this->assertEquals('stringtype', $result[0]);
         } catch (OssException $e) {
             $this->assertEquals('objects must be array', $e->getMessage());
         }
@@ -150,12 +151,14 @@ class OssClientObjectTest extends TestOssClientBase
         $to_object = $object . '.copy';
         $options = array();
         try {
-            $this->ossClient->copyObject($this->bucket, $object, $to_bucket, $to_object, $options);
+            $result = $this->ossClient->copyObject($this->bucket, $object, $to_bucket, $to_object, $options);
+            $this->assertNotEquals('', $result[0]);
+            $this->assertNotEquals('', $result[1]);
         } catch (OssException $e) {
             $this->assertFalse(true);
             var_dump($e->getMessage());
 
-        }
+        } 
 
         /**
          * 检查复制的是否相同
@@ -245,7 +248,11 @@ class OssClientObjectTest extends TestOssClientBase
         $list = array($object1, $object2);
         try {
             $this->assertTrue($this->ossClient->doesObjectExist($this->bucket, $object2));
-            $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => true));
+            
+            $result = $this->ossClient->deleteObjects($this->bucket, $list);
+            $this->assertEquals($list[1], $result[0]);
+            $this->assertEquals($list[0], $result[1]);
+            
             $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => 'true'));
             $this->assertFalse($this->ossClient->doesObjectExist($this->bucket, $object2));
         } catch (OssException $e) {

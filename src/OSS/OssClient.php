@@ -28,6 +28,8 @@ use OSS\Model\ListMultipartUploadInfo;
 use OSS\Result\ListObjectsResult;
 use OSS\Result\ListPartsResult;
 use OSS\Result\PutSetDeleteResult;
+use OSS\Result\DeleteObjectsResult;
+use OSS\Result\CopyObjectResult;
 use OSS\Result\ExistResult;
 use OSS\Result\PutLiveChannelResult;
 use OSS\Result\GetLiveChannelHistoryResult;
@@ -1131,7 +1133,7 @@ class OssClient
             $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_COPY_SOURCE => '/' . $fromBucket . '/' . $fromObject);
         }
         $response = $this->auth($options);
-        $result = new PutSetDeleteResult($response);
+        $result = new CopyObjectResult($response);
         return $result->getData();
     }
 
@@ -1204,7 +1206,7 @@ class OssClient
         $xmlBody = OssUtil::createDeleteObjectsXmlBody($objects, $quiet);
         $options[self::OSS_CONTENT] = $xmlBody;
         $response = $this->auth($options);
-        $result = new PutSetDeleteResult($response);
+        $result = new DeleteObjectsResult($response);
         return $result->getData();
     }
 
