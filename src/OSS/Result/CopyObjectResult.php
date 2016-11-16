@@ -15,10 +15,6 @@ class CopyObjectResult extends Result
     protected function parseDataFromResponse()
     {
         $body = $this->rawResponse->body;
-        if (empty($body) || false === strpos($body, '<?xml')) {
-            return '';
-        }
-
         $xml = simplexml_load_string($body); 
         $result = array();
         

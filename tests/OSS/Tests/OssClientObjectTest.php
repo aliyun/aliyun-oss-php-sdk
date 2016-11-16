@@ -69,11 +69,17 @@ class OssClientObjectTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+  
+        try {
+            $result = $this->ossClient->deleteObjects($this->bucket, "stringtype", $options);
+            $this->assertEquals('stringtype', $result[0]);
+        } catch (OssException $e) {
+            $this->assertEquals('objects must be array', $e->getMessage());
+        }
 
         try {
             $result = $this->ossClient->deleteObjects($this->bucket, "stringtype", $options);
             $this->assertFalse(true);
-            $this->assertEquals('stringtype', $result[0]);
         } catch (OssException $e) {
             $this->assertEquals('objects must be array', $e->getMessage());
         }
@@ -253,7 +259,8 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertEquals($list[1], $result[0]);
             $this->assertEquals($list[0], $result[1]);
             
-            $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => 'true'));
+            $result = $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => 'true'));
+            $this->assertEquals(array(), $result);
             $this->assertFalse($this->ossClient->doesObjectExist($this->bucket, $object2));
         } catch (OssException $e) {
             $this->assertFalse(true);
