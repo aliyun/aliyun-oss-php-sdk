@@ -30,6 +30,7 @@ use OSS\Result\ListPartsResult;
 use OSS\Result\PutSetDeleteResult;
 use OSS\Result\DeleteObjectsResult;
 use OSS\Result\CopyObjectResult;
+use OSS\Result\CallbackResult;
 use OSS\Result\ExistResult;
 use OSS\Result\PutLiveChannelResult;
 use OSS\Result\GetLiveChannelHistoryResult;
@@ -990,7 +991,13 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
         $response = $this->auth($options);
-        $result = new PutSetDeleteResult($response);
+        
+        if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
+            $result = new CallbackResult($response);
+        } else {
+            $result = new PutSetDeleteResult($response);
+        }
+            
         return $result->getData();
     }
 
@@ -1437,7 +1444,11 @@ class OssClient
         }
         $options[self::OSS_CONTENT] = OssUtil::createCompleteMultipartUploadXmlBody($listParts);
         $response = $this->auth($options);
-        $result = new PutSetDeleteResult($response);
+        if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
+            $result = new CallbackResult($response);
+        } else {
+            $result = new PutSetDeleteResult($response);
+        }
         return $result->getData();
     }
 
@@ -1923,6 +1934,13 @@ class OssClient
             $headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
         }
 
+        if (isset($options[self::OSS_CALLBACK])) {
+            $headers[self::OSS_CALLBACK] = base64_encode($options[self::OSS_CALLBACK]);
+        }
+        if (isset($options[self::OSS_CALLBACK_VAR])) {
+            $headers[self::OSS_CALLBACK_VAR] = base64_encode($options[self::OSS_CALLBACK_VAR]);
+        }
+
         uksort($headers, 'strnatcasecmp');
         foreach ($headers as $header_key => $header_value) {
             $header_value = str_replace(array("\r", "\n"), '', $header_value);
@@ -1946,7 +1964,7 @@ class OssClient
 
         //对?后面的要签名的string字母序排序
         $string_to_sign_ordered = $this->stringToSignSorted($string_to_sign);
-        
+
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
         $request->add_header('Authorization', 'OSS ' . $this->accessKeyId . ':' . $signature);
 
@@ -2459,6 +2477,8 @@ class OssClient
     const OSS_OBJECT_COPY_SOURCE = 'x-oss-copy-source';
     const OSS_OBJECT_COPY_SOURCE_RANGE = "x-oss-copy-source-range";
     const OSS_PROCESS = "x-oss-process";
+    const OSS_CALLBACK = "x-oss-callback";
+    const OSS_CALLBACK_VAR = "x-oss-callback-var";
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';

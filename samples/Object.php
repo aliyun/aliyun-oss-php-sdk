@@ -9,13 +9,33 @@ $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 //*******************************简单使用***************************************************************
 
-// 简单上传变量的内容到文件
+// 简单上传变量的内容到oss文件
 $result = $ossClient->putObject($bucket, "b.file", "hi, oss");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
 Common::println($result['etag']);
 Common::println($result['content-md5']);
 Common::println($result['body']);
+
+// 使用callback上传内容到oss文件
+// callbackUrl参数指定请求回调的服务器URL
+// callbackBodyType参数可为application/json或application/x-www-form-urlencoded
+$json = 
+'{
+"callbackUrl":"callback.oss-demo.com:23450",
+"callbackHost":"oss-cn-hangzhou.aliyuncs.com",
+"callbackBody":"春水碧于天，画船听雨眠。垆边人似月，皓腕凝霜雪",
+"callbackBodyType":"application/json"
+}';
+$var = 
+'{
+"x:var1":"value1",
+"x:var2":"值2"
+}';
+$options = array(OssClient::OSS_CALLBACK => $json,
+                 OssClient::OSS_CALLBACK_VAR => $var
+                );
+$result = $ossClient->putObject($bucket, "b.file", "random content", $options);
 
 // 上传本地文件
 $result = $ossClient->uploadFile($bucket, "c.file", __FILE__);
