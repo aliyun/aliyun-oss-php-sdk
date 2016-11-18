@@ -40,7 +40,7 @@ BBBB;
 
     public function testFailResponse()
     {
-        $response = new ResponseCore(array(), "", 301);
+        $response = new ResponseCore(array(), "", 404);
         try {
             new CopyObjectResult($response);
             $this->assertFalse(true);
@@ -49,13 +49,4 @@ BBBB;
         }
     }
 
-    public function setUp()
-    {
-
-    }
-
-    public function tearDown()
-    {
-
-    }
 }

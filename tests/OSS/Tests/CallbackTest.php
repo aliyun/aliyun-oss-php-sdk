@@ -47,25 +47,27 @@ class CallbackTest extends TestOssClientBase
         
         $json = 
         '{
-            "callbackUrl":"www.baidu.com",
+            "callbackUrl":"callback.oss-demo.com:23450",
             "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
-            "callbackBody":"春水碧于天，画船听雨眠。垆边人似月，皓腕凝霜雪",
+            "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",
             "callbackBodyType":"application/json"
         }';
             
        $var = 
        '{
-       "x:var1":"value1",
-       "x:var2":"值2"
+           "x:var1":"value1",
+           "x:var2":"值2"
        }';
        $options = array(OssClient::OSS_CALLBACK => $json,
                         OssClient::OSS_CALLBACK_VAR => $var
                        );
-        
+
         try {
             $result = $this->ossClient->completeMultipartUpload($this->bucket, $object, $upload_id, $upload_parts, $options);
+            $this->assertEquals("200", $result['_info']['http_code']);
+            $this->assertEquals("{\"Status\":\"OK\"}", $result['body']);
         } catch (OssException $e) {
-            $this->assertTrue(true);
+            $this->assertTrue(false);
         }
     }
 
@@ -106,9 +108,9 @@ class CallbackTest extends TestOssClientBase
         
         $json = 
         '{
-            "callbackUrl":"callback.oss-demo.com:23450",
+            "callbackUrl":"www.baidu.com",
             "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
-            "callbackBody":"春水碧于天，画船听雨眠。垆边人似月，皓腕凝霜雪",
+            "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",
             "callbackBodyType":"application/json"
         }';
             
@@ -123,10 +125,10 @@ class CallbackTest extends TestOssClientBase
         
         try {
             $result = $this->ossClient->completeMultipartUpload($this->bucket, $object, $upload_id, $upload_parts, $options);
-            $this->assertEquals("200", $result['_info']['http_code']);
         } catch (OssException $e) {
-            $this->assertTrue(false);
+            $this->assertTrue(true);
         }
+
     }
    
     public function testPutObjectCallbackNormal()
@@ -151,6 +153,17 @@ class CallbackTest extends TestOssClientBase
                 "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
                 "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",
                 "callbackBodyType":"application/x-www-form-urlencoded"
+            }';
+            $options = array(OssClient::OSS_CALLBACK => $json);
+            $this->putObjectCallbackOk($options, "200");
+        } 
+        // Unspecified typre 
+       {
+            $json = 
+            '{
+                "callbackUrl":"callback.oss-demo.com:23450",
+                "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
+                "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}"
             }';
             $options = array(OssClient::OSS_CALLBACK => $json);
             $this->putObjectCallbackOk($options, "200");
@@ -185,14 +198,14 @@ class CallbackTest extends TestOssClientBase
             '{
                 "callbackUrl":"callback.oss-demo.com:23450",
                 "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
-                "callbackBody":"春水碧于天，画船听雨眠。垆边人似月，皓腕凝霜雪",
+                "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",
                 "callbackBodyType":"application/json"
             }';
             
             $var = 
             '{
                 "x:var1":"value1",
-                "x:var2":"值2"
+                "x:var2":"aliyun.com"
             }';
             $options = array(OssClient::OSS_CALLBACK => $json,
                              OssClient::OSS_CALLBACK_VAR => $var
@@ -205,7 +218,7 @@ class CallbackTest extends TestOssClientBase
             '{
                 "callbackUrl":"callback.oss-demo.com:23450",
                 "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
-                "callbackBody":"春水碧于天，画船听雨眠。垆边人似月，皓腕凝霜雪",
+                "callbackBody":"{\"mimeType\":${mimeType},\"size\":${size}}",
                 "callbackBodyType":"application/x-www-form-urlencoded"
             }';
             $var = 
@@ -256,6 +269,7 @@ class CallbackTest extends TestOssClientBase
         try {
             $result = $this->ossClient->putObject($this->bucket, $object, $content, $options);
             $this->assertEquals($status, $result['_info']['http_code']);
+            $this->assertEquals("{\"Status\":\"OK\"}", $result['body']);
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
@@ -267,6 +281,7 @@ class CallbackTest extends TestOssClientBase
         $content = file_get_contents(__FILE__);
         try {
             $result = $this->ossClient->putObject($this->bucket, $object, $content, $options);
+            $this->assertTrue(false);
         } catch (OssException $e) {
             $this->assertTrue(true);
         }
