@@ -61,7 +61,7 @@ Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 // 批量删除object
 $result = $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
 foreach($result as $object)
-    print($object);
+    Common::println($object);
 
 sleep(2);
 unlink("c.file.localcopy");

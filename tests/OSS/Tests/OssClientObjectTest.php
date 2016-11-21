@@ -158,8 +158,9 @@ class OssClientObjectTest extends TestOssClientBase
         $options = array();
         try {
             $result = $this->ossClient->copyObject($this->bucket, $object, $to_bucket, $to_object, $options);
-            $this->assertNotEquals('', $result[0]);
-            $this->assertNotEquals('', $result[1]);
+            $this->assertFalse(empty($result));
+            $this->assertEquals(strlen("2016-11-21T03:46:58.000Z"), strlen($result[0]));
+            $this->assertEquals(strlen("\"5B3C1A2E053D763E1B002CC607C5A0FE\""), strlen($result[1]));
         } catch (OssException $e) {
             $this->assertFalse(true);
             var_dump($e->getMessage());

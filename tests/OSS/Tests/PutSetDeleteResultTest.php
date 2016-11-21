@@ -26,7 +26,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
             'x-oss-request-id' => '582AA51E004C4550BD27E0E4',
             'etag' => '595FA1EA77945233921DF12427F9C7CE',
             'content-md5' => 'WV+h6neUUjOSHfEkJ/nHzg==',
-            '_info' => array(
+            'info' => array(
                 'http_code' => '200',
                 'method' => 'PUT'
             ),
@@ -39,8 +39,8 @@ class ResultTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('582AA51E004C4550BD27E0E4', $data['x-oss-request-id']);
         $this->assertEquals('595FA1EA77945233921DF12427F9C7CE', $data['etag']);
         $this->assertEquals('WV+h6neUUjOSHfEkJ/nHzg==', $data['content-md5']);
-        $this->assertEquals('200', $data['_info']['http_code']);
-        $this->assertEquals('PUT', $data['_info']['method']);
+        $this->assertEquals('200', $data['info']['http_code']);
+        $this->assertEquals('PUT', $data['info']['method']);
     }
 
     public function testFailResponse()

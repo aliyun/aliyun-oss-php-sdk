@@ -775,8 +775,8 @@ class RequestCore
 
             // Reset the headers to the appropriate property.
             $this->response_headers = $header_assoc;
-            $this->response_headers['_info'] = $this->response_info;
-            $this->response_headers['_info']['method'] = $this->method;
+            $this->response_headers['info'] = $this->response_info;
+            $this->response_headers['info']['method'] = $this->method;
 
             if ($curl_handle && $response) {
                 //return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $this->curl_handle);
