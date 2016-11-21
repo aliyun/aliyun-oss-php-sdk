@@ -3,7 +3,6 @@
 namespace OSS\Tests;
 
 use OSS\Core\OssException;
-use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';

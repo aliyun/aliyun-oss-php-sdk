@@ -3,8 +3,6 @@
 namespace OSS\Model;
 
 
-use OSS\Core\OssException;
-
 /**
  * Class LiveChannelConfig
  * @package OSS\Model

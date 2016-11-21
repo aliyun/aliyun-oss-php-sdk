@@ -9,7 +9,6 @@ use OSS\Model\LiveChannelListInfo;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\GetLiveChannelStatus;
 use OSS\Model\GetLiveChannelHistory;
-use OSS\Core\OssException;
 
 class LiveChannelXmlTest extends \PHPUnit_Framework_TestCase
 {

@@ -4,9 +4,6 @@ namespace OSS\Tests;
 
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
-
 class ObjectAclTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetSet()

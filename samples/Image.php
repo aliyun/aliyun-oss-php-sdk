@@ -2,14 +2,15 @@
 require_once __DIR__ . '/Common.php';
 
 use OSS\OssClient;
-use OSS\Core\OssException;
 
 $bucketName = Common::getBucketName();
 $object = "example.jpg";
 $ossClient = Common::getOssClient();
 $download_file = "download.jpg";
 if (is_null($ossClient)) exit(1);
+
 //*******************************简单使用***************************************************************
+
 // 先把本地的example.jpg上传到指定$bucket, 命名为$object
 $ossClient->uploadFile($bucketName, $object, "example.jpg");
 
@@ -64,7 +65,7 @@ printImage("imageInfo", $download_file);
 
 
 /**
-    生成一个带签名的可用于浏览器直接打开的url, URL的有效期是3600秒
+ *  生成一个带签名的可用于浏览器直接打开的url, URL的有效期是3600秒
  */
  $timeout = 3600;
 $options = array(

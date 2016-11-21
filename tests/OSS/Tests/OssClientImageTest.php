@@ -5,12 +5,6 @@ namespace OSS\Tests;
 require_once __DIR__ . '/Common.php';
 
 use OSS\OssClient;
-use OSS\Model\LiveChannelConfig;
-use OSS\Model\LiveChannelInfo;
-use OSS\Model\LiveChannelListInfo;
-use OSS\Core\OssException;
-
-
 
 class OssClinetImageTest extends \PHPUnit_Framework_TestCase
 {

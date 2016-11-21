@@ -4,9 +4,7 @@ namespace OSS\Tests;
 
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
 use OSS\Model\CnameConfig;
-use OSS\Core\OssException;
 
 class BucketCnameTest extends \PHPUnit_Framework_TestCase
 {
