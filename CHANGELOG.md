@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.2.0 / 2016-11-22
+
+* 修复PutObject/CompleteMultipartUpload的返回值问题(#26)
+
 ## v2.1.0 / 2016-11-12
 
 * 增加[RTMP](https://help.aliyun.com/document_detail/44297.html)接口
