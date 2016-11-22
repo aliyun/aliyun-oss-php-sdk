@@ -4,9 +4,6 @@ namespace OSS\Tests;
 
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
-
 class ContentTypeTest extends \PHPUnit_Framework_TestCase
 {
     private function runCmd($cmd)

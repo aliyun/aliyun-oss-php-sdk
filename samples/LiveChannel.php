@@ -2,7 +2,6 @@
 require_once __DIR__ . '/Common.php';
 
 use OSS\OssClient;
-use OSS\Core\OssException;
 use OSS\Model\LiveChannelConfig;
 
 $bucket = Common::getBucketName();
@@ -65,7 +64,7 @@ $resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
 
 /**
     创建好直播频道之后调用getLiveChannelInfo可以得到频道相关的信息
-*/
+ */
 $info = $ossClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
 Common::println("bucket $bucket LiveChannelInfo:\n" . 
 "live channel info description: ". $info->getDescription() . "\n" .
@@ -109,9 +108,9 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "live channel status AdioCodec: ". $status->getAudioCodec() . "\n");
 
 /**
-    如果希望利用直播推流产生的ts文件生成一个点播列表，可以使用postVodPlaylist方法。
-    指定起始时间为当前时间减去60秒，结束时间为当前时间，这意味着将生成一个长度为60秒的点播视频。
-    播放列表指定为“vod_playlist.m3u8”，也就是说这个接口调用成功之后会在OSS上生成一个名叫“vod_playlist.m3u8”的播放列表文件。
+ *  如果希望利用直播推流产生的ts文件生成一个点播列表，可以使用postVodPlaylist方法。
+ *  指定起始时间为当前时间减去60秒，结束时间为当前时间，这意味着将生成一个长度为60秒的点播视频。
+ *  播放列表指定为“vod_playlist.m3u8”，也就是说这个接口调用成功之后会在OSS上生成一个名叫“vod_playlist.m3u8”的播放列表文件。
  */
 $current_time = time();
 $ossClient->postVodPlaylist($bucket,
@@ -121,6 +120,6 @@ $ossClient->postVodPlaylist($bucket,
 );
 
 /**
-    如果一个直播频道已经不打算再使用了，那么可以调用delete_live_channel来删除频道。
+ *  如果一个直播频道已经不打算再使用了，那么可以调用delete_live_channel来删除频道。
  */
 $ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");

@@ -5,7 +5,6 @@ namespace OSS\Tests;
 use OSS\Core\OssException;
 use OSS\Model\CorsConfig;
 use OSS\Model\CorsRule;
-use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';

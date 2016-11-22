@@ -4,7 +4,6 @@ namespace OSS\Tests;
 
 
 use OSS\Model\WebsiteConfig;
-use OSS\Core\OssException;
 
 class WebsiteConfigTest extends \PHPUnit_Framework_TestCase
 {
