@@ -1941,9 +1941,7 @@ class OssClient
             $headers[self::OSS_CALLBACK_VAR] = base64_encode($options[self::OSS_CALLBACK_VAR]);
         }
 
-        if (isset($options[self::OSS_HEADERS][self::OSS_ACCEPT_ENCODING])) {
-            $headers[self::OSS_ACCEPT_ENCODING] = $options[self::OSS_HEADERS][self::OSS_ACCEPT_ENCODING];
-        } else {
+        if (!isset($options[self::OSS_HEADERS][self::OSS_ACCEPT_ENCODING])) {
             $headers[self::OSS_ACCEPT_ENCODING] = '';
         }
 
@@ -1951,11 +1949,10 @@ class OssClient
 
         foreach ($headers as $header_key => $header_value) {
             $header_value = str_replace(array("\r", "\n"), '', $header_value);
-            if ($header_value !== '') {
-                $request->add_header($header_key, $header_value);
-            } elseif($header_key === self::OSS_ACCEPT_ENCODING) {
+            if ($header_value !== '' || $header_key === self::OSS_ACCEPT_ENCODING) {
                 $request->add_header($header_key, $header_value);
             }
+
             if (
                 strtolower($header_key) === 'content-md5' ||
                 strtolower($header_key) === 'content-type' ||

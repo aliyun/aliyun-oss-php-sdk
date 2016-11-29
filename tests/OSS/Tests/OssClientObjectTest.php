@@ -26,7 +26,6 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertTrue(false);
         }
 
-        $object = "oss-php-sdk-test/upload-test-object-name.txt";
         $options = array(OssClient::OSS_HEADERS => array(OssClient::OSS_ACCEPT_ENCODING => 'deflate, gzip'));
 
         try {
