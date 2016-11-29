@@ -1941,7 +1941,7 @@ class OssClient
             $headers[self::OSS_CALLBACK_VAR] = base64_encode($options[self::OSS_CALLBACK_VAR]);
         }
 
-        if (!isset($options[self::OSS_HEADERS][self::OSS_ACCEPT_ENCODING])) {
+        if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
             $headers[self::OSS_ACCEPT_ENCODING] = '';
         }
 
