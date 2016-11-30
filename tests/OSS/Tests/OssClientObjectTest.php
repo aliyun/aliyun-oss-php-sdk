@@ -11,6 +11,48 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 class OssClientObjectTest extends TestOssClientBase
 {
 
+    public function testGetObjectMeta()
+    {
+        $object = "oss-php-sdk-test/upload-test-object-name.txt";
+
+        try {
+            $res = $this->ossClient->getObjectMeta($this->bucket, $object);
+            $this->assertEquals('200', $res['info']['http_code']);
+            $this->assertEquals('text/plain', $res['content-type']);
+            $this->assertEquals('Accept-Encoding', $res['vary']);
+            $this->assertTrue(isset($res['content-length']));
+            $this->assertFalse(isset($res['content-encoding']));
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+
+        $options = array(OssClient::OSS_HEADERS => array(OssClient::OSS_ACCEPT_ENCODING => 'deflate, gzip'));
+
+        try {
+            $res = $this->ossClient->getObjectMeta($this->bucket, $object, $options);
+            $this->assertEquals('200', $res['info']['http_code']);
+            $this->assertEquals('text/plain', $res['content-type']);
+            $this->assertEquals('Accept-Encoding', $res['vary']);
+            $this->assertFalse(isset($res['content-length']));
+            $this->assertEquals('gzip', $res['content-encoding']);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+    }
+
+    public function testGetObjectWithAcceptEncoding()
+    {
+        $object = "oss-php-sdk-test/upload-test-object-name.txt";
+        $options = array(OssClient::OSS_HEADERS => array(OssClient::OSS_ACCEPT_ENCODING => 'deflate, gzip'));
+
+        try {
+            $res = $this->ossClient->getObject($this->bucket, $object, $options);
+            $this->assertEquals(file_get_contents(__FILE__), $res);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+    }
+
     public function testGetObjectWithHeader()
     {
         $object = "oss-php-sdk-test/upload-test-object-name.txt";

@@ -1941,12 +1941,18 @@ class OssClient
             $headers[self::OSS_CALLBACK_VAR] = base64_encode($options[self::OSS_CALLBACK_VAR]);
         }
 
+        if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
+            $headers[self::OSS_ACCEPT_ENCODING] = '';
+        }
+
         uksort($headers, 'strnatcasecmp');
+
         foreach ($headers as $header_key => $header_value) {
             $header_value = str_replace(array("\r", "\n"), '', $header_value);
-            if ($header_value !== '') {
+            if ($header_value !== '' || $header_key === self::OSS_ACCEPT_ENCODING) {
                 $request->add_header($header_key, $header_value);
             }
+
             if (
                 strtolower($header_key) === 'content-md5' ||
                 strtolower($header_key) === 'content-type' ||
@@ -2298,6 +2304,7 @@ class OssClient
         if (isset($options[self::OSS_CONTENT_MD5])) {
             $headers[self::OSS_CONTENT_MD5] = $options[self::OSS_CONTENT_MD5];
         }
+
         //添加stsSecurityToken
         if ((!is_null($this->securityToken)) && (!$this->enableStsInUrl)) {
             $headers[self::OSS_SECURITY_TOKEN] = $this->securityToken;
@@ -2423,6 +2430,7 @@ class OssClient
     const OSS_PREFIX = 'prefix';
     const OSS_DELIMITER = 'delimiter';
     const OSS_MARKER = 'marker';
+    const OSS_ACCEPT_ENCODING = 'Accept-Encoding';
     const OSS_CONTENT_MD5 = 'Content-Md5';
     const OSS_SELF_CONTENT_MD5 = 'x-oss-meta-md5';
     const OSS_CONTENT_TYPE = 'Content-Type';
