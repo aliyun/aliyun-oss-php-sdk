@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.2.1 / 2016-12-01
+
+* 禁止http curl自动填充Accept-Encoding
+
 ## v2.2.0 / 2016-11-22
 
 * 修复PutObject/CompleteMultipartUpload的返回值问题(#26)
