@@ -55,11 +55,6 @@ class RequestCore
     public $response_info;
 
     /**
-     * The handle for the cURL object.
-     */
-    public $curl_handle;
-
-    /**
      * The method by which the request is being made.
      */
     public $method;
@@ -747,18 +742,17 @@ class RequestCore
     {
         // Accept a custom one if it's passed.
         if ($curl_handle && $response) {
-            $this->curl_handle = $curl_handle;
             $this->response = $response;
         }
 
         // As long as this came back as a valid resource...
-        if (is_resource($this->curl_handle)) {
+        if (is_resource($curl_handle)) {
             // Determine what's what.
-            $header_size = curl_getinfo($this->curl_handle, CURLINFO_HEADER_SIZE);
+            $header_size = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
             $this->response_headers = substr($this->response, 0, $header_size);
             $this->response_body = substr($this->response, $header_size);
-            $this->response_code = curl_getinfo($this->curl_handle, CURLINFO_HTTP_CODE);
-            $this->response_info = curl_getinfo($this->curl_handle);
+            $this->response_code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+            $this->response_info = curl_getinfo($curl_handle);
 
             // Parse out the headers
             $this->response_headers = explode("\r\n\r\n", trim($this->response_headers));
@@ -779,7 +773,7 @@ class RequestCore
             $this->response_headers['info']['method'] = $this->method;
 
             if ($curl_handle && $response) {
-                //return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $this->curl_handle);
+                //return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $curl_handle);
                 return new ResponseCore($this->response_headers, $this->response_body, $this->response_code);
             }
         }
@@ -815,88 +809,6 @@ class RequestCore
 
         return $this->response;
     }
-
-    /**
-     * Sends the request using <php:curl_multi_exec()>, enabling parallel requests. Uses the "rolling" method.
-     *
-     * @param array $handles (Required) An indexed array of cURL handles to process simultaneously.
-     * @param array $opt (Optional) An associative array of parameters that can have the following keys: <ul>
-     *    <li><code>callback</code> - <code>string|array</code> - Optional - The string name of a function to pass the response data to. If this is a method, pass an array where the <code>[0]</code> index is the class and the <code>[1]</code> index is the method name.</li>
-     *    <li><code>limit</code> - <code>integer</code> - Optional - The number of simultaneous requests to make. This can be useful for scaling around slow server responses. Defaults to trusting cURLs judgement as to how many to use.</li></ul>
-     * @return array Post-processed cURL responses.
-     */
-    public function send_multi_request($handles, $opt = null)
-    {
-        set_time_limit(0);
-
-        // Skip everything if there are no handles to process.
-        if (count($handles) === 0) return array();
-
-        if (!$opt) $opt = array();
-
-        // Initialize any missing options
-        $limit = isset($opt['limit']) ? $opt['limit'] : -1;
-
-        // Initialize
-        $handle_list = $handles;
-        $http = new $this->request_class();
-        $multi_handle = curl_multi_init();
-        $handles_post = array();
-        $added = count($handles);
-        $last_handle = null;
-        $count = 0;
-        $i = 0;
-
-        // Loop through the cURL handles and add as many as it set by the limit parameter.
-        while ($i < $added) {
-            if ($limit > 0 && $i >= $limit) break;
-            curl_multi_add_handle($multi_handle, array_shift($handles));
-            $i++;
-        }
-
-        do {
-            $active = false;
-
-            // Start executing and wait for a response.
-            while (($status = curl_multi_exec($multi_handle, $active)) === CURLM_CALL_MULTI_PERFORM) {
-                // Start looking for possible responses immediately when we have to add more handles
-                if (count($handles) > 0) break;
-            }
-
-            // Figure out which requests finished.
-            $to_process = array();
-
-            while ($done = curl_multi_info_read($multi_handle)) {
-                // Since curl_errno() isn't reliable for handles that were in multirequests, we check the 'result' of the info read, which contains the curl error number, (listed here http://curl.haxx.se/libcurl/c/libcurl-errors.html )
-                if ($done['result'] > 0) {
-                    throw new RequestCore_Exception('cURL resource: ' . (string)$done['handle'] . '; cURL error: ' . curl_error($done['handle']) . ' (' . $done['result'] . ')');
-                } // Because curl_multi_info_read() might return more than one message about a request, we check to see if this request is already in our array of completed requests
-                elseif (!isset($to_process[(int)$done['handle']])) {
-                    $to_process[(int)$done['handle']] = $done;
-                }
-            }
-
-            // Actually deal with the request
-            foreach ($to_process as $pkey => $done) {
-                $response = $http->process_response($done['handle'], curl_multi_getcontent($done['handle']));
-                $key = array_search($done['handle'], $handle_list, true);
-                $handles_post[$key] = $response;
-
-                if (count($handles) > 0) {
-                    curl_multi_add_handle($multi_handle, array_shift($handles));
-                }
-
-                curl_multi_remove_handle($multi_handle, $done['handle']);
-                curl_close($done['handle']);
-            }
-        } while ($active || count($handles_post) < $added);
-
-        curl_multi_close($multi_handle);
-
-        ksort($handles_post, SORT_NUMERIC);
-        return $handles_post;
-    }
-
 
     /*%******************************************************************************************%*/
     // RESPONSE METHODS
