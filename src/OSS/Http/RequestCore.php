@@ -773,7 +773,6 @@ class RequestCore
             $this->response_headers['info']['method'] = $this->method;
 
             if ($curl_handle && $response) {
-                //return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $curl_handle);
                 return new ResponseCore($this->response_headers, $this->response_body, $this->response_code);
             }
         }
