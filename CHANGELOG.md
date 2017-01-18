@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.2.2 / 2017-01-18
+
+* 解决在php7上运行连接数和内存bug
+
 ## v2.2.1 / 2016-12-01
 
 * 禁止http curl自动填充Accept-Encoding
