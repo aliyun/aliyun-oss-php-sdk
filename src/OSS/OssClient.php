@@ -1,6 +1,7 @@
 <?php
 namespace OSS;
 
+use OSS\Core\Crc64;
 use OSS\Core\MimeTypes;
 use OSS\Core\OssException;
 use OSS\Http\RequestCore;
@@ -75,7 +76,7 @@ class OssClient
      * @param string $securityToken
      * @throws OssException
      */
-    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
+    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL, $isEnableCrc64 = false)
     {
         $accessKeyId = trim($accessKeyId);
         $accessKeySecret = trim($accessKeySecret);
@@ -94,6 +95,7 @@ class OssClient
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->securityToken = $securityToken;
+        $this->isEnableCrc64 = $isEnableCrc64;
         self::checkEnv();
     }
 
@@ -996,6 +998,9 @@ class OssClient
             $result = new CallbackResult($response);
         } else {
             $result = new PutSetDeleteResult($response);
+            if ($this->isEnableCrc64) {
+                $this->checkCrc64($this->crc64Sum, $result->getData()['x-oss-hash-crc64ecma']);
+            }
         }
             
         return $result->getData();
@@ -1035,6 +1040,9 @@ class OssClient
         $options[self::OSS_CONTENT_LENGTH] = $file_size;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        if ($this->isEnableCrc64) {
+            $this->checkCrc64($this->crc64Sum, $result->getData()['x-oss-hash-crc64ecma']);
+        }
         return $result->getData();
     }
 
@@ -1069,8 +1077,13 @@ class OssClient
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
+
         $response = $this->auth($options);
         $result = new AppendResult($response);
+        if ($this->isEnableCrc64 && isset($options[self::OSS_CHECK_CRC])) {
+            $crc64Sum = OssUtil::crc64($options[self::OSS_CHECK_CRC], $content);
+            $this->checkCrc64($crc64Sum, $result->getServerCrc64());
+        }
         return $result->getData();
     }
 
@@ -1113,6 +1126,9 @@ class OssClient
 
         $response = $this->auth($options);
         $result = new AppendResult($response);
+        if ($this->isEnableCrc64 && isset($options[self::OSS_CHECK_CRC])) {
+            $this->checkCrc64($this->crc64Sum, $result->getServerCrc64());
+        }
         return $result->getData();
     }
 
@@ -1227,6 +1243,7 @@ class OssClient
      */
     public function getObject($bucket, $object, $options = NULL)
     {
+        $need_check_crc64 = true;
         $this->precheckCommon($bucket, $object, $options);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
@@ -1242,10 +1259,21 @@ class OssClient
         if (isset($options[self::OSS_RANGE])) {
             $range = $options[self::OSS_RANGE];
             $options[self::OSS_HEADERS][self::OSS_RANGE] = "bytes=$range";
-            unset($options[self::OSS_RANGE]);
+//            unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
         $result = new BodyResult($response);
+        if (isset($options[self::OSS_PROCESS])) {
+            return $result->getData();
+        }
+
+        if (!isset($options[self::OSS_FILE_DOWNLOAD]) && $this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
+           $this->crc64Sum = OssUtil::crc64("0", $result->getData());
+           $this->checkCrc64($this->crc64Sum, $result->getRawResponse()->header['x-oss-hash-crc64ecma']);
+        }        
+        if (isset($options[self::OSS_FILE_DOWNLOAD]) && $this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
+           $this->checkCrc64($this->crc64Sum, $result->getRawResponse()->header['x-oss-hash-crc64ecma']);
+        }
         return $result->getData();
     }
 
@@ -1366,6 +1394,9 @@ class OssClient
         }
         $response = $this->auth($options);
         $result = new UploadPartResult($response);
+        if ($this->isEnableCrc64) {
+            $this->checkCrc64($this->crc64Sum, $result->getServerCrc64());
+        }
         return $result->getData();
     }
 
@@ -1609,7 +1640,6 @@ class OssClient
             }
             $response_upload_part[] = $this->uploadPart($bucket, $object, $uploadId, $up_options);
         }
-
         $uploadParts = array();
         foreach ($response_upload_part as $i => $etag) {
             $uploadParts[] = array(
@@ -1781,6 +1811,13 @@ class OssClient
         return $this->getValue($options, self::OSS_CHECK_MD5, false, true, true);
     }
 
+    private function checkCrc64($localCRC, $serverCRC)
+    {
+        if ($localCRC != $serverCRC) {
+            throw new OssException('local crc64 is:' . $localCRC . ', server crc64 is: ' . $serverCRC);
+        }
+    }
+
     /**
      * 获取value
      *
@@ -1882,6 +1919,10 @@ class OssClient
 
         //创建请求
         $request = new RequestCore($this->requestUrl);
+        if ($this->isEnableCrc64) {
+            $request->enable_crc64_check();
+         }
+        
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
@@ -1932,6 +1973,10 @@ class OssClient
 
             $headers[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
             $headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
+
+       }
+        if (isset($options[self::OSS_CONTENT]) && $this->isEnableCrc64) {
+            $this->crc64Sum = OssUtil::crc64("0", $options[self::OSS_CONTENT]);
         }
 
         if (isset($options[self::OSS_CALLBACK])) {
@@ -1998,6 +2043,10 @@ class OssClient
         $response_header['oss-redirects'] = $this->redirects;
         $response_header['oss-stringtosign'] = $string_to_sign;
         $response_header['oss-requestheaders'] = $request->request_headers;
+      
+        if (!isset($options[self::OSS_CONTENT])) {
+             $this->crc64Sum = $request->crc64;
+        }
 
         $data = new ResponseCore($response_header, $request->get_response_body(), $request->get_response_code());
         //retry if OSS Internal Error
@@ -2010,7 +2059,7 @@ class OssClient
                 $data = $this->auth($options);
             }
         }
-        
+
         $this->redirects = 0;
         return $data;
     }
@@ -2463,6 +2512,7 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const OSS_CHECK_CRC = 'checkcrc64';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
     //私有URL变量
@@ -2530,4 +2580,7 @@ class OssClient
     private $enableStsInUrl = false;
     private $timeout = 0;
     private $connectTimeout = 0;
+
+    private $crc64Sum = "0";
+    private $isEnableCrc64 = false;
 }

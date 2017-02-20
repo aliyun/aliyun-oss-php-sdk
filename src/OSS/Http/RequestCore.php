@@ -1,7 +1,7 @@
 <?php
 namespace OSS\Http;
 
-
+use OSS\Core\OssUtil;
 /**
  * Handles all HTTP requests using cURL and manages the responses.
  *
@@ -167,6 +167,10 @@ class RequestCore
      * @var int
      */
     public $connect_timeout = 10;
+
+    public $crc64 = "0";
+
+    public $callback_headers = null;
 
     /*%******************************************************************************************%*/
     // CONSTANTS
@@ -394,7 +398,6 @@ class RequestCore
         }
 
         $this->read_stream = $resource;
-
         return $this->set_read_stream_size($size);
     }
 
@@ -489,7 +492,6 @@ class RequestCore
     public function register_streaming_read_callback($callback)
     {
         $this->registered_streaming_read_callback = $callback;
-
         return $this;
     }
 
@@ -517,6 +519,16 @@ class RequestCore
         return $this;
     }
 
+    public function enable_crc64_check()
+    {
+        $this->register_streaming_read_callback(array($this, "crc64_check"));
+        $this->register_streaming_write_callback(array($this, "crc64_check"));
+    }
+
+    public function crc64_check($crc, $data)
+    {
+        $this->crc64 = OssUtil::crc64($this->crc64, $data);
+    }
 
     /*%******************************************************************************************%*/
     // PREPARE, SEND, AND PROCESS REQUEST
@@ -551,7 +563,7 @@ class RequestCore
 
         // Execute callback function
         if ($this->registered_streaming_read_callback) {
-            call_user_func($this->registered_streaming_read_callback, $curl_handle, $file_handle, $out);
+            call_user_func($this->registered_streaming_read_callback, $this->crc64, $out);
         }
 
         return $out;
@@ -579,13 +591,18 @@ class RequestCore
 
             $written_total += $written_last;
         }
-
         // Execute callback function
         if ($this->registered_streaming_write_callback) {
-            call_user_func($this->registered_streaming_write_callback, $curl_handle, $written_total);
+            call_user_func($this->registered_streaming_write_callback, $this->crc64, $data);
         }
 
         return $written_total;
+    }
+    
+    public function streaming_header_callback($curl_handle, $headerContent)
+    {
+       $this->callback_headers = $this->callback_headers . $headerContent;
+       return strlen($headerContent); 
     }
 
     /**
@@ -598,7 +615,6 @@ class RequestCore
     public function prep_request()
     {
         $curl_handle = curl_init();
-
         // Set default options.
         curl_setopt($curl_handle, CURLOPT_URL, $this->request_url);
         curl_setopt($curl_handle, CURLOPT_FILETIME, true);
@@ -713,6 +729,8 @@ class RequestCore
                 if (isset($this->write_stream)) {
                     curl_setopt($curl_handle, CURLOPT_WRITEFUNCTION, array($this, 'streaming_write_callback'));
                     curl_setopt($curl_handle, CURLOPT_HEADER, false);
+                    curl_setopt($curl_handle, CURLOPT_HEADERFUNCTION, array($this, 'streaming_header_callback'));
+                    curl_setopt($curl_handle, CURLOPT_FAILONERROR, 1);
                 } else {
                     curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $this->request_body);
                 }
@@ -753,8 +771,8 @@ class RequestCore
             $this->response_body = substr($this->response, $header_size);
             $this->response_code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
             $this->response_info = curl_getinfo($curl_handle);
-
             // Parse out the headers
+            $this->response_headers = $this->response_headers . $this->callback_headers;
             $this->response_headers = explode("\r\n\r\n", trim($this->response_headers));
             $this->response_headers = array_pop($this->response_headers);
             $this->response_headers = explode("\r\n", $this->response_headers);
@@ -766,12 +784,10 @@ class RequestCore
                 $kv = explode(': ', $header);
                 $header_assoc[strtolower($kv[0])] = isset($kv[1]) ? $kv[1] : '';
             }
-
             // Reset the headers to the appropriate property.
             $this->response_headers = $header_assoc;
             $this->response_headers['info'] = $this->response_info;
             $this->response_headers['info']['method'] = $this->method;
-
             if ($curl_handle && $response) {
                 return new ResponseCore($this->response_headers, $this->response_body, $this->response_code);
             }
@@ -793,15 +809,13 @@ class RequestCore
 
         $curl_handle = $this->prep_request();
         $this->response = curl_exec($curl_handle);
-
         if ($this->response === false) {
             throw new RequestCore_Exception('cURL resource: ' . (string)$curl_handle . '; cURL error: ' . curl_error($curl_handle) . ' (' . curl_errno($curl_handle) . ')');
         }
 
         $parsed_response = $this->process_response($curl_handle, $this->response);
-
         curl_close($curl_handle);
-
+        
         if ($parse) {
             return $parsed_response;
         }
@@ -844,5 +858,19 @@ class RequestCore
     public function get_response_code()
     {
         return $this->response_code;
+    }
+
+    public function get_headers_from_curl_response($headerContent)
+    {
+        $headers = array();
+        $arrHeader = explode("\r\n\r\n", $headerContent);
+        if (count(explode(': ', $arrHeader[0])) != 2) {
+            return array();   
+        }
+        else {
+            list ($key, $value) = explode(': ', $arrHeader[0]);
+            $headers[$key] = $value;
+        }
+        return $headers;
     }
 }
