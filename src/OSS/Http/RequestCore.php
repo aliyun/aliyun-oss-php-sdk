@@ -170,6 +170,12 @@ class RequestCore
 
     public $crc64 = "0";
 
+    public $consumed_bytes = 0;
+
+    public $total_bytes;
+
+    public $progress_callback = null;
+
     public $callback_headers = null;
 
     /*%******************************************************************************************%*/
@@ -525,6 +531,12 @@ class RequestCore
         $this->register_streaming_write_callback(array($this, "crc64_check"));
     }
 
+    public function enable_progress_callback($progress_callback_func, $total_bytes)
+    {
+        $this->progress_callback = $progress_callback_func;
+        $this->total_bytes = $total_bytes;
+    }
+
     public function crc64_check($crc, $data)
     {
         $this->crc64 = OssUtil::crc64($this->crc64, $data);
@@ -566,6 +578,11 @@ class RequestCore
             call_user_func($this->registered_streaming_read_callback, $this->crc64, $out);
         }
 
+        if ($this->progress_callback) {
+            $this->consumed_bytes += strlen($read);;
+            call_user_func($this->progress_callback, $this->consumed_bytes, $this->total_bytes);
+        }
+
         return $out;
     }
 
@@ -596,13 +613,23 @@ class RequestCore
             call_user_func($this->registered_streaming_write_callback, $this->crc64, $data);
         }
 
+        if ($this->progress_callback) {
+            $this->consumed_bytes += $written_total;
+            call_user_func($this->progress_callback, $this->consumed_bytes, $this->total_bytes);
+        }
+
         return $written_total;
     }
     
     public function streaming_header_callback($curl_handle, $headerContent)
     {
-       $this->callback_headers = $this->callback_headers . $headerContent;
-       return strlen($headerContent); 
+        $this->callback_headers = $this->callback_headers . $headerContent;
+        $content = explode(": ", $headerContent); 
+        if ($content[0] == "Content-Length") {
+            $content_length = explode("\r\n", $content[1]); 
+            $this->total_bytes = $content_length[0];
+        }
+        return strlen($headerContent); 
     }
 
     /**
@@ -762,7 +789,6 @@ class RequestCore
         if ($curl_handle && $response) {
             $this->response = $response;
         }
-
         // As long as this came back as a valid resource...
         if (is_resource($curl_handle)) {
             // Determine what's what.
@@ -858,19 +884,5 @@ class RequestCore
     public function get_response_code()
     {
         return $this->response_code;
-    }
-
-    public function get_headers_from_curl_response($headerContent)
-    {
-        $headers = array();
-        $arrHeader = explode("\r\n\r\n", $headerContent);
-        if (count(explode(': ', $arrHeader[0])) != 2) {
-            return array();   
-        }
-        else {
-            list ($key, $value) = explode(': ', $arrHeader[0]);
-            $headers[$key] = $value;
-        }
-        return $headers;
     }
 }

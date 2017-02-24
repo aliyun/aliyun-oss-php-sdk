@@ -982,13 +982,16 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = $object;
-
+        
         if (!isset($options[self::OSS_LENGTH])) {
             $options[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
         } else {
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
-
+        
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], 0, $options[self::OSS_CONTENT_LENGTH]);    
+        }
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
@@ -1002,7 +1005,9 @@ class OssClient
                 $this->checkCrc64($this->crc64Sum, $result->getData()['x-oss-hash-crc64ecma']);
             }
         }
-            
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], $options[self::OSS_CONTENT_LENGTH], $options[self::OSS_CONTENT_LENGTH]);    
+        }
         return $result->getData();
     }
 
@@ -1074,6 +1079,10 @@ class OssClient
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
 
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], 0, $options[self::OSS_CONTENT_LENGTH]);    
+        }
+
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
@@ -1084,6 +1093,10 @@ class OssClient
             $crc64Sum = OssUtil::crc64($options[self::OSS_CHECK_CRC], $content);
             $this->checkCrc64($crc64Sum, $result->getServerCrc64());
         }
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], $options[self::OSS_CONTENT_LENGTH], $options[self::OSS_CONTENT_LENGTH]);    
+        }
+
         return $result->getData();
     }
 
@@ -1243,7 +1256,6 @@ class OssClient
      */
     public function getObject($bucket, $object, $options = NULL)
     {
-        $need_check_crc64 = true;
         $this->precheckCommon($bucket, $object, $options);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
@@ -1259,9 +1271,13 @@ class OssClient
         if (isset($options[self::OSS_RANGE])) {
             $range = $options[self::OSS_RANGE];
             $options[self::OSS_HEADERS][self::OSS_RANGE] = "bytes=$range";
-//            unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
+
+        if (isset($options[self::OSS_PROGRESS_CALLBACK]) && !isset($options[self::OSS_FILE_DOWNLOAD])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], 0, $this->total_bytes);    
+        }
+
         $result = new BodyResult($response);
         if (isset($options[self::OSS_PROCESS])) {
             return $result->getData();
@@ -1274,6 +1290,11 @@ class OssClient
         if (isset($options[self::OSS_FILE_DOWNLOAD]) && $this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
            $this->checkCrc64($this->crc64Sum, $result->getRawResponse()->header['x-oss-hash-crc64ecma']);
         }
+
+        if (isset($options[self::OSS_PROGRESS_CALLBACK]) && !isset($options[self::OSS_FILE_DOWNLOAD])) {
+            call_user_func($options[self::OSS_PROGRESS_CALLBACK], $this->total_bytes, $this->total_bytes);    
+        }
+
         return $result->getData();
     }
 
@@ -1596,6 +1617,8 @@ class OssClient
                 $upload_file_size -= $upload_position;
             }
         }
+        
+        $this->upload_file_length = $upload_file_size;
 
         if ($upload_position === false || !isset($upload_file_size) || $upload_file_size === false || $upload_file_size < 0) {
             throw new OssException('The size of `fileUpload` cannot be determined in ' . __FUNCTION__ . '().');
@@ -1637,6 +1660,9 @@ class OssClient
             if ($is_check_md5) {
                 $content_md5 = OssUtil::getMd5SumForFile($uploadFile, $from_pos, $to_pos);
                 $up_options[self::OSS_CONTENT_MD5] = $content_md5;
+            }
+            if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+                $up_options[self::OSS_PROGRESS_CALLBACK] = $options[self::OSS_PROGRESS_CALLBACK];
             }
             $response_upload_part[] = $this->uploadPart($bucket, $object, $uploadId, $up_options);
         }
@@ -1921,21 +1947,24 @@ class OssClient
         $request = new RequestCore($this->requestUrl);
         if ($this->isEnableCrc64) {
             $request->enable_crc64_check();
-         }
-        
+        }
+
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
+            $total_length = null;
             if (is_resource($options[self::OSS_FILE_UPLOAD])) {
                 $length = null;
-
+                
                 if (isset($options[self::OSS_CONTENT_LENGTH])) {
                     $length = $options[self::OSS_CONTENT_LENGTH];
+                    $total_length = $length;
                 } elseif (isset($options[self::OSS_SEEK_TO])) {
                     $stats = fstat($options[self::OSS_FILE_UPLOAD]);
                     if ($stats && $stats[self::OSS_SIZE] >= 0) {
                         $length = $stats[self::OSS_SIZE] - (integer)$options[self::OSS_SEEK_TO];
                     }
+                    $total_length = $stats[self::OSS_SIZE];
                 }
                 $request->set_read_stream($options[self::OSS_FILE_UPLOAD], $length);
             } else {
@@ -1946,9 +1975,13 @@ class OssClient
                 } elseif (isset($options[self::OSS_SEEK_TO]) && isset($length)) {
                     $length -= (integer)$options[self::OSS_SEEK_TO];
                 }
+                $total_length = $length;
                 $request->set_read_stream_size($length);
             }
+            
+            $request->total_bytes = isset($options[self::OSS_PART_NUM]) ? $this->upload_file_length : $total_length;
         }
+
         if (isset($options[self::OSS_SEEK_TO])) {
             $request->set_seek_position((integer)$options[self::OSS_SEEK_TO]);
         }
@@ -1973,6 +2006,7 @@ class OssClient
 
             $headers[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
             $headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
+            $request->total_bytes = $headers[self::OSS_CONTENT_LENGTH];
 
        }
         if (isset($options[self::OSS_CONTENT]) && $this->isEnableCrc64) {
@@ -1988,6 +2022,11 @@ class OssClient
 
         if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
             $headers[self::OSS_ACCEPT_ENCODING] = '';
+        }
+        
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            $request->progress_callback = $options[self::OSS_PROGRESS_CALLBACK];
+            $request->consumed_bytes = $this->consumed_bytes;
         }
 
         uksort($headers, 'strnatcasecmp');
@@ -2043,11 +2082,16 @@ class OssClient
         $response_header['oss-redirects'] = $this->redirects;
         $response_header['oss-stringtosign'] = $string_to_sign;
         $response_header['oss-requestheaders'] = $request->request_headers;
-      
         if (!isset($options[self::OSS_CONTENT])) {
              $this->crc64Sum = $request->crc64;
         }
 
+        if (isset($options[self::OSS_PART_NUM])) {
+            $this->consumed_bytes = $request->consumed_bytes;
+        }
+        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+            $this->total_bytes = $response_header['content-length'];
+        }
         $data = new ResponseCore($response_header, $request->get_response_body(), $request->get_response_code());
         //retry if OSS Internal Error
         if ((integer)$request->get_response_code() === 500) {
@@ -2537,6 +2581,7 @@ class OssClient
     const OSS_PROCESS = "x-oss-process";
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
+    const OSS_PROGRESS_CALLBACK = "x-progress-callback";
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
@@ -2583,4 +2628,8 @@ class OssClient
 
     private $crc64Sum = "0";
     private $isEnableCrc64 = false;
+
+    private $upload_file_length;
+    private $total_bytes;
+    private $consumed_bytes;
 }
