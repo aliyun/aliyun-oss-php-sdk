@@ -172,11 +172,11 @@ class RequestCore
 
     public $consumed_bytes = 0;
 
-    public $total_bytes;
+    public $total_bytes = 0;
 
     public $progress_callback = null;
 
-    public $callback_headers = null;
+    public $response_headers_callback = null;
 
     /*%******************************************************************************************%*/
     // CONSTANTS
@@ -569,7 +569,8 @@ class RequestCore
         }
 
         $read = fread($this->read_stream, min($this->read_stream_size - $this->read_stream_read, $length)); // Remaining upload data or cURL's requested chunk size
-        $this->read_stream_read += strlen($read);
+        $read_length = strlen($read);
+        $this->read_stream_read += $read_length;
 
         $out = $read === false ? '' : $read;
 
@@ -579,7 +580,7 @@ class RequestCore
         }
 
         if ($this->progress_callback) {
-            $this->consumed_bytes += strlen($read);;
+            $this->consumed_bytes += $read_length;;
             call_user_func($this->progress_callback, $this->consumed_bytes, $this->total_bytes);
         }
 
@@ -623,7 +624,7 @@ class RequestCore
     
     public function streaming_header_callback($curl_handle, $headerContent)
     {
-        $this->callback_headers = $this->callback_headers . $headerContent;
+        $this->response_headers_callback = $this->response_headers_callback . $headerContent;
         $content = explode(": ", $headerContent); 
         if ($content[0] == "Content-Length") {
             $content_length = explode("\r\n", $content[1]); 
@@ -798,7 +799,7 @@ class RequestCore
             $this->response_code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
             $this->response_info = curl_getinfo($curl_handle);
             // Parse out the headers
-            $this->response_headers = $this->response_headers . $this->callback_headers;
+            $this->response_headers = $this->response_headers . $this->response_headers_callback;
             $this->response_headers = explode("\r\n\r\n", trim($this->response_headers));
             $this->response_headers = array_pop($this->response_headers);
             $this->response_headers = explode("\r\n", $this->response_headers);

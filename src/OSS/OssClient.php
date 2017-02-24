@@ -2082,14 +2082,17 @@ class OssClient
         $response_header['oss-redirects'] = $this->redirects;
         $response_header['oss-stringtosign'] = $string_to_sign;
         $response_header['oss-requestheaders'] = $request->request_headers;
+        
         if (!isset($options[self::OSS_CONTENT])) {
              $this->crc64Sum = $request->crc64;
         }
-
+        
+        //如果是multipart类型, 记录每个连接后计算的consumed_bytes.
         if (isset($options[self::OSS_PART_NUM])) {
             $this->consumed_bytes = $request->consumed_bytes;
         }
-        if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
+        //对get content
+        if (isset($options[self::OSS_PROGRESS_CALLBACK]) && isset($response_header['content-length'])) {
             $this->total_bytes = $response_header['content-length'];
         }
         $data = new ResponseCore($response_header, $request->get_response_body(), $request->get_response_code());
