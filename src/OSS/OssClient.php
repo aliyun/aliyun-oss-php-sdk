@@ -1283,11 +1283,10 @@ class OssClient
             return $result->getData();
         }
 
-        if (!isset($options[self::OSS_FILE_DOWNLOAD]) && $this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
+        if (!isset($options[self::OSS_FILE_DOWNLOAD])) {
            $this->crc64Sum = OssUtil::crc64("0", $result->getData());
-           $this->checkCrc64($this->crc64Sum, $result->getRawResponse()->header['x-oss-hash-crc64ecma']);
         }        
-        if (isset($options[self::OSS_FILE_DOWNLOAD]) && $this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
+        if ($this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
            $this->checkCrc64($this->crc64Sum, $result->getRawResponse()->header['x-oss-hash-crc64ecma']);
         }
 
