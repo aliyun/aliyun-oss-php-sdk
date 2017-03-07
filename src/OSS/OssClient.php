@@ -1001,9 +1001,9 @@ class OssClient
             $result = new CallbackResult($response);
         } else {
             $result = new PutSetDeleteResult($response);
-            if ($this->isEnableCrc64) {
+//            if ($this->isEnableCrc64) {
 //                $this->checkCrc64($this->crc64Sum, $result->getData()['x-oss-hash-crc64ecma']);
-            }
+//            }
         }
         if (isset($options[self::OSS_PROGRESS_CALLBACK])) {
             call_user_func($options[self::OSS_PROGRESS_CALLBACK], $options[self::OSS_CONTENT_LENGTH], $options[self::OSS_CONTENT_LENGTH]);    
