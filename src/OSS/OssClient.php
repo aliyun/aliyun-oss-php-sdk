@@ -1283,7 +1283,7 @@ class OssClient
             return $result->getData();
         }
 
-        if (!isset($options[self::OSS_FILE_DOWNLOAD])) {
+        if ($this->isEnableCrc64 && !isset($options[self::OSS_FILE_DOWNLOAD])) {
            $this->crc64Sum = OssUtil::crc64("0", $result->getData());
         }        
         if ($this->isEnableCrc64 && !isset($options[self::OSS_RANGE])) {
