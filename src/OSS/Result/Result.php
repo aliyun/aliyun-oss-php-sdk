@@ -158,6 +158,11 @@ abstract class Result
         return $this->rawResponse;
     }
 
+    public function getServerCrc64()
+    {
+        return $this->rawResponse->header['x-oss-hash-crc64ecma'];
+    }
+
     /**
      * 标示请求是否成功
      */

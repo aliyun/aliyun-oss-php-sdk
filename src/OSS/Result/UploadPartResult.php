@@ -25,4 +25,9 @@ class UploadPartResult extends Result
         throw new OssException("cannot get ETag");
 
     }
+    public function getServerCrc64()
+    {
+        return $this->rawResponse->header['x-oss-hash-crc64ecma'];
+    }
+
 }

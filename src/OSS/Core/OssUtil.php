@@ -445,4 +445,15 @@ BBB;
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
     }
+    /**
+    * @param string $crc_init
+    * @param string $data
+    * @return string
+    */
+
+    public static function crc64($crc_init, $data)
+    {
+        return crc64_sum($crc_init, $data);
+    }
+
 }
