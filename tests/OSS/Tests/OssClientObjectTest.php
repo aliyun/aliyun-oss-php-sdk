@@ -444,7 +444,7 @@ class OssClientObjectTest extends TestOssClientBase
     	 */
     	try {
     		$content = $this->ossClient->getObject($this->bucket, $object);
-    		$this->assertEquals($content, file_get_contents(__FILE__) . file_get_contents(__FILE__));
+    		$this->assertEquals($content, file_get_contents(__FILE__));
     	} catch (OssException $e) {
     		$this->assertFalse(true);
     	}
@@ -463,7 +463,7 @@ class OssClientObjectTest extends TestOssClientBase
     	 */
     	try {
     		$content = $this->ossClient->getObject($this->bucket, $object);
-    		$this->assertEquals($content, file_get_contents(__FILE__) . file_get_contents(__FILE__));
+    		$this->assertEquals($content, file_get_contents(__FILE__));
     	} catch (OssException $e) {
     		$this->assertFalse(true);
     	}
