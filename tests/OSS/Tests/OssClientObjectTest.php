@@ -75,17 +75,6 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
-    public function testPutIllelObject()
-    {
-        $object = "/ilegal.txt";
-        try {
-            $this->ossClient->putObject($this->bucket, $object, "hi", null);
-            $this->assertFalse(true);
-        } catch (OssException $e) {
-            $this->assertEquals('"/ilegal.txt" object name is invalid', $e->getMessage());
-        }
-    }
-
     public function testObject()
     {
         /**
