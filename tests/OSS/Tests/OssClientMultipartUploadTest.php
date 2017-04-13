@@ -40,6 +40,29 @@ class OssClientMultipartUploadTest extends TestOssClientBase
         unlink($bigFileName);
         unlink($localFilename);
     }
+    
+    public function testMultipartUploadBigFileWithMD5Check()
+    {
+    	$bigFileName = __DIR__ . DIRECTORY_SEPARATOR . "/bigfile.tmp";
+    	$localFilename = __DIR__ . DIRECTORY_SEPARATOR . "/localfile.tmp";
+    	OssUtil::generateFile($bigFileName, 6 * 1024 * 1024);
+    	$object = 'mpu/multipart-bigfile-test.tmp';
+    	$options = array(
+    			OssClient::OSS_CHECK_MD5 => true,
+    			OssClient::OSS_PART_SIZE => 1,
+    	);
+    	try {
+    		$this->ossClient->multiuploadFile($this->bucket, $object, $bigFileName, $options);
+    		$options = array(OssClient::OSS_FILE_DOWNLOAD => $localFilename);
+    		$this->ossClient->getObject($this->bucket, $object, $options);
+    		$this->assertEquals(md5_file($bigFileName), md5_file($localFilename));
+    	} catch (OssException $e) {
+    		var_dump($e->getMessage());
+    		$this->assertFalse(true);
+    	}
+    	unlink($bigFileName);
+    	unlink($localFilename);
+    }
 
     public function testCopyPart()
     {
@@ -262,6 +285,19 @@ class OssClientMultipartUploadTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+    }
+    
+    public function testPutObjectByMultipartUploadWithMD5Check()
+    {
+    	$object = "mpu/multipart-test.txt";
+    	$file = __FILE__;
+    	$options = array(OssClient::OSS_CHECK_MD5 => true);
+    
+    	try {
+    		$this->ossClient->multiuploadFile($this->bucket, $object, $file, $options);
+    	} catch (OssException $e) {
+    		$this->assertFalse(true);
+    	}
     }
 
     public function testListMultipartUploads()
