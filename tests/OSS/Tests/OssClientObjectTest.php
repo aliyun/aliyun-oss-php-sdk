@@ -424,17 +424,6 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
     
-    public function testGetObjectWithIleggalEtag()
-    {
-    	$object = "oss-php-sdk-test/upload-test-object-name.txt";
-    	try {
-    		$res = $this->ossClient->getObject($this->bucket, $object, array(OssClient::OSS_ETAG => "xx"));
-    		$this->assertEquals(file_get_contents(__FILE__), $res);
-    	} catch (OssException $e) {
-    		$this->assertEquals('"/ilegal.txt" object name is invalid', $e->getMessage());
-    	}
-    }
-    
     public function testPutIllelObject()
     {
     	$object = "/ilegal.txt";
