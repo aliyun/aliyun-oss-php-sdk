@@ -33,7 +33,12 @@ class RequestCore
      * Response when error occurs
      */
     public $response_error;
-    
+
+    /**
+     *The hander of write file
+     */
+    public $write_file_handle; 
+
     /**
      * The body being sent in the request.
      */
@@ -486,10 +491,10 @@ class RequestCore
    {
         $code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
 
-        if (isset($this->write_file) && intval($code) / 100 == 2)
+        if (isset($this->write_file) && intval($code) / 100 == 2 && !isset($this->write_file_handle))
         {
-            $write_file_handle = fopen($this->write_file, 'w');
-            $this->set_write_stream($write_file_handle);
+            $this->write_file_handle = fopen($this->write_file, 'w');
+            $this->set_write_stream($this->write_file_handle);
         }
 
         $this->headers_callback .= $header_content;
