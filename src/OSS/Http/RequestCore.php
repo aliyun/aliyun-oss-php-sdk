@@ -23,7 +23,17 @@ class RequestCore
      * The headers being sent in the request.
      */
     public $request_headers;
+   
+    /**
+     * The headers being callback
+     */
+    public $headers_callback;
 
+    /**
+     * Response when error occurs
+     */
+    public $response_error;
+    
     /**
      * The body being sent in the request.
      */
@@ -434,9 +444,6 @@ class RequestCore
     public function set_write_file($location)
     {
         $this->write_file = $location;
-        $write_file_handle = fopen($location, 'w');
-
-        return $this->set_write_stream($write_file_handle);
     }
 
     /**
@@ -467,6 +474,28 @@ class RequestCore
 
         return $this;
     }
+
+    /**
+     * A callback function that is invoked by cURL for streaming up.
+     *
+     * @param resource $curl_handle (Required) The cURL handle for the request.
+     * @param resource $header_content (Required) The header callback result.
+     * @return headers from a stream.
+     */
+   public function streaming_header_callback($curl_handle, $header_content)
+   {
+        $code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+
+        if (isset($this->write_file) && intval($code) / 100 == 2)
+        {
+            $write_file_handle = fopen($this->write_file, 'w');
+            $this->set_write_stream($write_file_handle);
+        }
+
+        $this->headers_callback .= $header_content;
+        return strlen($header_content); 
+    }
+        
 
     /**
      * Register a callback function to execute whenever a data stream is read from using
@@ -566,10 +595,18 @@ class RequestCore
      */
     public function streaming_write_callback($curl_handle, $data)
     {
+        $code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+        
+        if (intval($code) / 100 != 2)
+        {
+            $this->response_error = $data;
+            return strlen($data);
+        }
+
         $length = strlen($data);
         $written_total = 0;
         $written_last = 0;
-
+        
         while ($written_total < $length) {
             $written_last = fwrite($this->write_stream, substr($data, $written_total));
 
@@ -710,9 +747,10 @@ class RequestCore
 
             default: // Assumed GET
                 curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, $this->method);
-                if (isset($this->write_stream)) {
+                if (isset($this->write_stream) || isset($this->write_file)) {
                     curl_setopt($curl_handle, CURLOPT_WRITEFUNCTION, array($this, 'streaming_write_callback'));
                     curl_setopt($curl_handle, CURLOPT_HEADER, false);
+                    curl_setopt($curl_handle, CURLOPT_HEADERFUNCTION, array($this, 'streaming_header_callback'));
                 } else {
                     curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $this->request_body);
                 }
@@ -753,6 +791,12 @@ class RequestCore
             $this->response_body = substr($this->response, $header_size);
             $this->response_code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
             $this->response_info = curl_getinfo($curl_handle);
+            
+            if (intval($this->response_code) / 100 != 2 && isset($this->write_file))
+            {
+                $this->response_headers = $this->headers_callback;
+                $this->response_body = $this->response_error;
+            }
 
             // Parse out the headers
             $this->response_headers = explode("\r\n\r\n", trim($this->response_headers));
@@ -771,7 +815,7 @@ class RequestCore
             $this->response_headers = $header_assoc;
             $this->response_headers['info'] = $this->response_info;
             $this->response_headers['info']['method'] = $this->method;
-
+            
             if ($curl_handle && $response) {
                 return new ResponseCore($this->response_headers, $this->response_body, $this->response_code);
             }
