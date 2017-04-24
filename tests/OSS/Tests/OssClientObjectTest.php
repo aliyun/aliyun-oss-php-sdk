@@ -188,7 +188,7 @@ class OssClientObjectTest extends TestOssClientBase
         }
 
         /**
-         * 下载文件到本地文件
+         * 下载文件到本地文件 no such key
          */
         $localfile = "upload-test-object-name-no-such-key.txt";
         $options = array(
@@ -196,11 +196,29 @@ class OssClientObjectTest extends TestOssClientBase
         );
 
         try {
-            $this->ossClient->getObject($this->bucket, $objecti . "no-such-key", $options);
-            $this->assertTrue(true);
+            $this->ossClient->getObject($this->bucket, $object . "no-such-key", $options);
+            $this->assertTrue(false);
         } catch (OssException $e) {
-          $this->assertTrue(false);
-          print e;
+            $this->assertTrue(true);
+            $this->assertFalse(file_exists($localfile));
+            if (strpos($e, "The specified key does not exist") == false)
+            {
+                $this->assertTrue(true);
+            }
+        }
+
+        /**
+         * 下载文件到内容 no such key
+         */
+        try {
+            $result = $this->ossClient->getObject($this->bucket, $object . "no-such-key");
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+            if (strpos($e, "The specified key does not exist") == false)
+            {
+                $this->assertTrue(true);
+            }
         }
 
         /**
