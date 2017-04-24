@@ -188,6 +188,22 @@ class OssClientObjectTest extends TestOssClientBase
         }
 
         /**
+         * 下载文件到本地文件
+         */
+        $localfile = "upload-test-object-name-no-such-key.txt";
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $localfile,
+        );
+
+        try {
+            $this->ossClient->getObject($this->bucket, $objecti . "no-such-key", $options);
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+          $this->assertTrue(false);
+          print e;
+        }
+
+        /**
          * 复制object
          */
         $to_bucket = $this->bucket;
