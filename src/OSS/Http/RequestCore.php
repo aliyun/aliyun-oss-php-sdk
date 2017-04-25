@@ -25,9 +25,9 @@ class RequestCore
     public $request_headers;
    
     /**
-     * The headers being callback
+     * The raw response callback headers
      */
-    public $headers_callback;
+    public $response_raw_headers;
 
     /**
      * Response body when error occurs
@@ -497,7 +497,7 @@ class RequestCore
             $this->set_write_stream($this->write_file_handle);
         }
 
-        $this->headers_callback .= $header_content;
+        $this->response_raw_headers .= $header_content;
         return strlen($header_content); 
     }
         
@@ -604,7 +604,7 @@ class RequestCore
         
         if (intval($code) / 100 != 2)
         {
-            $this->response_error_body = $data;
+            $this->response_error_body .= $data;
             return strlen($data);
         }
 
@@ -799,7 +799,7 @@ class RequestCore
             
             if (intval($this->response_code) / 100 != 2 && isset($this->write_file))
             {
-                $this->response_headers = $this->headers_callback;
+                $this->response_headers = $this->response_raw_headers;
                 $this->response_body = $this->response_error_body;
             }
 
