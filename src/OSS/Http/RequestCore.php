@@ -30,9 +30,9 @@ class RequestCore
     public $headers_callback;
 
     /**
-     * Response when error occurs
+     * Response body when error occurs
      */
-    public $response_error;
+    public $response_error_body;
 
     /**
      *The hander of write file
@@ -604,7 +604,7 @@ class RequestCore
         
         if (intval($code) / 100 != 2)
         {
-            $this->response_error = $data;
+            $this->response_error_body = $data;
             return strlen($data);
         }
 
@@ -654,6 +654,7 @@ class RequestCore
         curl_setopt($curl_handle, CURLOPT_NOSIGNAL, true);
         curl_setopt($curl_handle, CURLOPT_REFERER, $this->request_url);
         curl_setopt($curl_handle, CURLOPT_USERAGENT, $this->useragent);
+        curl_setopt($curl_handle, CURLOPT_HEADERFUNCTION, array($this, 'streaming_header_callback'));
         curl_setopt($curl_handle, CURLOPT_READFUNCTION, array($this, 'streaming_read_callback'));
 
         // Verification of the SSL cert
@@ -755,7 +756,6 @@ class RequestCore
                 if (isset($this->write_stream) || isset($this->write_file)) {
                     curl_setopt($curl_handle, CURLOPT_WRITEFUNCTION, array($this, 'streaming_write_callback'));
                     curl_setopt($curl_handle, CURLOPT_HEADER, false);
-                    curl_setopt($curl_handle, CURLOPT_HEADERFUNCTION, array($this, 'streaming_header_callback'));
                 } else {
                     curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $this->request_body);
                 }
@@ -800,7 +800,7 @@ class RequestCore
             if (intval($this->response_code) / 100 != 2 && isset($this->write_file))
             {
                 $this->response_headers = $this->headers_callback;
-                $this->response_body = $this->response_error;
+                $this->response_body = $this->response_error_body;
             }
 
             // Parse out the headers
