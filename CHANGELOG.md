@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.2.4 / 2017-04-25
+
+* fix getObject to local file bug
+
 ## v2.2.3 / 2017-04-14
 
 * fix md5 check

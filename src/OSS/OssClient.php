@@ -2520,8 +2520,8 @@ class OssClient
     );
     // OssClient版本信息
     const OSS_NAME = "aliyun-sdk-php";
-    const OSS_VERSION = "2.2.3";
-    const OSS_BUILD = "20170414";
+    const OSS_VERSION = "2.2.4";
+    const OSS_BUILD = "20170425";
     const OSS_AUTHOR = "";
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
