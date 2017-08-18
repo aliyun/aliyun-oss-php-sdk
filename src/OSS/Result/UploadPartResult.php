@@ -11,7 +11,7 @@ use OSS\Core\OssException;
 class UploadPartResult extends Result
 {
     /**
-     * 结果中part的ETag
+     * Gets the part ETag from the response.
      *
      * @return string
      * @throws OssException

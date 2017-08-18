@@ -85,7 +85,7 @@ class OssClientSignatureTest extends TestOssClientBase
     {
         parent::setUp();
         /**
-         *  上传本地变量到bucket
+         *  Uploads local variable to bucket
          */
         $object = "a.file";
         $content = file_get_contents(__FILE__);

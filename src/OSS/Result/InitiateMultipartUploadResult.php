@@ -12,7 +12,7 @@ use OSS\Core\OssException;
 class InitiateMultipartUploadResult extends Result
 {
     /**
-     * 结果中获取uploadId并返回
+     * Gets the uploadId from response.
      *
      * @throws OssException
      * @return string

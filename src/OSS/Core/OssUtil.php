@@ -5,7 +5,7 @@ namespace OSS\Core;
 /**
  * Class OssUtil
  *
- * Oss工具类，主要供OssClient使用，用户也可以使用本类进行返回结果的格式化
+ * Oss Util class for OssClient. The caller could use it for formating the result from OssClient.
  *
  * @package OSS
  */
@@ -20,10 +20,10 @@ class OssUtil
     const OSS_MIN_PART_SIZE = 102400; // 100KB
 
     /**
-     * 生成query params
+     * Generates query params
      *
-     * @param array $options 关联数组
-     * @return string 返回诸如 key1=value1&key2=value2
+     * @param array $options: a key-value pair array.
+     * @return string: the key-value list in the format such as key1=value1&key2=value2
      */
     public static function toQueryString($options = array())
     {
@@ -38,7 +38,7 @@ class OssUtil
     }
 
     /**
-     * 转义字符替换
+     * Html encoding '<', '>', '&', '\', '"' in subject parameter. 
      *
      * @param string $subject
      * @return string
@@ -51,7 +51,7 @@ class OssUtil
     }
 
     /**
-     * 检查是否是中文编码
+     * Checks if the string has any chinese character
      *
      * @param $str
      * @return int
@@ -62,10 +62,10 @@ class OssUtil
     }
 
     /**
-     * 检测是否GB2312编码
+     * Checks if the string is encoded by GB2312.
      *
      * @param string $str
-     * @return boolean false UTF-8编码  TRUE GB2312编码
+     * @return boolean false UTF-8 encoding  TRUE GB2312 encoding
      */
     public static function isGb2312($str)
     {
@@ -87,7 +87,7 @@ class OssUtil
     }
 
     /**
-     * 检测是否GBK编码
+     * Checks if the string is encoded by GBK
      *
      * @param string $str
      * @param boolean $gbk
@@ -114,13 +114,13 @@ class OssUtil
     }
 
     /**
-     * 检验bucket名称是否合法
-     * bucket的命名规范：
-     * 1. 只能包括小写字母，数字
-     * 2. 必须以小写字母或者数字开头
-     * 3. 长度必须在3-63字节之间
+     * Checks if the bucket name is valid
+     * bucket naming rules
+     * 1. Can only have lowercase letter, number or dash
+     * 2. Must start and end with lowercase letter or number
+     * 3. Length should be from 3 to 63.
      *
-     * @param string $bucket Bucket名称
+     * @param string $bucket Bucket name
      * @return boolean
      */
     public static function validateBucket($bucket)
@@ -133,11 +133,11 @@ class OssUtil
     }
 
     /**
-     * 检验object名称是否合法
-     * object命名规范:
-     * 1. 规则长度必须在1-1023字节之间
-     * 2. 使用UTF-8编码
-     * 3. 不能以 "/" "\\"开头
+     * Checks if object name is valid
+     * object naming rules:
+     * 1. Length is from 1 to 1023 bytes
+     * 2. Cannot start with '/' or '\\'.
+     * 3. Encoded in UTF-8.
      *
      * @param string $object Object名称
      * @return boolean
@@ -155,7 +155,7 @@ class OssUtil
 
 
     /**
-     * 判断字符串$str是不是以$findMe开始
+     * Checks if $str starts with $findMe
      *
      * @param string $str
      * @param string $findMe
@@ -171,7 +171,7 @@ class OssUtil
     }
 
     /**
-     * 检验$options
+     * validates $options
      *
      * @param array $options
      * @throws OssException
@@ -186,7 +186,7 @@ class OssUtil
     }
 
     /**
-     * 检查上传文件的内容是否合法
+     * checks if the $content is valid.
      *
      * @param $content string
      * @throws OssException
@@ -199,7 +199,7 @@ class OssUtil
     }
 
     /**
-     * 校验BUCKET/OBJECT/OBJECT GROUP是否为空
+     * Checks if BUCKET/OBJECT/OBJECT GROUP is empty.
      *
      * @param  string $name
      * @param  string $errMsg
@@ -214,7 +214,7 @@ class OssUtil
     }
 
     /**
-     * 仅供测试使用的接口,请勿使用
+     * test method. DO NOT USE.
      *
      * @param $filename
      * @param $size
@@ -255,7 +255,7 @@ BBB;
     }
 
     /**
-     * 得到文件的md5编码
+     * Get MD5 of the content
      *
      * @param $filename
      * @param $from_pos
@@ -305,7 +305,7 @@ BBB;
     }
 
     /**
-     * 检测是否windows系统，因为windows系统默认编码为GBK
+     * Is OS Windows? The default encoding in Windows
      *
      * @return bool
      */
@@ -315,7 +315,9 @@ BBB;
     }
 
     /**
-     * 主要是由于windows系统编码是gbk，遇到中文时候，如果不进行转换处理会出现找不到文件的问题
+     * Encodes the file path from GBK to UTF-8.
+     * The default encoding in Windows is GBK. 
+     * And if the file path is in Chinese, the file would not be found without the transcoding to UTF-8.
      *
      * @param $file_path
      * @return string
@@ -329,9 +331,9 @@ BBB;
     }
 
     /**
-     * 判断用户输入的endpoint是否是 xxx.xxx.xxx.xxx:port 或者 xxx.xxx.xxx.xxx的ip格式
+     * Checks if the endpoint is in the IPv4 format, such as xxx.xxx.xxx.xxx:port or xxx.xxx.xxx.xxx.
      *
-     * @param string $endpoint 需要做判断的endpoint
+     * @param string $endpoint The endpoint to check.
      * @return boolean
      */
     public static function isIPFormat($endpoint)
@@ -347,7 +349,7 @@ BBB;
     }
 
     /**
-     * 生成DeleteMultiObjects接口的xml消息
+     * Generates the xml message of DeleteMultiObjects.
      *
      * @param string[] $objects
      * @param bool $quiet
@@ -366,7 +368,7 @@ BBB;
     }
 
     /**
-     * 生成CompleteMultipartUpload接口的xml消息
+     * Generates the xml message of CompleteMultipartUpload.
      *
      * @param array[] $listParts
      * @return string
@@ -383,7 +385,7 @@ BBB;
     }
 
     /**
-     * 读取目录
+     * read the directory, return a associative array in which the MD5 is the named key and the <path,filanme> is the value.
      *
      * @param string $dir
      * @param string $exclude

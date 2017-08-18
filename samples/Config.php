@@ -3,13 +3,12 @@
 /**
  * Class Config
  *
- * 执行Sample示例所需要的配置，用户在这里配置好Endpoint，AccessId， AccessKey和Sample示例操作的
- * bucket后，便可以直接运行RunAll.php, 运行所有的samples
+ * Config for the sample config. All the information is needed to run RunAll.php which runs all the samples.
  */
 final class Config
 {
-    const OSS_ACCESS_ID = '';
-    const OSS_ACCESS_KEY = '';
-    const OSS_ENDPOINT = '';
-    const OSS_TEST_BUCKET = '';
+    const OSS_ACCESS_ID = 'update me';
+    const OSS_ACCESS_KEY = 'update me';
+    const OSS_ENDPOINT = 'update me';
+    const OSS_TEST_BUCKET = 'update me';
 }
