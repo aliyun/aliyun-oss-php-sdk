@@ -10,20 +10,20 @@
 
 ## v2.2.2 / 2017-01-18
 
-* 解决在php7上运行连接数和内存bug
+* Fix the connection count and memory bugs in php7
 
 ## v2.2.1 / 2016-12-01
 
-* 禁止http curl自动填充Accept-Encoding
+* Disable auto filling Accept-Encoding header by http curl.
 
 ## v2.2.0 / 2016-11-22
 
-* 修复PutObject/CompleteMultipartUpload的返回值问题(#26)
+* Fix PutObject/CompleteMultipartUpload's return value issue.(#26)
 
 ## v2.1.0 / 2016-11-12
 
-* 增加[RTMP](https://help.aliyun.com/document_detail/44297.html)接口
-* 增加支持[图片服务](https://help.aliyun.com/document_detail/44686.html)
+* Add [RTMP](https://help.aliyun.com/document_detail/44297.html) APIs
+* Add Image service support(https://help.aliyun.com/document_detail/44686.html)
 
 ## v2.0.7 / 2016-06-17
 
@@ -36,47 +36,47 @@
 
 ## v2.0.5
 
-* 增加Add/Delete/Get BucketCname接口
+* Add Add/Delete/Get BucketCname APIs
 
 ## v2.0.4
 
-* 增加Put/Get Object Acl接口
+* Add Put/Get Object Acl APIs
 
 ## v2.0.3
 
-* 修复Util中的常量定义在低于5.6的PHP版本中报错的问题
+* Fix Util class's constant definition error in old PHP versions (version < 5.6)
 
 ## v2.0.2
 
-* 修复multipart上传时无法指定Content-Type的问题
+* Fix the issue of no way to specify Content-Type in a multipart upload.
 
 ## v2.0.1
 
-* 增加对ListObjects/ListMultipartUploads时特殊字符的处理
-* 提供接口获取OssException中的详细信息
+* Add special characters' handling in ListObjects/ListMultipartUploads
+* Provide detail error message in OSSException.
 
 
 ## 2015.11.25
 
-* **大版本升级，不再兼容以前接口，新版本对易用性做了很大的改进，建议用户迁移到新版本。**
+* **Major version upgrade. It's not compatible with older version. The new version is much better in usability. All users are recommended to upgrade to this version.**
 
-## 修改内容
+## Updated
 
-* 不再支持PHP 5.2版本
+* No longer support PHP 5.2
 
-### 新增内容
+### Newly added changes
 
-* 引入命名空间
-* 接口命名修正，采用驼峰式命名
-* 接口入参修改，把常用参数从Options参数中提出来
-* 接口返回结果修改，对返回结果进行处理，用户可以直接得到容易处理的数据结构　
-* OssClient的构造函数变更
-* 支持CNAME和IP格式的Endpoint地址
-* 重新整理sample文件组织结构，使用function组织功能点
-* 增加设置连接超时，请求超时的接口
-* 去掉Object Group相关的已经过时的接口
-* OssException中的message改为英文
+* Introduce the name space
+* Correct the API naming. Use CamelCased naming convention.
+* API's input parameter change. Extract the common parameters out of parameter Options
+* API's return result update. The return result now is processed and easy to use by callers.
+* OssClient constructor update
+* Support CName and IP based endpoint
+* Reorganize the sample file's structure. Now it's grouped by functions
+* Add configuration settings for connection timeout, socket timeout
+* Remove the obsolete APIs about Object Group
+* Use English in all messages in the OssException.
 
-### 问题修复
+### Bug Fixes
 
-* object名称校验不完备
+* object name check is incomplete

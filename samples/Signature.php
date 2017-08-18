@@ -10,33 +10,33 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//******************************* 简单使用 ***************************************************************
+//******************************* Simple Usage***************************************************************
 
 $ossClient->uploadFile($bucket, "a.file", __FILE__);
 
-// 生成GetObject的签名url，用户可以使用这个url直接在浏览器下载
+// Generates the sign url for getting an object. The URL could be used in browser directly to access the file.
 $signedUrl = $ossClient->signUrl($bucket, "a.file", 3600);
 Common::println($signedUrl);
 
-// 生成用于putObject的签名URL，用户可以直接用put方法使用这个url上传文件到 "a.file"
+// Generates the sign url for putting an object. User could use put method with this url to upload a file.
 $signedUrl = $ossClient->signUrl($bucket, "a.file", "3600", "PUT");
 Common::println($signedUrl);
 
-// 生成从本地文件上传PutObject的签名url, 用户可以直接使用这个url把本地文件上传到　"a.file"
+// Generates the sign url for putting an object from local file. The url could be used directly to upload the file.
 $signedUrl = $ossClient->signUrl($bucket, "a.file", 3600, "PUT", array('Content-Type' => 'txt'));
 Common::println($signedUrl);
 
-//******************************* 完整用法参考下面函数 ****************************************************
+//******************************* Complete example ****************************************************
 
 getSignedUrlForPuttingObject($ossClient, $bucket);
 getSignedUrlForPuttingObjectFromFile($ossClient, $bucket);
 getSignedUrlForGettingObject($ossClient, $bucket);
 
 /**
- * 生成GetObject的签名url,主要用于私有权限下的读访问控制
+ * Generates the signed url for getObject() for acessing object directly
  *
- * @param $ossClient OssClient OssClient实例
- * @param $bucket string 存储空间名称
+ * @param $ossClient OssClient OssClient instance
+ * @param $bucket string bucket name
  * @return null
  */
 function getSignedUrlForGettingObject($ossClient, $bucket)
@@ -52,7 +52,7 @@ function getSignedUrlForGettingObject($ossClient, $bucket)
     }
     print(__FUNCTION__ . ": signedUrl: " . $signedUrl . "\n");
     /**
-     * 可以类似的代码来访问签名的URL，也可以输入到浏览器中去访问
+     * Use this code to access the object by url, or use browser to access the object.
      */
     $request = new RequestCore($signedUrl);
     $request->set_method('GET');
@@ -67,10 +67,10 @@ function getSignedUrlForGettingObject($ossClient, $bucket)
 }
 
 /**
- * 生成PutObject的签名url,主要用于私有权限下的写访问控制
+ * Generates the signed url for PutObject.
  *
- * @param OssClient $ossClient OssClient实例
- * @param string $bucket 存储空间名称
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
  * @return null
  * @throws OssException
  */
@@ -105,11 +105,10 @@ function getSignedUrlForPuttingObject($ossClient, $bucket)
 }
 
 /**
- * 生成PutObject的签名url,主要用于私有权限下的写访问控制， 用户可以利用生成的signedUrl
- * 从文件上传文件
+ * Generates the signed url for PutObject的签名url. User could use the signedUrl to upload file directly.
  *
- * @param OssClient $ossClient OssClient实例
- * @param string $bucket 存储空间名称
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
  * @throws OssException
  */
 function getSignedUrlForPuttingObjectFromFile($ossClient, $bucket)

@@ -11,7 +11,7 @@ use OSS\Model\WebsiteConfig;
 class GetWebsiteResult extends Result
 {
     /**
-     * 解析WebsiteConfig数据
+     * Parse WebsiteConfig object from response
      *
      * @return WebsiteConfig
      */
@@ -24,8 +24,8 @@ class GetWebsiteResult extends Result
     }
 
     /**
-     * 根据返回http状态码判断，[200-299]即认为是OK, 获取bucket相关配置的接口，404也认为是一种
-     * 有效响应
+     * Checks if the response is OK according to its http status code.
+     * [200-299]:OK, and the Website config could be got; [404]: the website config could not be found.
      *
      * @return bool
      */

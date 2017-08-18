@@ -70,7 +70,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
         $copiedObject = "mpu/multipart-test.txt.copied";
         $this->ossClient->putObject($this->bucket, $copiedObject, file_get_contents(__FILE__));
         /**
-         *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+         *  step 1. Initialize a multipart upload, and gets the upload Id
          */
         try {
             $upload_id = $this->ossClient->initiateMultipartUpload($this->bucket, $object);
@@ -112,7 +112,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
     {
         $object = "mpu/multipart-test.txt";
         /**
-         *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+         *  step 1. Initialize a multipart upload, and gets the upload Id
          */
         try {
             $upload_id = $this->ossClient->initiateMultipartUpload($this->bucket, $object);
@@ -120,7 +120,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
             $this->assertFalse(true);
         }
         /*
-         * step 2. 上传分片
+         * step 2. Upload parts
          */
         $part_size = 10 * 1024 * 1024;
         $upload_file = __FILE__;
@@ -143,7 +143,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
                 $content_md5 = OssUtil::getMd5SumForFile($upload_file, $from_pos, $to_pos);
                 $up_options[OssClient::OSS_CONTENT_MD5] = $content_md5;
             }
-            //2. 将每一分片上传到OSS
+            //2. upload every part to OSS
             try {
                 $response_upload_part[] = $this->ossClient->uploadPart($this->bucket, $object, $upload_id, $up_options);
             } catch (OssException $e) {
@@ -197,7 +197,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
     {
         $object = "mpu/multipart-test.txt";
         /**
-         *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+         *  step 1. Initialize a multipart upload, and gets the upload Id
          */
         try {
             $upload_id = $this->ossClient->initiateMultipartUpload($this->bucket, $object);
@@ -205,7 +205,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
             $this->assertFalse(true);
         }
         /*
-         * step 2. 上传分片
+         * step 2. Upload parts
          */
         $part_size = 10 * 1024 * 1024;
         $upload_file = __FILE__;
@@ -228,7 +228,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
                 $content_md5 = OssUtil::getMd5SumForFile($upload_file, $from_pos, $to_pos);
                 $up_options[OssClient::OSS_CONTENT_MD5] = $content_md5;
             }
-            //2. 将每一分片上传到OSS
+            //2. Upload every part to OSS
             try {
                 $response_upload_part[] = $this->ossClient->uploadPart($this->bucket, $object, $upload_id, $up_options);
             } catch (OssException $e) {

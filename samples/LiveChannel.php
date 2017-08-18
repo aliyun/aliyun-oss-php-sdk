@@ -8,11 +8,12 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//******************************* 简单使用 *******************************************************
+//******************************* Simple Usage *******************************************************
 
 /**
-    创建一个直播频道
-    频道的名称是test_rtmp_live。直播生成的m3u8文件叫做test.m3u8，该索引文件包含3片ts文件，每片ts文件的时长为5秒（这只是一个建议值，具体的时长取决于关键帧）。
+ *  Creates a Live Channel
+ *  The live channel's name is test_rtmp_live. The play url file is test.m3u8, which has 3 ts file and each file is 5 seconds.（It's just for demo purpose, the actual length
+ *  depends on the key frame.
  */
 $config = new LiveChannelConfig(array(
             'description' => 'live channel test',
@@ -29,9 +30,9 @@ Common::println("bucket $bucket liveChannel created:\n" .
 "playurls: ". $info->getPlayUrls()[0] . "\n");
 
 /**
-    对创建好的频道，可以使用listBucketLiveChannels来进行列举已达到管理的目的。
-    prefix可以按照前缀过滤list出来的频道。
-    max_keys表示迭代器内部一次list出来的频道的最大数量，这个值最大不能超过1000，不填写的话默认为100。
+  * list all existing live channels
+  * prefix is the filter based on the live channel name's prefix.
+  * max_keys means the max entries one list() call returns. Its max value is 1000. By default it's 100
  */
 $list = $ossClient->listBucketLiveChannels($bucket);
 Common::println("bucket $bucket listLiveChannel:\n" . 
@@ -50,7 +51,7 @@ foreach($list->getChannelList()  as $list)
     "list live channel getNextMarker: ". $list->getLastModified() . "\n");
 }
 /**
-    创建直播频道之后拿到推流用的play_url（rtmp推流的url，如果Bucket不是公共读写权限那么还需要带上签名，见下文示例）和推流用的publish_url（推流产生的m3u8文件的url）
+  * Signs the RTMP url and publish url after the channel is created
  */
 $play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600, array('params' => array('playlistName' => 'playlist.m3u8')));
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
@@ -58,12 +59,13 @@ $play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600);
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
 
 /**
-   创建好直播频道，如果想把这个频道禁用掉（断掉正在推的流或者不再允许向一个地址推流），应该使用putLiveChannelStatus接口，将频道的status改成“Disabled”，如果要将一个禁用状态的频道启用，那么也是调用这个接口，将status改成“Enabled”
+  * If you want to disable a live channel (disable the pushing streaming), call putLiveChannelStatus with "Disabled" status.
+  * Otherwise to enable a live channel, call PutLiveChannelStatus with "Enabled" status.
  */
 $resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
 
 /**
-    创建好直播频道之后调用getLiveChannelInfo可以得到频道相关的信息
+  * Gets the Live channel information
  */
 $info = $ossClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
 Common::println("bucket $bucket LiveChannelInfo:\n" . 
@@ -75,7 +77,7 @@ Common::println("bucket $bucket LiveChannelInfo:\n" .
 "live channel info playListName: ". $info->getPlayListName() . "\n");
 
 /**
-    如果想查看一个频道历史推流记录，可以调用getLiveChannelHistory。目前最多可以看到10次推流的记录
+  * Gets the historical pushing streaming records by calling getLiveChannelHistory. Now the max records to return is 10.
  */
 $history = $ossClient->getLiveChannelHistory($bucket, "test_rtmp_live");
 if (count($history->getLiveRecordList()) != 0)
@@ -90,9 +92,9 @@ if (count($history->getLiveRecordList()) != 0)
 }
 
 /**
-    对于正在推流的频道调用get_live_channel_stat可以获得流的状态信息。
-    如果频道正在推流，那么stat_result中的所有字段都有意义。
-    如果频道闲置或者处于“Disabled”状态，那么status为“Idle”或“Disabled”，其他字段无意义。
+  * Gets the live channel's status by calling getLiveChannelStatus.
+  * If the live channel is receiving the pushing stream, all attributes in stat_result are valid.
+  * If the live channel is idle or disabled, then the status is idle or Disabled and other attributes have no meaning.
  */
 $status = $ossClient->getLiveChannelStatus($bucket, "test_rtmp_live");
 Common::println("bucket $bucket listLiveChannel:\n" . 
@@ -108,9 +110,9 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "live channel status AdioCodec: ". $status->getAudioCodec() . "\n");
 
 /**
- *  如果希望利用直播推流产生的ts文件生成一个点播列表，可以使用postVodPlaylist方法。
- *  指定起始时间为当前时间减去60秒，结束时间为当前时间，这意味着将生成一个长度为60秒的点播视频。
- *  播放列表指定为“vod_playlist.m3u8”，也就是说这个接口调用成功之后会在OSS上生成一个名叫“vod_playlist.m3u8”的播放列表文件。
+ *  If you want to generate a play url from the ts files generated from pushing streaming, call postVodPlayList.
+ *  The start tiem is the current time minus 60s. The endtime is the current time.
+ *  The playlist file is “vod_playlist.m3u8”. In other words, the vod_playlist.m3u8 is created after the all suceeded.
  */
 $current_time = time();
 $ossClient->postVodPlaylist($bucket,
@@ -120,6 +122,6 @@ $ossClient->postVodPlaylist($bucket,
 );
 
 /**
- *  如果一个直播频道已经不打算再使用了，那么可以调用delete_live_channel来删除频道。
+ *  Deletes the live channel if the channel is not going to be used.
  */
 $ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");

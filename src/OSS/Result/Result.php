@@ -7,8 +7,8 @@ use OSS\Http\ResponseCore;
 
 
 /**
- * Class Result, 操作结果类的基类，不同的请求在处理返回数据的时候有不同的逻辑，
- * 具体的解析逻辑推迟到子类实现
+ * Class Result, it's the base class for all operations' results.
+ * The exact parsing logic is in its subclass.
  *
  * @package OSS\Model
  */
@@ -29,7 +29,7 @@ abstract class Result
     }
 
     /**
-     * 获取requestId
+     * Gets requestId
      *
      * @return string
      */
@@ -46,7 +46,7 @@ abstract class Result
     }
 
     /**
-     * 得到返回数据，不同的请求返回数据格式不同
+     * Gets the parsed data. The data's type varis for different subclass.
      *
      * $return mixed
      */
@@ -56,14 +56,14 @@ abstract class Result
     }
 
     /**
-     * 由子类实现，不同的请求返回数据有不同的解析逻辑，由子类实现
+     * Parse the data from response. It's implemented in its subclass.
      *
      * @return mixed
      */
     abstract protected function parseDataFromResponse();
 
     /**
-     * 操作是否成功
+     * Gets the isOk flag.
      *
      * @return mixed
      */
@@ -99,7 +99,7 @@ abstract class Result
     }
 
     /**
-     * 尝试从body中获取错误Message
+     * Gets the error message from the response body. Returns empty if no error message.
      *
      * @param $body
      * @return string
@@ -117,7 +117,7 @@ abstract class Result
     }
 
     /**
-     * 尝试从body中获取错误Code
+     * Gets the error code from body. Returns empty if no error code.
      *
      * @param $body
      * @return string
@@ -135,7 +135,7 @@ abstract class Result
     }
 
     /**
-     * 根据返回http状态码判断，[200-299]即认为是OK
+     * Checks the response status by its http status code. [200-299] means it's OK.
      *
      * @return bool
      */
@@ -149,7 +149,7 @@ abstract class Result
     }
 
     /**
-     * 返回原始的返回数据
+     * Returns the raw response of type ResponseCore 
      *
      * @return ResponseCore
      */
@@ -159,15 +159,15 @@ abstract class Result
     }
 
     /**
-     * 标示请求是否成功
+     * is response OK flag.
      */
     protected $isOk = false;
     /**
-     * 由子类解析过的数据
+     * The parsed data which is implemented by its subclass.
      */
     protected $parsedData = null;
     /**
-     * 存放auth函数返回的原始Response
+     * The raw response of type ResponseCore.
      *
      * @var ResponseCore
      */
