@@ -50,7 +50,7 @@ Tips:
 
 | Class | Explanation |
 |:------------------|:------------------------------------|
-|OSS\OSSClient | OSS client class. An OSSClient instance can be used to call the interface.  |
+|OSS\OssClient | OSS client class. An OSSClient instance can be used to call the interface.  |
 |OSS\Core\OSSException |OSS Exception class . You only need to pay attention to this exception when you use the OSSClient. |
 
 ### Initialize an OSSClient
