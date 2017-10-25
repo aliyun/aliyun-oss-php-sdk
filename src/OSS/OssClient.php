@@ -12,6 +12,7 @@ use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
 use OSS\Result\GetCorsResult;
@@ -20,6 +21,7 @@ use OSS\Result\GetLoggingResult;
 use OSS\Result\GetRefererResult;
 use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
+use OSS\Result\GetLocationResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
 use OSS\Result\ListBucketsResult;
@@ -37,6 +39,7 @@ use OSS\Result\GetLiveChannelHistoryResult;
 use OSS\Result\GetLiveChannelInfoResult;
 use OSS\Result\GetLiveChannelStatusResult;
 use OSS\Result\ListLiveChannelResult;
+use OSS\Result\GetStorageCapacityResult;
 use OSS\Result\AppendResult;
 use OSS\Model\ObjectListInfo;
 use OSS\Result\UploadPartResult;
@@ -175,6 +178,44 @@ class OssClient
         $response = $this->auth($options);
         $result = new ExistResult($response);
         return $result->getData();
+    }
+    
+    /**
+     * 获取bucket所属的数据中心位置信息
+     *
+     * @param string $bucket
+     * @param array $options
+     * @throws OssException
+     * @return string
+     */
+    public function getBucketLocation($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'location';
+        $response = $this->auth($options);
+        $result = new GetLocationResult($response);
+        return $result->getData();
+    }
+    
+    /**
+     * 获取Bucket的Meta信息
+     *
+     * @param string $bucket
+     * @param array $options 具体参考SDK文档
+     * @return array
+     */
+    public function getBucketMeta($bucket, $options = NULL)
+    {
+    	$this->precheckCommon($bucket, NULL, $options, false);
+    	$options[self::OSS_BUCKET] = $bucket;
+    	$options[self::OSS_METHOD] = self::OSS_HTTP_HEAD;
+    	$options[self::OSS_OBJECT] = '/';
+    	$response = $this->auth($options);
+    	$result = new HeaderResult($response);
+    	return $result->getData();
     }
 
     /**
@@ -898,6 +939,51 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'referer';
         $response = $this->auth($options);
         $result = new GetRefererResult($response);
+        return $result->getData();
+    }
+    
+    /**
+     * 设置bucket的容量大小，单位GB
+     * 当bucket的容量大于设置的容量时，禁止继续写入
+     *
+     * @param string $bucket bucket名称
+     * @param int $storageCapacity
+     * @param array $options
+     * @return ResponseCore
+     * @throws null
+     */
+    public function putBucketStorageCapacity($bucket, $storageCapacity, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'qos';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $storageCapacityConfig = new StorageCapacityConfig($storageCapacity);
+        $options[self::OSS_CONTENT] = $storageCapacityConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+    
+    /**
+     * 获取bucket的容量大小，单位GB
+     *
+     * @param string $bucket bucket名称
+     * @param array $options
+     * @throws OssException
+     * @return int
+     */
+    public function getBucketStorageCapacity($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'qos';
+        $response = $this->auth($options);
+        $result = new GetStorageCapacityResult($response);
         return $result->getData();
     }
 
