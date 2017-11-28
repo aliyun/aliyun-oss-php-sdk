@@ -108,16 +108,19 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-	public function  testPutObjectNull()
-    	{
+	public function  testPutNullObject()
+    {
 
-           // $accessKeyId = getenv('OSS_ACCESS_KEY_ID');
-           // $accessKeySecret = getenv('OSS_ACCESS_KEY_SECRET');
-           // $endpoint = getenv('OSS_ENDPOINT');
-           // $bucket ='php-sdk-test';
+            $accessKeyId = getenv('OSS_ACCESS_KEY_ID');
+            $accessKeySecret = getenv('OSS_ACCESS_KEY_SECRET');
+            $endpoint = getenv('OSS_ENDPOINT');
+            $bucket =getenv('OSS_BUCKET');
 		
-            $ossClient = new OssClient('LTAIuylVfQ4vKZrL', 'xQPtkWeLSFL5iAk0eVsvFRTzJHVbLF', 'oss-cn-hangzhou.aliyuncs.com', false);
-            $this->assertEquals('', $ossClient->putObject('abc12586', 'testNullObject', '')['body']);
+            $ossClient = new OssClient($accessKeyId,$accessKeySecret, $endpoint, false);
+            if(!$ossClient->doesBucketExist($bucket)){
+                $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
+            }
+            $this->assertEquals('', $ossClient->putObject($bucket, 'testNullObject', '')['body']);
 
     }
 
