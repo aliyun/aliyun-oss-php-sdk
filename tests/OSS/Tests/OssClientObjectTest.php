@@ -47,6 +47,7 @@ class OssClientObjectTest extends TestOssClientBase
 
         try {
             $res = $this->ossClient->getObject($this->bucket, $object, $options);
+
             $this->assertEquals(file_get_contents(__FILE__), $res);
         } catch (OssException $e) {
             $this->assertTrue(false);

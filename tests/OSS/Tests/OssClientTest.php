@@ -115,12 +115,18 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeySecret = getenv('OSS_ACCESS_KEY_SECRET');
             $endpoint = getenv('OSS_ENDPOINT');
             $bucket =getenv('OSS_BUCKET');
-		
-            $ossClient = new OssClient($accessKeyId,$accessKeySecret, $endpoint, false);
-            if(!$ossClient->doesBucketExist($bucket)){
-                $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
+		    try{
+                $ossClient = new OssClient($accessKeyId,$accessKeySecret, $endpoint, false);
+                if(!$ossClient->doesBucketExist($bucket)){
+                    $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
+                }
+                $this->assertEquals('', $ossClient->putObject($bucket, 'testNullObject', '')['body']);
+
+            }catch (OssException $e){
+
+		        $this->assertFalse(true);
+
             }
-            $this->assertEquals('', $ossClient->putObject($bucket, 'testNullObject', '')['body']);
 
     }
 
