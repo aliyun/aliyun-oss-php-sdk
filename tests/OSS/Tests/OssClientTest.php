@@ -120,7 +120,8 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             if(!$ossClient->doesBucketExist($bucket)){
                 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
             }
-            $this->assertEquals('', $ossClient->putObject($bucket, 'testNullObject', '')['body']);
+            $ossClient->putObject($bucket, 'testNullObject', '');
+            $this->assertEquals('',$ossClient->getObject($bucket,'testNullObject'));
 
         }catch (OssException $e){
 
@@ -144,7 +145,8 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             if(!$ossClient->doesBucketExist($bucket)){
                 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
             }
-            $this->assertEquals($content, $ossClient->putObject($bucket, 'testNullObject', $content)['body']);
+            $ossClient->putObject($bucket, 'testNotNullObject', $content);
+            $this->assertEquals($content,$ossClient->getObject($bucket,'testNotNullObject') );
 
         }catch (OssException $e){
 
