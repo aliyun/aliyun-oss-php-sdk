@@ -4,7 +4,7 @@ namespace OSS\Tests;
 
 use OSS\Core\OssException;
 use OSS\OssClient;
-
+use OSS\Core\OssUtil;
 class OssClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstrunct()
@@ -121,6 +121,30 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
                 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
             }
             $this->assertEquals('', $ossClient->putObject($bucket, 'testNullObject', '')['body']);
+
+        }catch (OssException $e){
+
+            $this->assertFalse(true);
+
+        }
+
+    }
+
+    public function  testPutnotNullObject()
+    {
+
+        $accessKeyId = getenv('OSS_ACCESS_KEY_ID');
+        $accessKeySecret = getenv('OSS_ACCESS_KEY_SECRET');
+        $endpoint = getenv('OSS_ENDPOINT');
+        $bucket =getenv('OSS_BUCKET');
+        $content='test';
+        OssUtil::validateContent($content);
+        try{
+            $ossClient = new OssClient($accessKeyId,$accessKeySecret, $endpoint, false);
+            if(!$ossClient->doesBucketExist($bucket)){
+                $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
+            }
+            $this->assertEquals($content, $ossClient->putObject($bucket, 'testNullObject', $content)['body']);
 
         }catch (OssException $e){
 

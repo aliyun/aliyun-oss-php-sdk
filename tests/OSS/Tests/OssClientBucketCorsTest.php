@@ -75,6 +75,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
             Common::waitMetaSync();
             $corsConfig3 = $this->ossClient->getBucketCors($this->bucket);
             $this->assertNotNull($corsConfig3);
+
             $this->assertNotEquals($corsConfig->serializeToXml(), $corsConfig3->serializeToXml());
         } catch (OssException $e) {
             $this->assertFalse(True);
