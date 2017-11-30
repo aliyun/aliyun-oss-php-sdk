@@ -145,6 +145,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             if(!$ossClient->doesBucketExist($bucket)){
                 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
             }
+            
             $ossClient->putObject($bucket, 'testNotNullObject', $content);
             $this->assertEquals($content,$ossClient->getObject($bucket,'testNotNullObject') );
 
