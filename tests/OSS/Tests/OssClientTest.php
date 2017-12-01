@@ -108,9 +108,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-
-
-    public function testcreateObjectDir()
+    public function testCreateObjectDir()
     {
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
@@ -138,6 +136,4 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(true);
         }
     }
-
-
 }
