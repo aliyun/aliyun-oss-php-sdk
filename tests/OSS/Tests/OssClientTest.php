@@ -124,19 +124,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(true);
         }
     }
-    public function testdeleteBucket()
-    {
-        try {
-            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
-            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
-            $ossClient->deleteBucket($bucket);
-        } catch (OssException $e) {
-            $this->assertFalse(true);
-        }
-    }
+
     public function testGetBucketCors()
     {
         try {
