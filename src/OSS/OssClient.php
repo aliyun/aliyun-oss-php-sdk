@@ -75,7 +75,7 @@ class OssClient
      * @param string $securityToken
      * @throws OssException
      */
-    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
+    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL ,$requestProxy = NULL)
     {
         $accessKeyId = trim($accessKeyId);
         $accessKeySecret = trim($accessKeySecret);
@@ -94,6 +94,7 @@ class OssClient
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->securityToken = $securityToken;
+        $this->requestProxy = $requestProxy;
         self::checkEnv();
     }
 
@@ -1891,7 +1892,7 @@ class OssClient
         $this->requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
 
         //创建请求
-        $request = new RequestCore($this->requestUrl);
+        $request = new RequestCore($this->requestUrl,$this->requestProxy);
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
@@ -2536,6 +2537,7 @@ class OssClient
     private $accessKeyId;
     private $accessKeySecret;
     private $hostname;
+    private $requestProxy = null;
     private $securityToken;
     private $enableStsInUrl = false;
     private $timeout = 0;
