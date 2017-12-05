@@ -136,6 +136,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(true);
         }
     }
+
     public function testProxySupportGetBucketCors()
     {
         try{
@@ -150,6 +151,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(true);
         }
     }
+
     public function testProxySupportGetBucketCname()
     {
         try{
