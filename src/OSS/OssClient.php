@@ -1204,7 +1204,7 @@ class OssClient
      */
     public function deleteObjects($bucket, $objects, $options = null)
     {
-        $this->precheckCommon($bucket, NULL, $options, false);
+        $this->precheckCommon($bucket, NUll, $options, false);
         if (!is_array($objects) || !$objects) {
             throw new OssException('objects must be array');
         }
@@ -1750,6 +1750,25 @@ class OssClient
     }
 
     /**
+     * object字符转译
+     *
+     * @param string $object
+     *
+     */
+    private function objectCharacterTranslation(& $option)
+    {
+        if(isset($option[self::OSS_OBJECT])){
+            $option[self::OSS_OBJECT] = str_replace("+","%2B",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace(" ","%20",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("%","%25",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("#","%23",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("?","%3F",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("=","%3D",$option[self::OSS_OBJECT]);
+        }
+
+    }
+
+    /**
      * 校验bucket,options参数
      *
      * @param string $bucket
@@ -1861,6 +1880,8 @@ class OssClient
         $this->authPrecheckBucket($options);
         //验证object
         $this->authPrecheckObject($options);
+        //object字符转译
+        $this->objectCharacterTranslation($options);
         //Object名称的编码必须是utf8
         $this->authPrecheckObjectEncoding($options);
         //验证ACL

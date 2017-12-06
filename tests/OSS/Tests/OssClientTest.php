@@ -167,5 +167,20 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testObjectCharacterTranslation()
+    {
+        try{
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $object = 'text/%.txt';
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
+            $ossClient->putObject($bucket,$object,'test content');
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+    }
+
 
 }
