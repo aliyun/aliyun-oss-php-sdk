@@ -47,6 +47,7 @@ class OssClientObjectTest extends TestOssClientBase
 
         try {
             $res = $this->ossClient->getObject($this->bucket, $object, $options);
+
             $this->assertEquals(file_get_contents(__FILE__), $res);
         } catch (OssException $e) {
             $this->assertTrue(false);
@@ -337,6 +338,22 @@ class OssClientObjectTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+
+        $object = "emptybodytest";
+        try {
+            $this->ossClient->putObject($this->bucket, $object, "", $options);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, "");
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+
     }
 
     public function testAppendObject()
@@ -423,6 +440,8 @@ class OssClientObjectTest extends TestOssClientBase
         try {
             $position = $this->ossClient->appendObject($this->bucket, $object, "Hello OSS, ", 0, $options);
             $position = $this->ossClient->appendObject($this->bucket, $object, "Hi OSS.", $position);
+            $position1 = $this->ossClient->appendObject($this->bucket, $object, "", $position);
+            $this->assertEquals($position, $position1);
         } catch (OssException $e) {
             $this->assertFalse(true);
         }

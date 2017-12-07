@@ -75,7 +75,7 @@ class OssClient
      * @param string $securityToken
      * @throws OssException
      */
-    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
+    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL ,$requestProxy = NULL)
     {
         $accessKeyId = trim($accessKeyId);
         $accessKeySecret = trim($accessKeySecret);
@@ -94,6 +94,7 @@ class OssClient
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->securityToken = $securityToken;
+        $this->requestProxy = $requestProxy;
         self::checkEnv();
     }
 
@@ -975,7 +976,6 @@ class OssClient
     {
         $this->precheckCommon($bucket, $object, $options);
 
-        OssUtil::validateContent($content);
         $options[self::OSS_CONTENT] = $content;
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
@@ -1058,7 +1058,6 @@ class OssClient
     {
         $this->precheckCommon($bucket, $object, $options);
 
-        OssUtil::validateContent($content);
         $options[self::OSS_CONTENT] = $content;
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
@@ -1151,6 +1150,7 @@ class OssClient
         } else {
             $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_COPY_SOURCE => '/' . $fromBucket . '/' . $fromObject);
         }
+        $options[self::OSS_HEADERS][self::OSS_METADATA_DIRECTIVE] = 'REPLACE';
         $response = $this->auth($options);
         $result = new CopyObjectResult($response);
         return $result->getData();
@@ -1205,7 +1205,7 @@ class OssClient
      */
     public function deleteObjects($bucket, $objects, $options = null)
     {
-        $this->precheckCommon($bucket, NULL, $options, false);
+        $this->precheckCommon($bucket, NUll, $options, false);
         if (!is_array($objects) || !$objects) {
             throw new OssException('objects must be array');
         }
@@ -1751,6 +1751,25 @@ class OssClient
     }
 
     /**
+     * object字符转译
+     *
+     * @param string $object
+     *
+     */
+    private function objectCharacterTranslation(& $option)
+    {
+        if(isset($option[self::OSS_OBJECT])){
+            $option[self::OSS_OBJECT] = str_replace("+","%2B",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace(" ","%20",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("%","%25",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("#","%23",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("?","%3F",$option[self::OSS_OBJECT]);
+            $option[self::OSS_OBJECT] = str_replace("=","%3D",$option[self::OSS_OBJECT]);
+        }
+
+    }
+
+    /**
      * 校验bucket,options参数
      *
      * @param string $bucket
@@ -1862,6 +1881,8 @@ class OssClient
         $this->authPrecheckBucket($options);
         //验证object
         $this->authPrecheckObject($options);
+        //object字符转译
+        $this->objectCharacterTranslation($options);
         //Object名称的编码必须是utf8
         $this->authPrecheckObjectEncoding($options);
         //验证ACL
@@ -1893,7 +1914,7 @@ class OssClient
         $this->requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
 
         //创建请求
-        $request = new RequestCore($this->requestUrl);
+        $request = new RequestCore($this->requestUrl,$this->requestProxy);
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
@@ -2499,6 +2520,7 @@ class OssClient
     const OSS_PROCESS = "x-oss-process";
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
+    const OSS_METADATA_DIRECTIVE = 'x-oss-metadata-directive';
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
@@ -2538,6 +2560,7 @@ class OssClient
     private $accessKeyId;
     private $accessKeySecret;
     private $hostname;
+    private $requestProxy = null;
     private $securityToken;
     private $enableStsInUrl = false;
     private $timeout = 0;
