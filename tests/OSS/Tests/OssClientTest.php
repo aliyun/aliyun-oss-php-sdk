@@ -170,6 +170,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
     public function testObjectCharacterTranslation()
     {
         try{
+            
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';

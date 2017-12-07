@@ -1150,6 +1150,7 @@ class OssClient
         } else {
             $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_COPY_SOURCE => '/' . $fromBucket . '/' . $fromObject);
         }
+        $options[self::OSS_HEADERS][self::OSS_METADATA_DIRECTIVE] = 'REPLACE';
         $response = $this->auth($options);
         $result = new CopyObjectResult($response);
         return $result->getData();
@@ -2519,6 +2520,7 @@ class OssClient
     const OSS_PROCESS = "x-oss-process";
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
+    const OSS_METADATA_DIRECTIVE = 'x-oss-metadata-directive';
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
