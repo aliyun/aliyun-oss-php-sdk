@@ -975,7 +975,6 @@ class OssClient
     {
         $this->precheckCommon($bucket, $object, $options);
 
-        OssUtil::validateContent($content);
         $options[self::OSS_CONTENT] = $content;
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
