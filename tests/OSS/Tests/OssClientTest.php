@@ -99,6 +99,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
     {
         try {
 	    $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+
 	    $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
 	    $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
             $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
