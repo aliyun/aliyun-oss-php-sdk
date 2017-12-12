@@ -73,9 +73,10 @@ class OssClient
      * @param string $endpoint 您选定的OSS数据中心访问域名，例如oss-cn-hangzhou.aliyuncs.com
      * @param boolean $isCName 是否对Bucket做了域名绑定，并且Endpoint参数填写的是自己的域名
      * @param string $securityToken
+     * @param string $proxy
      * @throws OssException
      */
-    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
+    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL, $proxy = NULL)
     {
         $accessKeyId = trim($accessKeyId);
         $accessKeySecret = trim($accessKeySecret);
@@ -94,6 +95,7 @@ class OssClient
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->securityToken = $securityToken;
+        $this->requestProxy = $proxy;
         self::checkEnv();
     }
 
@@ -1891,7 +1893,7 @@ class OssClient
         $this->requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
 
         //创建请求
-        $request = new RequestCore($this->requestUrl);
+        $request = new RequestCore($this->requestUrl, $this->requestProxy);
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
@@ -2533,6 +2535,7 @@ class OssClient
     // 用户提供的域名类型，有四种 OSS_HOST_TYPE_NORMAL, OSS_HOST_TYPE_IP, OSS_HOST_TYPE_SPECIAL, OSS_HOST_TYPE_CNAME
     private $hostType = self::OSS_HOST_TYPE_NORMAL;
     private $requestUrl;
+    private $requestProxy = null;
     private $accessKeyId;
     private $accessKeySecret;
     private $hostname;
