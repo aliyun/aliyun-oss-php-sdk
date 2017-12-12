@@ -685,7 +685,7 @@ class RequestCore
 
         // Enable a proxy connection if requested.
         if ($this->proxy) {
-            curl_setopt($curl_handle, CURLOPT_HTTPPROXYTUNNEL, true);
+            curl_setopt($curl_handle, CURLOPT_HTTPPROXYTUNNEL, false);
 
             $host = $this->proxy['host'];
             $host .= ($this->proxy['port']) ? ':' . $this->proxy['port'] : '';

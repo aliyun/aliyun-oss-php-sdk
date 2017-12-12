@@ -151,4 +151,34 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testProxySupportGetBucketCors()
+    {
+        try{
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $proxy  = 'http://tester:Hello12345@47.88.84.40:3128';
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
+            $ossClient->getBucketCors($bucket);
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+    }
+
+    public function testProxySupportGetBucketCname()
+    {
+        try{
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $proxy  = 'http://tester:Hello12345@47.88.84.40:3128';
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
+            $ossClient->getBucketCname($bucket);
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+    }
+
 }
