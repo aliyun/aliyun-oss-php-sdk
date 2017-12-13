@@ -151,34 +151,46 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testProxySupportGetBucketCors()
+    public function testProxySupport()
     {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $bucket = getenv('OSS_BUCKET');
+        $proxy  = getenv('OSS_PROXY');
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
         try{
-            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
-            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
-            $proxy  = 'http://tester:Hello12345@47.88.84.40:3128';
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
-            $ossClient->getBucketCors($bucket);
+            $ossClient->createbucket('testbucket');
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+        try{
+            $ossClient->deletebucket('testbucket');
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+        try{
+            $ossClient->putObject($bucket,'testobject','testcontet');
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+        try{
+            $ossClient->getObject($bucket,'testobject');
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+        try{
+            $ossClient->listObjects($bucket);
+        }catch (OssException $e){
+            $this->assertFalse(true);
+        }
+        try{
+            $ossClient->deleteObject($bucket,'testobject');
         }catch (OssException $e){
             $this->assertFalse(true);
         }
     }
 
-    public function testProxySupportGetBucketCname()
-    {
-        try{
-            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
-            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
-            $proxy  = 'http://tester:Hello12345@47.88.84.40:3128';
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
-            $ossClient->getBucketCname($bucket);
-        }catch (OssException $e){
-            $this->assertFalse(true);
-        }
-    }
+
 
 }
