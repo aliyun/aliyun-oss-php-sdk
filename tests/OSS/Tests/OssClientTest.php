@@ -160,12 +160,12 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $proxy  = getenv('OSS_PROXY');
         $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false,null,$proxy);
         try{
-            $ossClient->createbucket('testbucket');
+            $ossClient->createbucket('add-test-bucket');
         }catch (OssException $e){
             $this->assertFalse(true);
         }
         try{
-            $ossClient->deletebucket('testbucket');
+            $ossClient->deletebucket('add-test-bucket');
         }catch (OssException $e){
             $this->assertFalse(true);
         }
