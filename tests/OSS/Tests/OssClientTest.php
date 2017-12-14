@@ -158,8 +158,8 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
         $bucket = getenv('OSS_BUCKET');
         $requestProxy  = getenv('OSS_PROXY');
-        $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false, null, $requestProxy);
         try{
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false, null, $requestProxy);
             $ossClient->createBucket('add-test-bucket');
             $ossClient->deleteBucket('add-test-bucket');
             $ossClient->putObject($bucket, 'testobject', 'testcontent');
