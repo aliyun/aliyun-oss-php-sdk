@@ -101,7 +101,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->listBuckets();
         } catch (OssException $e) {
             $this->assertFalse(true);
@@ -130,7 +130,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
             $bucket = getenv('OSS_BUCKET');
             $object='test-dir';
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->createObjectDir($bucket,$object);
         } catch (OssException $e) {
             $this->assertFalse(true);
@@ -144,7 +144,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
             $bucket = getenv('OSS_BUCKET');
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCors($bucket);
         } catch (OssException $e) {
             $this->assertFalse(true);
@@ -159,7 +159,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $bucket = getenv('OSS_BUCKET');
         $requestProxy  = getenv('OSS_PROXY');
         try{
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false, null, $requestProxy);
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, null, $requestProxy);
             $ossClient->createBucket('add-test-bucket');
             $ossClient->deleteBucket('add-test-bucket');
             $ossClient->putObject($bucket, 'testobject', 'testcontent');
