@@ -162,10 +162,14 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, null, $requestProxy);
             $ossClient->createBucket('add-test-bucket');
             $ossClient->deleteBucket('add-test-bucket');
-            $ossClient->putObject($bucket, 'testobject', 'testcontent');
-            $ossClient->getObject($bucket, 'testobject');
             $ossClient->listObjects($bucket);
+            $result = $ossClient->putObject($bucket, 'testobject', 'testcontent');
+            $ossClient->getObject($bucket, 'testobject');
             $ossClient->deleteObject($bucket, 'testobject');
+            $proxys = parse_url($requestProxy);
+            if($result['info']['primary_ip'] != $proxys['host'] || $result['info']['primary_port'] != $proxys['port'] || !array_key_exists('via', $result)){
+                $this->assertFalse(true);
+            }
         }catch (OssException $e){
             $this->assertFalse(true);
         }
