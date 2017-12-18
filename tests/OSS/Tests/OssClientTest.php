@@ -157,35 +157,41 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('OSS_BUCKET') . '-proxy';
         $requestProxy  = getenv('OSS_PROXY');
+        $key = 'test-proxy-srv-object';
+        $content = 'test-content';
+        $proxys = parse_url($requestProxy);
 
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, null, $requestProxy);
-        $proxys = parse_url($requestProxy);
-        $result = $ossClient->createBucket('add-test-bucket');
-        $this->checkProxy($result,$proxys);
-        $result = $ossClient->deleteBucket('add-test-bucket');
-        $this->checkProxy($result,$proxys);
-        $result = $ossClient->putObject($bucket, 'testobject', 'testcontent');
-        $this->checkProxy($result,$proxys);
+
+        $result = $ossClient->createBucket($bucket);
+        $this->checkProxy($result, $proxys);
+
+        $result = $ossClient->putObject($bucket, $key, $content);
+        $this->checkProxy($result, $proxys);
+        $result = $ossClient->getObject($bucket, $key);
+        $this->assertEquals($content, $result);
+
+        // list object
         $objectListInfo = $ossClient->listObjects($bucket);
         $objectList = $objectListInfo->getObjectList();
+        $this->assertNotNull($objectList);
+        $this->assertTrue(is_array($objectList));
         $objects = [];
-        if(is_array($objectList)){
-            foreach($objectList as $value){
-                if(is_object($value)){
-                    $objects[] = $value->getKey();
-                }
-            }
-            $this->assertTrue(in_array('testobject', $objects));
-        }else{
-            $this->assertTrue(false);
+        foreach($objectList as $value){
+            $objects[] = $value->getKey();
         }
-        $result = $ossClient->getObject($bucket, 'testobject');
-        $this->assertEquals('testcontent', $result);
-        $result = $ossClient->deleteObject($bucket, 'testobject');
+        $this->assertEquals(1, count($objects));
+        $this->assertTrue(in_array($key, $objects));
+
+        $result = $ossClient->deleteObject($bucket, $key);
         $this->checkProxy($result,$proxys);
+
+        $result = $ossClient->deleteBucket($bucket);
+        $this->checkProxy($result, $proxys);
     }
+
 
     private function checkProxy($result, $proxys)
     {
