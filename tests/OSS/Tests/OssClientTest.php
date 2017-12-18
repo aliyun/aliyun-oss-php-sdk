@@ -5,6 +5,7 @@ namespace OSS\Tests;
 use OSS\Core\OssException;
 use OSS\OssClient;
 
+
 class OssClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstrunct()
@@ -158,20 +159,38 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
         $bucket = getenv('OSS_BUCKET');
         $requestProxy  = getenv('OSS_PROXY');
-        try{
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, null, $requestProxy);
-            $ossClient->createBucket('add-test-bucket');
-            $ossClient->deleteBucket('add-test-bucket');
-            $ossClient->listObjects($bucket);
-            $result = $ossClient->putObject($bucket, 'testobject', 'testcontent');
-            $ossClient->getObject($bucket, 'testobject');
-            $ossClient->deleteObject($bucket, 'testobject');
-            $proxys = parse_url($requestProxy);
-            if($result['info']['primary_ip'] != $proxys['host'] || $result['info']['primary_port'] != $proxys['port'] || !array_key_exists('via', $result)){
-                $this->assertFalse(true);
+
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, null, $requestProxy);
+        $proxys = parse_url($requestProxy);
+        $result = $ossClient->createBucket('add-test-bucket');
+        $this->checkProxy($result,$proxys);
+        $result = $ossClient->deleteBucket('add-test-bucket');
+        $this->checkProxy($result,$proxys);
+        $result = $ossClient->putObject($bucket, 'testobject', 'testcontent');
+        $this->checkProxy($result,$proxys);
+        $objectListInfo = $ossClient->listObjects($bucket);
+        $objectList = $objectListInfo->getObjectList();
+        $objects = [];
+        if(is_array($objectList)){
+            foreach($objectList as $value){
+                if(is_object($value)){
+                    $objects[] = $value->getKey();
+                }
             }
-        }catch (OssException $e){
-            $this->assertFalse(true);
+            $this->assertTrue(in_array('testobject', $objects));
+        }else{
+            $this->assertTrue(false);
         }
+        $result = $ossClient->getObject($bucket, 'testobject');
+        $this->assertEquals('testcontent', $result);
+        $result = $ossClient->deleteObject($bucket, 'testobject');
+        $this->checkProxy($result,$proxys);
+    }
+
+    private function checkProxy($result, $proxys)
+    {
+        $this->assertEquals($result['info']['primary_ip'], $proxys['host']);
+        $this->assertEquals($result['info']['primary_port'], $proxys['port']);
+        $this->assertTrue(array_key_exists('via', $result));
     }
 }
