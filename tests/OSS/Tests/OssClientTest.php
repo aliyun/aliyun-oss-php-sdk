@@ -192,7 +192,6 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $this->checkProxy($result, $proxys);
     }
 
-
     private function checkProxy($result, $proxys)
     {
         $this->assertEquals($result['info']['primary_ip'], $proxys['host']);
