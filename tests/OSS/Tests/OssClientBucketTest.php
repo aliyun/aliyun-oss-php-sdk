@@ -36,14 +36,22 @@ class OssClientBucketTest extends TestOssClientBase
 
         $bucketListInfo = $this->ossClient->listBuckets();
         $this->assertNotNull($bucketListInfo);
+        
         $bucketList = $bucketListInfo->getBucketList();
         $this->assertTrue(is_array($bucketList));
         $this->assertGreaterThan(0, count($bucketList));
+        
         $this->ossClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
         Common::waitMetaSync();
         $this->assertEquals($this->ossClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 
         $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
         $this->assertFalse($this->ossClient->doesBucketExist($this->bucket . '-notexist'));
+        
+        $this->assertEquals($this->ossClient->getBucketLocation($this->bucket), 'oss-us-west-1');
+        
+        $res = $this->ossClient->getBucketMeta($this->bucket);
+        $this->assertEquals('200', $res['info']['http_code']);
+        $this->assertEquals('oss-us-west-1', $res['x-oss-bucket-region']);
     }
 }
