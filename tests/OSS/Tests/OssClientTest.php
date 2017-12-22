@@ -216,22 +216,24 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
 
         try{
             $result = $ossClient->getObject($bucket, $symlink);
+            $this->assertTrue(false);
         }catch (OssException $e){
-            $this->assertEquals('The symlink target object does not exist',$e->getErrorMessage());
+            $this->assertEquals('The symlink target object does not exist', $e->getErrorMessage());
         }
 
         $ossClient ->putObject($bucket, $object,'test_content');
         $ossClient->putSymlink($bucket, $symlink, $object);
         $result = $ossClient->getObject($bucket, $symlink);
-        $this->assertEquals('test_content',$result);
+        $this->assertEquals('test_content', $result);
 
         try{
             $result = $ossClient->getSymlink($bucket, $no_symlink);
+            $this->assertTrue(false);
         }catch (OssException $e){
-            $this->assertEquals('The specified key does not exist.',$e->getErrorMessage());
+            $this->assertEquals('The specified key does not exist.', $e->getErrorMessage());
         }
 
         $result = $ossClient->getSymlink($bucket, $symlink);
-        $this->assertEquals($result["x-oss-symlink-target"],$object);
+        $this->assertEquals($result["x-oss-symlink-target"], $object);
     }
 }

@@ -1097,7 +1097,6 @@ class OssClient
 
     /**
      * 创建symlink
-     *
      * @param string $bucket bucket名称
      * @param string $symlink symlink名称
      * @param string $targetObject 目标object名称
@@ -1123,8 +1122,7 @@ class OssClient
 
     /**
      * 获取symlink
-     *
-     * @param string $bucket bucket名称
+     *@param string $bucket bucket名称
      * @param string $symlink symlink名称
      * @return null
      */
