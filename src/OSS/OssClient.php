@@ -1121,7 +1121,6 @@ class OssClient
         return $result->getData();
     }
 
-
     /**
      * 获取symlink
      *
@@ -2355,7 +2354,6 @@ class OssClient
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_PROCESS,
             self::OSS_POSITION，
-
         );
 
         foreach ($signableList as $item) {
