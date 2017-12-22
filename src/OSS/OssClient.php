@@ -1096,6 +1096,56 @@ class OssClient
     }
 
     /**
+     * 创建symlink
+     *
+     * @param string $bucket bucket名称
+     * @param string $symlink symlink名称
+     * @param string $targetObject 目标object名称
+     * @param array $options
+     * @return null
+     */
+    public function putSymlink($bucket, $symlink ,$targetObject, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = 'symlink';
+        $options[self::OSS_HEADERS]['x-oss-symlink-target'] = $targetObject;
+
+        $response = $this->auth($options);
+
+        $result = new PutSetDeleteResult($response);
+
+        return $result->getData();
+    }
+
+
+    /**
+     * 获取symlink
+     *
+     * @param string $bucket bucket名称
+     * @param string $symlink symlink名称
+     * @return null
+     */
+    public function getSymlink($bucket, $symlink)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = 'symlink';
+
+        $response = $this->auth($options);
+
+        $result = new PutSetDeleteResult($response);
+
+        return $result->getData();
+    }
+
+    /**
      * 上传本地文件
      *
      * @param string $bucket bucket名称
@@ -2297,13 +2347,15 @@ class OssClient
             'response-content-encoding',
             'response-expires',
             'response-content-disposition',
+            'symlink' ,
             self::OSS_UPLOAD_ID,
             self::OSS_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_PROCESS,
-            self::OSS_POSITION
+            self::OSS_POSITION，
+
         );
 
         foreach ($signableList as $item) {
