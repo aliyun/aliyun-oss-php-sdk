@@ -2344,14 +2344,14 @@ class OssClient
             'response-content-encoding',
             'response-expires',
             'response-content-disposition',
-            'symlink' ,
+            'symlink',
             self::OSS_UPLOAD_ID,
             self::OSS_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_PROCESS,
-            self::OSS_POSITION，
+            self::OSS_POSITION,
         );
 
         foreach ($signableList as $item) {
