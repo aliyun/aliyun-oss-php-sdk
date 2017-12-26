@@ -1110,7 +1110,7 @@ class OssClient
 
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_OBJECT] = rawurlencode($symlink);
+        $options[self::OSS_OBJECT] = $symlink;
         $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
         $options[self::OSS_HEADERS][self::OSS_SYMLINK_TARGET] = rawurlencode($targetObject);
 
@@ -1133,7 +1133,7 @@ class OssClient
 
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_OBJECT] = rawurlencode($symlink);
+        $options[self::OSS_OBJECT] = $symlink;
         $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
 
         $response = $this->auth($options);
