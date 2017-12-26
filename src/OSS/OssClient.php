@@ -49,6 +49,7 @@ use OSS\Model\RefererConfig;
 use OSS\Model\WebsiteConfig;
 use OSS\Core\OssUtil;
 use OSS\Model\ListPartsInfo;
+use OSS\Result\SymlinkResult;
 
 /**
  * Class OssClient
@@ -1109,9 +1110,9 @@ class OssClient
 
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_OBJECT] = $symlink;
-        $options[self::OSS_SUB_RESOURCE] = 'symlink';
-        $options[self::OSS_HEADERS]['x-oss-symlink-target'] = $targetObject;
+        $options[self::OSS_OBJECT] = rawurlencode($symlink);
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
+        $options[self::OSS_HEADERS][self::OSS_SYMLINK_TARGET] = rawurlencode($targetObject);
 
         $response = $this->auth($options);
 
@@ -1132,12 +1133,12 @@ class OssClient
 
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_OBJECT] = $symlink;
-        $options[self::OSS_SUB_RESOURCE] = 'symlink';
+        $options[self::OSS_OBJECT] = rawurlencode($symlink);
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
 
         $response = $this->auth($options);
 
-        $result = new PutSetDeleteResult($response);
+        $result = new SymlinkResult($response);
 
         return $result->getData();
     }
@@ -2344,7 +2345,6 @@ class OssClient
             'response-content-encoding',
             'response-expires',
             'response-content-disposition',
-            'symlink',
             self::OSS_UPLOAD_ID,
             self::OSS_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
@@ -2352,6 +2352,7 @@ class OssClient
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_PROCESS,
             self::OSS_POSITION,
+            self::OSS_SYMLINK,
         );
 
         foreach ($signableList as $item) {
@@ -2611,6 +2612,8 @@ class OssClient
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
+    const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
+    const OSS_SYMLINK = 'symlink';
 
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

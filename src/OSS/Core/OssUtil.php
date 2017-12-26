@@ -427,12 +427,12 @@ BBB;
     }
 
     /**
-     * Decode key based on the encoding type
-     *
-     * @param string $key
-     * @param string $encoding
-     * @return string
-     */
+ * Decode key based on the encoding type
+ *
+ * @param string $key
+ * @param string $encoding
+ * @return string
+ */
     public static function decodeKey($key, $encoding)
     {
         if ($encoding == "") {
