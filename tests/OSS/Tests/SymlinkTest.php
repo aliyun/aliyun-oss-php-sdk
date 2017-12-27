@@ -17,14 +17,14 @@ class SymlinkTest extends TestOssClientBase
         $special_object = 'exist_object^$#!~';
         $object = 'exist_object';
 
-        $this->ossClient ->putObject($bucket, $object,'test_content');
+        $this->ossClient ->putObject($bucket, $object, 'test_content');
         $this->ossClient->putSymlink($bucket, $symlink, $object);
         $result = $this->ossClient->getObject($bucket, $symlink);
         $this->assertEquals('test_content', $result);
 
-        $this->ossClient ->putObject($bucket, $special_object,'test_content');
+        $this->ossClient ->putObject($bucket, $special_object, 'test_content');
         $this->ossClient->putSymlink($bucket, $symlink, $special_object);
-        $result = $this->ossClient->getObject($bucket, $special_object);
+        $result = $this->ossClient->getObject($bucket, $symlink);
         $this->assertEquals('test_content', $result);
     }
 
