@@ -61,7 +61,6 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
 
     public function tearDown()
     {
-        parent::tearDown();
         $this->ossClient->deleteObject($this->bucket, 'test-storage-capacity');
     }
 }
