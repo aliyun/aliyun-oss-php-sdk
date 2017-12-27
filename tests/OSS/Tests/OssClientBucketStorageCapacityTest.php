@@ -2,9 +2,10 @@
 namespace OSS\Tests;
 
 use OSS\Core\OssException;
-use OSS\OssClient;
 
-class OssClientBucketStorageCapacityTest extends \PHPUnit_Framework_TestCase
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
+
+class OssClientBucketStorageCapacityTest extends TestOssClientBase
 {
     public function testBucket()
     {
@@ -44,17 +45,11 @@ class OssClientBucketStorageCapacityTest extends \PHPUnit_Framework_TestCase
         }
 
         try {
-            $this->ossClient->putBucketStorageCapacity($this->bucket, - 2);
+            $this->ossClient->putBucketStorageCapacity($this->bucket, -2);
             $this->assertTrue(false);
         } catch (OssException $e) {
             $this->assertEquals(400, $e->getHTTPStatus());
             $this->assertEquals('InvalidArgument', $e->getErrorCode());
         }
-    }
-
-    public function tearDown()
-    {
-        $this->ossClient->deleteObject($this->bucket, 'test-storage-capacity');
-        $this->ossClient->putBucketStorageCapacity($this->bucket,-1);
     }
 }
