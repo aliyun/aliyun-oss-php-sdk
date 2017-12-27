@@ -55,12 +55,15 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
 
     public function setUp()
     {
-        parent::setUp();
+        $this->ossClient = Common::getOssClient();
+        $this->bucket = Common::getBucketName();
         $this->ossClient->putBucketStorageCapacity($this->bucket, -1);
     }
 
     public function tearDown()
     {
+        $this->ossClient = Common::getOssClient();
+        $this->bucket = Common::getBucketName();
         $this->ossClient->deleteObject($this->bucket, 'test-storage-capacity');
     }
 }
