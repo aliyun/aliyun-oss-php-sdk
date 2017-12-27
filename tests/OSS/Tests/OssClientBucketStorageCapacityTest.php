@@ -9,6 +9,7 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
 {
     public function testBucket()
     {
+        $this->ossClient->createBucket($this->bucket);
         try {
             $storageCapacity = $this->ossClient->getBucketStorageCapacity($this->bucket);
             $this->assertEquals($storageCapacity, -1);
@@ -45,7 +46,7 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
         }
 
         try {
-            $this->ossClient->putBucketStorageCapacity($this->bucket, -2);
+            $this->ossClient->putBucketStorageCapacity($this->bucket, - 2);
             $this->assertTrue(false);
         } catch (OssException $e) {
             $this->assertEquals(400, $e->getHTTPStatus());
@@ -53,17 +54,11 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
         }
     }
 
-    public function setUp()
-    {
-        $this->ossClient = Common::getOssClient();
-        $this->bucket = Common::getBucketName();
-        $this->ossClient->putBucketStorageCapacity($this->bucket, -1);
-    }
-
     public function tearDown()
     {
         $this->ossClient = Common::getOssClient();
         $this->bucket = Common::getBucketName();
         $this->ossClient->deleteObject($this->bucket, 'test-storage-capacity');
+        $this->ossClient->putBucketStorageCapacity($this->bucket,-1);
     }
 }
