@@ -2610,6 +2610,9 @@ class OssClient
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
     const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const OSS_SYMLINK = 'symlink';
+    const OSS_HTTP_CODE = 'http_code';
+    const OSS_REQUEST_ID = 'x-oss-request-id';
+    const OSS_INFO = 'info';
 
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

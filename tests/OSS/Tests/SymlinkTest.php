@@ -37,9 +37,9 @@ class SymlinkTest extends TestOssClientBase
 
         $result = $this->ossClient->getSymlink($bucket, $symlink);
         $this->assertEquals($result[OssClient::OSS_SYMLINK_TARGET], $object);
-        $this->assertEquals('200', $result['info']['http_code']);
-        $this->assertTrue(isset($result['etag']));
-        $this->assertTrue(isset($result['x-oss-request-id']));
+        $this->assertEquals('200', $result[OssClient::OSS_INFO][OssClient::OSS_HTTP_CODE]);
+        $this->assertTrue(isset($result[OssClient::OSS_ETAG]));
+        $this->assertTrue(isset($result[OssClient::OSS_REQUEST_ID]));
     }
 
     public function testPutNullSymlink()
