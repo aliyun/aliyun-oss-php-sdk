@@ -1115,9 +1115,7 @@ class OssClient
         $options[self::OSS_HEADERS][self::OSS_SYMLINK_TARGET] = rawurlencode($targetObject);
 
         $response = $this->auth($options);
-
         $result = new PutSetDeleteResult($response);
-
         return $result->getData();
     }
 
@@ -1137,9 +1135,7 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
 
         $response = $this->auth($options);
-
         $result = new SymlinkResult($response);
-
         return $result->getData();
     }
 

@@ -38,7 +38,7 @@ Common::println($result['etag']);
 
 // 获取symlink
 $content = $ossClient->getSymlink($bucket, "test-symlink");
-Common::println("test-symlink refer to : " . $content['x-oss-symlink-target']);
+Common::println("test-symlink refer to : " . $content[OssClient::OSS_SYMLINK_TARGET]);
 
 // 下载object到本地文件
 $options = array(
@@ -325,7 +325,7 @@ function getSymlink($ossClient, $bucket)
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    if ($content['x-oss-symlink-target']) {
+    if ($content[OssClient::OSS_SYMLINK_TARGET]) {
         print(__FUNCTION__ . ": getSymlink checked OK" . "\n");
     } else {
         print(__FUNCTION__ . ": getSymlink checked FAILED" . "\n");

@@ -2,6 +2,7 @@
 
 namespace OSS\Tests;
 
+use OSS\OssClient;
 use OSS\Result\SymlinkResult;
 use OSS\Core\OssException;
 use OSS\Http\ResponseCore;
@@ -35,7 +36,7 @@ class SymlinkTest extends TestOssClientBase
         $object = 'exist_object^$#!~';
 
         $result = $this->ossClient->getSymlink($bucket, $symlink);
-        $this->assertEquals($result["x-oss-symlink-target"], $object);
+        $this->assertEquals($result[OssClient::OSS_SYMLINK_TARGET], $object);
         $this->assertEquals('200', $result['info']['http_code']);
         $this->assertTrue(isset($result['etag']));
         $this->assertTrue(isset($result['x-oss-request-id']));

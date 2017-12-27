@@ -45,11 +45,21 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
         }
 
         try {
-            $this->ossClient->putBucketStorageCapacity($this->bucket, - 2);
+            $this->ossClient->putBucketStorageCapacity($this->bucket, -2);
             $this->assertTrue(false);
         } catch (OssException $e) {
             $this->assertEquals(400, $e->getHTTPStatus());
             $this->assertEquals('InvalidArgument', $e->getErrorCode());
         }
+    }
+
+    public function setUp()
+    {
+        $this->ossClient->putBucketStorageCapacity($this->bucket, 1000);
+    }
+
+    public function tearDown()
+    {
+        $this->ossClient->deleteObject($this->bucket, 'test-storage-capacity');
     }
 }
