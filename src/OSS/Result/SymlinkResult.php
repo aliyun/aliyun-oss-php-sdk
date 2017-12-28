@@ -20,5 +20,5 @@ class SymlinkResult extends Result
         $this->rawResponse->header[OssClient::OSS_SYMLINK_TARGET] = rawurldecode($this->rawResponse->header[OssClient::OSS_SYMLINK_TARGET]);
         return $this->rawResponse->header;
     }
-
 }
+
