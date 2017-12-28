@@ -49,6 +49,7 @@ use OSS\Model\RefererConfig;
 use OSS\Model\WebsiteConfig;
 use OSS\Core\OssUtil;
 use OSS\Model\ListPartsInfo;
+use OSS\Result\SymlinkResult;
 
 /**
  * Class OssClient
@@ -1092,6 +1093,49 @@ class OssClient
             $result = new PutSetDeleteResult($response);
         }
             
+        return $result->getData();
+    }
+
+    /**
+     * 创建symlink
+     * @param string $bucket bucket名称
+     * @param string $symlink symlink名称
+     * @param string $targetObject 目标object名称
+     * @param array $options
+     * @return null
+     */
+    public function putSymlink($bucket, $symlink ,$targetObject, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
+        $options[self::OSS_HEADERS][self::OSS_SYMLINK_TARGET] = rawurlencode($targetObject);
+
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * 获取symlink
+     *@param string $bucket bucket名称
+     * @param string $symlink symlink名称
+     * @return null
+     */
+    public function getSymlink($bucket, $symlink)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
+
+        $response = $this->auth($options);
+        $result = new SymlinkResult($response);
         return $result->getData();
     }
 
@@ -2303,7 +2347,8 @@ class OssClient
             self::OSS_LIVE_CHANNEL_START_TIME,
             self::OSS_LIVE_CHANNEL_END_TIME,
             self::OSS_PROCESS,
-            self::OSS_POSITION
+            self::OSS_POSITION,
+            self::OSS_SYMLINK,
         );
 
         foreach ($signableList as $item) {
@@ -2563,6 +2608,11 @@ class OssClient
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
+    const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
+    const OSS_SYMLINK = 'symlink';
+    const OSS_HTTP_CODE = 'http_code';
+    const OSS_REQUEST_ID = 'x-oss-request-id';
+    const OSS_INFO = 'info';
 
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

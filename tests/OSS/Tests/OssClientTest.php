@@ -198,4 +198,5 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result['info']['primary_port'], $proxys['port']);
         $this->assertTrue(array_key_exists('via', $result));
     }
+
 }
