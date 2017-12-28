@@ -52,6 +52,4 @@ class OssClientBucketStorageCapacityTest extends TestOssClientBase
             $this->assertEquals('InvalidArgument', $e->getErrorCode());
         }
     }
-
-
 }
