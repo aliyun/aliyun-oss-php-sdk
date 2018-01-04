@@ -134,14 +134,18 @@ class OssClient
      * @param string $storageType
      * @return null
      */
-    public function createBucket($bucket, $acl = self::OSS_ACL_TYPE_PRIVATE, $options = NULL, $storageType = self::OSS_STORAGE_TYPE_STANDARD)
+    public function createBucket($bucket, $acl = self::OSS_ACL_TYPE_PRIVATE, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
-        $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($storageType);
+        if (isset($options[self::OSS_RESTORE])) {
+            $this->precheckRestore($options[self::OSS_RESTORE]);
+            $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_RESTORE]);
+            unset($options[self::OSS_RESTORE]);
+    }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1902,6 +1906,29 @@ class OssClient
     private function precheckObject($object)
     {
         OssUtil::throwOssExceptionWithMessageIfEmpty($object, "object name is empty");
+    }
+
+    /**
+     * 校验option restore
+     *
+     * @param string $restore
+     * @throws OssException
+     */
+    private function precheckRestore($restore)
+    {
+        if(is_string($restore)){
+            switch($restore){
+                    case self::OSS_STORAGE_TYPE_ARCHIVE:
+                        return ;
+                    case self::OSS_STORAGE_TYPE_IA:
+                        return ;
+                    case self::OSS_STORAGE_TYPE_STANDARD:
+                        return;
+                    default:
+                        break;
+            }
+        }
+        throw new OssException('restore name is invalid');
     }
 
     /**
