@@ -141,10 +141,10 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
-        if (isset($options[self::OSS_RESTORE])) {
-            $this->precheckRestore($options[self::OSS_RESTORE]);
-            $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_RESTORE]);
-            unset($options[self::OSS_RESTORE]);
+        if (isset($options[self::OSS_STORAGE])) {
+            $this->precheckStorage($options[self::OSS_STORAGE]);
+            $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE]);
+            unset($options[self::OSS_STORAGE]);
     }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -1433,7 +1433,7 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = $object;
-        $options[self::OSS_SUB_RESOURCE] = self::OSS_RESTORE;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_STORAGE;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1914,21 +1914,21 @@ class OssClient
      * @param string $restore
      * @throws OssException
      */
-    private function precheckRestore($restore)
+    private function precheckStorage($storage)
     {
-        if(is_string($restore)){
-            switch($restore){
-                    case self::OSS_STORAGE_TYPE_ARCHIVE:
-                        return ;
-                    case self::OSS_STORAGE_TYPE_IA:
-                        return ;
-                    case self::OSS_STORAGE_TYPE_STANDARD:
+        if(is_string($storage)){
+            switch($storage){
+                    case self::OSS_STORAGE_ARCHIVE:
+                        return;
+                    case self::OSS_STORAGE_IA:
+                        return;
+                    case self::OSS_STORAGE_STANDARD:
                         return;
                     default:
                         break;
             }
         }
-        throw new OssException('restore name is invalid');
+        throw new OssException('storage name is invalid');
     }
 
     /**
@@ -2399,7 +2399,7 @@ class OssClient
             self::OSS_PROCESS,
             self::OSS_POSITION,
             self::OSS_SYMLINK,
-            self::OSS_RESTORE,
+            self::OSS_STORAGE,
         );
 
         foreach ($signableList as $item) {
@@ -2664,10 +2664,10 @@ class OssClient
     const OSS_HTTP_CODE = 'http_code';
     const OSS_REQUEST_ID = 'x-oss-request-id';
     const OSS_INFO = 'info';
-    const OSS_RESTORE = 'restore';
-    const OSS_STORAGE_TYPE_STANDARD = 'Standard';
-    const OSS_STORAGE_TYPE_IA = 'IA';
-    const OSS_STORAGE_TYPE_ARCHIVE = 'Archive';
+    const OSS_STORAGE = 'restore';
+    const OSS_STORAGE_STANDARD = 'Standard';
+    const OSS_STORAGE_IA = 'IA';
+    const OSS_STORAGE_ARCHIVE = 'Archive';
 
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

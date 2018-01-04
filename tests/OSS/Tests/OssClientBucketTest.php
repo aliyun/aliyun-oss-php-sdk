@@ -87,13 +87,13 @@ class OssClientBucketTest extends TestOssClientBase
         $this->iaBucket = 'ia-' . $this->bucket;
         $this->archiveBucket = 'archive-' . $this->bucket;
         $options = array(
-            OssClient::OSS_RESTORE => OssClient::OSS_STORAGE_TYPE_IA
+            OssClient::OSS_STORAGE => OssClient::OSS_STORAGE_IA
         );
 
         $this->ossClient->createBucket($this->iaBucket, OssClient::OSS_ACL_TYPE_PRIVATE, $options);
 
         $options = array(
-            OssClient::OSS_RESTORE => OssClient::OSS_STORAGE_TYPE_ARCHIVE
+            OssClient::OSS_STORAGE => OssClient::OSS_STORAGE_ARCHIVE
         );
 
         $this->ossClient->createBucket($this->archiveBucket, OssClient::OSS_ACL_TYPE_PRIVATE, $options);
