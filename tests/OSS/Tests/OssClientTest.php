@@ -152,6 +152,20 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testGetBucketCname()
+    {
+        try {
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+            $ossClient->getBucketCname($bucket);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
     public function testProxySupport()
     {
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
