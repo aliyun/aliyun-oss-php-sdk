@@ -80,7 +80,7 @@ class OssClientBucketTest extends TestOssClientBase
         $this->assertEquals($result, 'testcontent');
     }
 
-    public function setUp()e
+    public function setUp()
     {
         parent::setUp();
 
