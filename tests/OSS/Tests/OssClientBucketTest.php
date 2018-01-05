@@ -63,10 +63,10 @@ class OssClientBucketTest extends TestOssClientBase
         $object = 'storage-object';
 
         $this->ossClient->putObject($this->archiveBucket, $object,'testcontent');
-        try{
+        try {
             $this->ossClient->getObject($this->archiveBucket, $object);
             $this->assertTrue(false);
-        }catch (OssException $e){
+        } catch (OssException $e) {
             $this->assertEquals('403', $e->getHTTPStatus());
             $this->assertEquals('InvalidObjectState', $e->getErrorCode());
         }

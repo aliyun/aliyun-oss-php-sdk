@@ -1433,7 +1433,7 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = $object;
-        $options[self::OSS_SUB_RESOURCE] = self::OSS_STORAGE;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_RESTORE;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1916,8 +1916,8 @@ class OssClient
      */
     private function precheckStorage($storage)
     {
-        if(is_string($storage)){
-            switch($storage){
+        if (is_string($storage)) {
+            switch($storage) {
                     case self::OSS_STORAGE_ARCHIVE:
                         return;
                     case self::OSS_STORAGE_IA:
@@ -2399,7 +2399,7 @@ class OssClient
             self::OSS_PROCESS,
             self::OSS_POSITION,
             self::OSS_SYMLINK,
-            self::OSS_STORAGE,
+            self::OSS_RESTORE,
         );
 
         foreach ($signableList as $item) {
@@ -2664,7 +2664,8 @@ class OssClient
     const OSS_HTTP_CODE = 'http_code';
     const OSS_REQUEST_ID = 'x-oss-request-id';
     const OSS_INFO = 'info';
-    const OSS_STORAGE = 'restore';
+    const OSS_STORAGE = 'storage';
+    const OSS_RESTORE = 'restore';
     const OSS_STORAGE_STANDARD = 'Standard';
     const OSS_STORAGE_IA = 'IA';
     const OSS_STORAGE_ARCHIVE = 'Archive';

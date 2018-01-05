@@ -192,8 +192,8 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $objectList = $objectListInfo->getObjectList();
         $this->assertNotNull($objectList);
         $this->assertTrue(is_array($objectList));
-        $objects = [];
-        foreach($objectList as $value){
+        $objects = array();
+        foreach ($objectList as $value) {
             $objects[] = $value->getKey();
         }
         $this->assertEquals(1, count($objects));
