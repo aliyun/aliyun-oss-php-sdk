@@ -131,6 +131,7 @@ class OssClient
      * @param string $bucket
      * @param string $acl
      * @param array $options
+     * @param string $storageType
      * @return null
      */
     public function createBucket($bucket, $acl = self::OSS_ACL_TYPE_PRIVATE, $options = NULL)
@@ -140,6 +141,11 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
+        if (isset($options[self::OSS_STORAGE])) {
+            $this->precheckStorage($options[self::OSS_STORAGE]);
+            $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE]);
+            unset($options[self::OSS_STORAGE]);
+        }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1413,6 +1419,27 @@ class OssClient
     }
 
     /**
+     * 针对Archive类型的Object读取
+     * 需要使用Restore操作让服务端执行解冻任务
+     *
+     * @param string $bucket bucket名称
+     * @param string $object object名称
+     * @return null
+     * @throws OssException
+     */
+    public function restoreObject($bucket, $object, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_RESTORE;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * 获取分片大小，根据用户提供的part_size，重新计算一个更合理的partsize
      *
      * @param int $partSize
@@ -1879,6 +1906,29 @@ class OssClient
     private function precheckObject($object)
     {
         OssUtil::throwOssExceptionWithMessageIfEmpty($object, "object name is empty");
+    }
+
+    /**
+     * 校验option restore
+     *
+     * @param string $restore
+     * @throws OssException
+     */
+    private function precheckStorage($storage)
+    {
+        if (is_string($storage)) {
+            switch ($storage) {
+                    case self::OSS_STORAGE_ARCHIVE:
+                        return;
+                    case self::OSS_STORAGE_IA:
+                        return;
+                    case self::OSS_STORAGE_STANDARD:
+                        return;
+                    default:
+                        break;
+            }
+        }
+        throw new OssException('storage name is invalid');
     }
 
     /**
@@ -2349,6 +2399,7 @@ class OssClient
             self::OSS_PROCESS,
             self::OSS_POSITION,
             self::OSS_SYMLINK,
+            self::OSS_RESTORE,
         );
 
         foreach ($signableList as $item) {
@@ -2613,6 +2664,11 @@ class OssClient
     const OSS_HTTP_CODE = 'http_code';
     const OSS_REQUEST_ID = 'x-oss-request-id';
     const OSS_INFO = 'info';
+    const OSS_STORAGE = 'storage';
+    const OSS_RESTORE = 'restore';
+    const OSS_STORAGE_STANDARD = 'Standard';
+    const OSS_STORAGE_IA = 'IA';
+    const OSS_STORAGE_ARCHIVE = 'Archive';
 
     //私有URL变量
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

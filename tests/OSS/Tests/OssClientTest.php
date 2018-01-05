@@ -152,6 +152,20 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testGetBucketCname()
+    {
+        try {
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+            $ossClient->getBucketCname($bucket);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
     public function testProxySupport()
     {
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
@@ -178,8 +192,8 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $objectList = $objectListInfo->getObjectList();
         $this->assertNotNull($objectList);
         $this->assertTrue(is_array($objectList));
-        $objects = [];
-        foreach($objectList as $value){
+        $objects = array();
+        foreach ($objectList as $value) {
             $objects[] = $value->getKey();
         }
         $this->assertEquals(1, count($objects));
