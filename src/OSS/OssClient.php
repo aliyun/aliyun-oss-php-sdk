@@ -1413,6 +1413,31 @@ class OssClient
     }
 
     /**
+     *
+     *
+     * 阿里云OSS上传的PutSymlink方法。
+     * @param $fromBucket
+     * @param $fromObject
+     * @param $toObject
+     * @param null $options
+     * @return mixed
+     */
+    public function putSymlink($fromBucket, $fromObject, $toObject, $options = NULL)
+    {
+        $this->precheckCommon($fromBucket, $fromObject, $options);
+        $options[OssClient::OSS_BUCKET] = $fromBucket;
+        $options[OssClient::OSS_METHOD] = OssClient::OSS_HTTP_PUT;
+        $options[OssClient::OSS_OBJECT] = $toObject;
+        $options[OssClient::OSS_SUB_RESOURCE] = 'symlink';
+        $options[OssClient::OSS_HEADERS] = array(OssClient::OSS_OBJECT_SYMLINK_TARGET => $fromObject );
+        $response = $this->auth($options);
+        if ($response->isOK()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 获取分片大小，根据用户提供的part_size，重新计算一个更合理的partsize
      *
      * @param int $partSize
@@ -2636,6 +2661,7 @@ class OssClient
     const OSS_PROCESS = "x-oss-process";
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
+    const OSS_OBJECT_SYMLINK_TARGET = "x-oss-symlink-target";
     //支持STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
