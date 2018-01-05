@@ -145,7 +145,7 @@ class OssClient
             $this->precheckStorage($options[self::OSS_STORAGE]);
             $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE]);
             unset($options[self::OSS_STORAGE]);
-    }
+        }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
