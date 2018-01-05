@@ -1917,7 +1917,7 @@ class OssClient
     private function precheckStorage($storage)
     {
         if (is_string($storage)) {
-            switch($storage) {
+            switch ($storage) {
                     case self::OSS_STORAGE_ARCHIVE:
                         return;
                     case self::OSS_STORAGE_IA:
