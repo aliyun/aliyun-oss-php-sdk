@@ -172,7 +172,7 @@ class OssUtil
 
 
     /**
-     * 生成createBucketXmlBody接口的xml消息
+     * createBucketXmlBody xml informations.
      *
      * @param string $storageClass
      * @return string

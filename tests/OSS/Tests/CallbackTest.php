@@ -17,7 +17,7 @@ class CallbackTest extends TestOssClientBase
         $this->ossClient->putObject($this->bucket, $copiedObject, file_get_contents(__FILE__));
 
         /**
-         *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+         *  step 1. Initialize a block upload event, which is initialized to upload Multipart, get the upload id
          */
         try {
             $upload_id = $this->ossClient->initiateMultipartUpload($this->bucket, $object);
@@ -78,7 +78,7 @@ class CallbackTest extends TestOssClientBase
         $this->ossClient->putObject($this->bucket, $copiedObject, file_get_contents(__FILE__));
 
         /**
-         *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+         *  step 1. Initialize a block upload event, which is initialized to upload Multipart, get the upload id
          */
         try {
             $upload_id = $this->ossClient->initiateMultipartUpload($this->bucket, $object);

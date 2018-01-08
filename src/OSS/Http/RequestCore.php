@@ -170,14 +170,14 @@ class RequestCore
     public $registered_streaming_write_callback = null;
 
     /**
-     * 请求超时时间， 默认是5184000秒，6天
+     * The time of the request timeout， 5184000 millions，6 day by default
      *
      * @var int
      */
     public $timeout = 5184000;
 
     /**
-     * 连接超时时间，默认是10秒
+     * The time of the connections，10 millions by default
      *
      * @var int
      */

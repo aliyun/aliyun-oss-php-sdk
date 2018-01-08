@@ -30,13 +30,13 @@ Common::println($result['body']);
 $content = $ossClient->getObject($bucket, "b.file");
 Common::println("b.file is fetched, the content is: " . $content);
 
-// 给object添加symlink
+// add symlink object
 $content = $ossClient->putSymlink($bucket, "test-symlink", "b.file");
 Common::println("test-symlink is created");
 Common::println($result['x-oss-request-id']);
 Common::println($result['etag']);
 
-// 获取symlink
+// gets symlink
 $content = $ossClient->getSymlink($bucket, "test-symlink");
 Common::println("test-symlink refer to : " . $content[OssClient::OSS_SYMLINK_TARGET]);
 
@@ -280,8 +280,8 @@ function getObject($ossClient, $bucket)
 /**
  * put symlink
  *
- * @param OssClient $ossClient OssClient实例
- * @param string $bucket 存储空间名称
+ * @param OssClient $ossClient  The Instance of OssClient
+ * @param string $bucket bucket name
  * @return null
  */
 function putSymlink($ossClient, $bucket)
@@ -306,10 +306,10 @@ function putSymlink($ossClient, $bucket)
 }
 
 /**
- * 获取symlink
+ * get symlink
  *
- * @param OssClient $ossClient OssClient实例
- * @param string $bucket 存储空间名称
+ * @param OssClient $ossClient  The instance of OssClient
+ * @param string $bucket  ucket name
  * @return null
  */
 function getSymlink($ossClient, $bucket)

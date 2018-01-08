@@ -2,30 +2,31 @@
 
 namespace OSS\Result;
 
-use OSS\Model\WebsiteConfig;
+
+use OSS\Model\LifecycleConfig;
 
 /**
- * Class GetWebsiteResult
+ * Class GetLifecycleResult
  * @package OSS\Result
  */
-class GetWebsiteResult extends Result
+class GetLifecycleResult extends Result
 {
     /**
-     * Parse WebsiteConfig data
+     *  Parse the LifecycleConfig object from the response
      *
-     * @return WebsiteConfig
+     * @return LifecycleConfig
      */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;
-        $config = new WebsiteConfig();
+        $config = new LifecycleConfig();
         $config->parseFromXml($content);
         return $config;
     }
 
     /**
-     * Judged according to the return HTTP status code, [200-299] that is OK, get the bucket configuration interface,
-     * 404 is also considered a valid response
+     * Checks if the response is OK according to the http status.
+     * [200-299]: OK, and the LifecycleConfig could be got; [404] The Life cycle config is not found.
      *
      * @return bool
      */

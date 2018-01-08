@@ -12,12 +12,15 @@ use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
+use OSS\Result\GetLocationResult;
 use OSS\Result\GetLoggingResult;
 use OSS\Result\GetRefererResult;
+use OSS\Result\GetStorageCapacityResult;
 use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
@@ -39,6 +42,7 @@ use OSS\Result\GetLiveChannelStatusResult;
 use OSS\Result\ListLiveChannelResult;
 use OSS\Result\AppendResult;
 use OSS\Model\ObjectListInfo;
+use OSS\Result\SymlinkResult;
 use OSS\Result\UploadPartResult;
 use OSS\Model\BucketListInfo;
 use OSS\Model\LifecycleConfig;
@@ -72,9 +76,10 @@ class OssClient
      * @param string $endpoint The domain name of the datacenter，For example: oss-cn-hangzhou.aliyuncs.com
      * @param boolean $isCName If this is the CName and binded in the bucket.
      * @param string $securityToken from STS.
+     * @param string $requestProxy
      * @throws OssException
      */
-    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL)
+    public function __construct($accessKeyId, $accessKeySecret, $endpoint, $isCName = false, $securityToken = NULL, $requestProxy = NULL)
     {
         $accessKeyId = trim($accessKeyId);
         $accessKeySecret = trim($accessKeySecret);
@@ -93,6 +98,7 @@ class OssClient
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->securityToken = $securityToken;
+        $this->requestProxy = $requestProxy;
         self::checkEnv();
     }
 
@@ -118,7 +124,7 @@ class OssClient
     }
 
     /**
-     * 创建bucket，默认创建的bucket的ACL是OssClient::OSS_ACL_TYPE_PRIVATE
+     * Creates bucket，The ACL of the bucket created by default is OssClient::OSS_ACL_TYPE_PRIVATE
      *
      * @param string $bucket
      * @param string $acl
@@ -179,6 +185,44 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new ExistResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the data center location information for the bucket
+     *
+     * @param string $bucket
+     * @param array $options
+     * @throws OssException
+     * @return string
+     */
+    public function getBucketLocation($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'location';
+        $response = $this->auth($options);
+        $result = new GetLocationResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the Meta information for the Bucket
+     *
+     * @param string $bucket
+     * @param array $options  Refer to the SDK documentation
+     * @return array
+     */
+    public function getBucketMeta($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_HEAD;
+        $options[self::OSS_OBJECT] = '/';
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
         return $result->getData();
     }
 
@@ -906,6 +950,53 @@ class OssClient
         return $result->getData();
     }
 
+
+    /**
+     * Set the size of the bucket,the unit is GB
+     * When the capacity of the bucket is bigger than the set, it's forbidden to continue writing
+     *
+     * @param string $bucket bucket name
+     * @param int $storageCapacity
+     * @param array $options
+     * @return ResponseCore
+     * @throws null
+     */
+    public function putBucketStorageCapacity($bucket, $storageCapacity, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'qos';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $storageCapacityConfig = new StorageCapacityConfig($storageCapacity);
+        $options[self::OSS_CONTENT] = $storageCapacityConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the capacity of the bucket, the unit is GB
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return int
+     */
+    public function getBucketStorageCapacity($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'qos';
+        $response = $this->auth($options);
+        $result = new GetStorageCapacityResult($response);
+        return $result->getData();
+    }
+
+
     /**
      * Lists the bucket's object list (in ObjectListInfo)
      *
@@ -1007,6 +1098,50 @@ class OssClient
             $result = new PutSetDeleteResult($response);
         }
             
+        return $result->getData();
+    }
+
+
+    /**
+     * creates symlink
+     * @param string $bucket bucket name
+     * @param string $symlink symlink name
+     * @param string $targetObject targetObject name
+     * @param array $options
+     * @return null
+     */
+    public function putSymlink($bucket, $symlink ,$targetObject, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
+        $options[self::OSS_HEADERS][self::OSS_SYMLINK_TARGET] = rawurlencode($targetObject);
+
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * gets symlink
+     *@param string $bucket bucket name
+     * @param string $symlink symlink name
+     * @return null
+     */
+    public function getSymlink($bucket, $symlink)
+    {
+        $this->precheckCommon($bucket, $symlink, $options);
+
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $symlink;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_SYMLINK;
+
+        $response = $this->auth($options);
+        $result = new SymlinkResult($response);
         return $result->getData();
     }
 
@@ -1284,11 +1419,11 @@ class OssClient
     }
 
     /**
-     * 针对Archive类型的Object读取
-     * 需要使用Restore操作让服务端执行解冻任务
+     * Object reading for Archive type
+     * Use Restore to enable the server to perform the thawing task
      *
-     * @param string $bucket bucket名称
-     * @param string $object object名称
+     * @param string $bucket bucket name
+     * @param string $object object name
      * @return null
      * @throws OssException
      */
@@ -1939,7 +2074,7 @@ class OssClient
         $this->requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
 
         //Creates the request
-        $request = new RequestCore($this->requestUrl);
+        $request = new RequestCore($this->requestUrl, $this->requestProxy);
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
@@ -2424,7 +2559,7 @@ class OssClient
     public static function checkEnv()
     {
         if (function_exists('get_loaded_extensions')) {
-            //检测curl扩展
+            //Test curl extension
             $enabled_extension = array("curl");
             $extensions = get_loaded_extensions();
             if ($extensions) {
@@ -2592,6 +2727,7 @@ class OssClient
     // user's domain type. It could be one of the four: OSS_HOST_TYPE_NORMAL, OSS_HOST_TYPE_IP, OSS_HOST_TYPE_SPECIAL, OSS_HOST_TYPE_CNAME
     private $hostType = self::OSS_HOST_TYPE_NORMAL;
     private $requestUrl;
+    private $requestProxy = null;
     private $accessKeyId;
     private $accessKeySecret;
     private $hostname;
