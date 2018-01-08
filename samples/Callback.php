@@ -7,14 +7,14 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//*******************************简单使用***************************************************************
+//******************************* Simple Usage ***************************************************************
 
-/** putObject 使用callback上传内容到oss文件
-  * callbackurl参数指定请求回调的服务器url
-  * callbackbodytype参数可为application/json或application/x-www-form-urlencoded, 可选参数，默认为application/x-www-form-urlencoded
-  * OSS_CALLBACK_VAR参数可以不设置
+/** putObject 使用callback上传内容到oss文件 putObject upload the content to the OSS file by callback
+  * callbackurl参数指定请求回调的服务器url  callbackurl specifies the server url for the request callback
+  * callbackbodytype参数可为application/json或application/x-www-form-urlencoded, 可选参数，默认为application/x-www-form-urlencoded  The callbackbodytype can be application/json or application/x-www-form-urlencoded,the optional parameters,the default for the application/x - WWW - form - urlencoded
+  * OSS_CALLBACK_VAR参数可以不设置  The OSS_BACK_VAR can not be  set
   */
-$url = 
+$url =
     '{
         "callbackUrl":"callback.oss-demo.com:23450",
         "callbackHost":"oss-cn-hangzhou.aliyuncs.com",
@@ -35,22 +35,22 @@ Common::println($result['body']);
 Common::println($result['info']['http_code']);
 
 /**
-  * completeMultipartUpload 使用callback上传内容到oss文件
-  * callbackurl参数指定请求回调的服务器url
-  * callbackbodytype参数可为application/json或application/x-www-form-urlencoded, 可选参数，默认为application/x-www-form-urlencoded
-  * OSS_CALLBACK_VAR参数可以不设置
+  * completeMultipartUpload 使用callback上传内容到oss文件  completeMultipartUpload  upload the content to the OSS file by callback
+  * callbackurl参数指定请求回调的服务器url callbackurl specifies the server url for the request callback
+  * callbackbodytype参数可为application/json或application/x-www-form-urlencoded, 可选参数，默认为application/x-www-form-urlencoded   The callbackbodytype can be application/json or application/x-www-form-urlencoded,the optional parameters,the default for the application/x - WWW - form - urlencoded
+ * OSS_CALLBACK_VAR参数可以不设置 OSS_CALLBACK_VAR can not be set
   */  
 $object = "multipart-callback-test.txt";
 $copiedObject = "multipart-callback-test.txt.copied";
 $ossClient->putObject($bucket, $copiedObject, file_get_contents(__FILE__));
 
 /**
-  *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id
+  *  step 1. 初始化一个分块上传事件, 也就是初始化上传Multipart, 获取upload id   Initializes a block upload event,is same as
   */
 $upload_id = $ossClient->initiateMultipartUpload($bucket, $object);
 
 /**
- * step 2. uploadPartCopy
+ * step 2. uploadPartCopy  uploadPartCopy
  */
 $copyId = 1;
 $eTag = $ossClient->uploadPartCopy($bucket, $copiedObject, $bucket, $object, $copyId, $upload_id);

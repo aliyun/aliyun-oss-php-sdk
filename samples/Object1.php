@@ -7,9 +7,9 @@ use OSS\Core\OssException;
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
-//*******************************Simple usage***************************************************************
+//*******************************简单使用***************************************************************
 
-// Uploads in memory string (hi, oss) to OSS file
+// 简单上传变量的内容到oss文件
 $result = $ossClient->putObject($bucket, "b.file", "hi, oss");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
@@ -17,7 +17,7 @@ Common::println($result['etag']);
 Common::println($result['content-md5']);
 Common::println($result['body']);
 
-// Uploads local file to OSS file
+// 上传本地文件
 $result = $ossClient->uploadFile($bucket, "c.file", __FILE__);
 Common::println("c.file is created");
 Common::println("b.file is created");
@@ -26,7 +26,7 @@ Common::println($result['etag']);
 Common::println($result['content-md5']);
 Common::println($result['body']);
 
-// Downloads oss object as in-memory variable
+// 下载object到本地变量
 $content = $ossClient->getObject($bucket, "b.file");
 Common::println("b.file is fetched, the content is: " . $content);
 
@@ -40,7 +40,7 @@ Common::println($result['etag']);
 $content = $ossClient->getSymlink($bucket, "test-symlink");
 Common::println("test-symlink refer to : " . $content[OssClient::OSS_SYMLINK_TARGET]);
 
-// Downloads the object to local file.
+// 下载object到本地文件
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => "./c.file.localcopy",
 );
@@ -48,26 +48,26 @@ $ossClient->getObject($bucket, "c.file", $options);
 Common::println("b.file is fetched to the local file: c.file.localcopy");
 Common::println("b.file is created");
 
-// Copy object
+// 拷贝object
 $result = $ossClient->copyObject($bucket, "c.file", $bucket, "c.file.copy");
 Common::println("lastModifiedTime: " . $result[0]);
 Common::println("ETag: " . $result[1]);
 
-// Checks if the object exists
+// 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
 Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
-// Deletes object
+// 删除object
 $result = $ossClient->deleteObject($bucket, "c.file.copy");
 Common::println("c.file.copy is deleted");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
 
-// Checks if the object exists
+// 判断object是否存在
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
 Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
-// Deletes the multiple objects
+// 批量删除object
 $result = $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
 foreach($result as $object)
     Common::println($object);
@@ -75,7 +75,7 @@ foreach($result as $object)
 sleep(2);
 unlink("c.file.localcopy");
 
-//******************************* Complete Example****************************************************
+//******************************* 完整用法参考下面函数 ****************************************************
 
 listObjects($ossClient, $bucket);
 listAllObjects($ossClient, $bucket);
@@ -93,10 +93,10 @@ doesObjectExist($ossClient, $bucket);
 getSymlink($ossClient, $bucket);
 putSymlink($ossClient, $bucket);
 /**
- * Create a 'virtual' folder
+ * 创建虚拟目录
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function createObjectDir($ossClient, $bucket)
@@ -112,12 +112,12 @@ function createObjectDir($ossClient, $bucket)
 }
 
 /**
- * Upload in-memory data to oss
+ * 把本地变量的内容到文件
  *
- * Simple upload---upload in-memory data to OSS
+ * 简单上传,上传指定变量的内存值作为object的内容
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function putObject($ossClient, $bucket)
@@ -137,10 +137,10 @@ function putObject($ossClient, $bucket)
 
 
 /**
- * Uploads a local file to OSS
+ * 上传指定的本地文件内容
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function uploadFile($ossClient, $bucket)
@@ -160,12 +160,11 @@ function uploadFile($ossClient, $bucket)
 }
 
 /**
- * Lists all files and folders in the bucket. 
- * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
- * Loop through all the items returned from ListObjects.
+ * 列出Bucket内所有目录和文件, 注意如果符合条件的文件数目超过设置的max-keys， 用户需要使用返回的nextMarker作为入参，通过
+ * 循环调用ListObjects得到所有的文件，具体操作见下面的 listAllObjects 示例
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function listObjects($ossClient, $bucket)
@@ -188,8 +187,8 @@ function listObjects($ossClient, $bucket)
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    $objectList = $listObjectInfo->getObjectList(); // object list
-    $prefixList = $listObjectInfo->getPrefixList(); // directory list
+    $objectList = $listObjectInfo->getObjectList(); // 文件列表
+    $prefixList = $listObjectInfo->getPrefixList(); // 目录列表
     if (!empty($objectList)) {
         print("objectList:\n");
         foreach ($objectList as $objectInfo) {
@@ -205,15 +204,15 @@ function listObjects($ossClient, $bucket)
 }
 
 /**
- * Lists all folders and files under the bucket. Use nextMarker for next call's marker parameter.
+ * 列出Bucket内所有目录和文件， 根据返回的nextMarker循环得到所有Objects
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function listAllObjects($ossClient, $bucket)
 {
-    //creates obj 'folder' and put some files into it
+    //构造dir下的文件和虚拟目录
     for ($i = 0; $i < 100; $i += 1) {
         $ossClient->putObject($bucket, "dir/obj" . strval($i), "hi");
         $ossClient->createObjectDir($bucket, "dir/obj" . strval($i));
@@ -239,7 +238,7 @@ function listAllObjects($ossClient, $bucket)
             printf($e->getMessage() . "\n");
             return;
         }
-        // Gets the nextMarker, and it would be used as the next call's marker parameter to resume from the last call
+        // 得到nextMarker，从上一次listObjects读到的最后一个文件的下一个文件开始继续获取文件列表
         $nextMarker = $listObjectInfo->getNextMarker();
         $listObject = $listObjectInfo->getObjectList();
         $listPrefix = $listObjectInfo->getPrefixList();
@@ -252,10 +251,10 @@ function listAllObjects($ossClient, $bucket)
 }
 
 /**
- * Gets object content.
+ * 获取object的内容
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getObject($ossClient, $bucket)
@@ -336,11 +335,11 @@ function getSymlink($ossClient, $bucket)
 /**
  * get_object_to_local_file
  *
- * Gets object
- * Downloads object to the specified file.
+ * 获取object
+ * 将object下载到指定的文件
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getObjectToLocalFile($ossClient, $bucket)
@@ -370,11 +369,11 @@ function getObjectToLocalFile($ossClient, $bucket)
 }
 
 /**
- * Copy object
- * When the source object is same as the target one, copy operation will just update the metadata.
+ * 拷贝object
+ * 当目的object和源object完全相同时，表示修改object的meta信息
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function copyObject($ossClient, $bucket)
@@ -396,11 +395,11 @@ function copyObject($ossClient, $bucket)
 }
 
 /**
- * Updates Object Meta
- * it leverages the feature of copyObject： when the source object is just the target object, the metadata could be updated via copy
+ * 修改Object Meta
+ * 利用copyObject接口的特性：当目的object和源object完全相同时，表示修改object的meta信息
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function modifyMetaForObject($ossClient, $bucket)
@@ -426,10 +425,10 @@ function modifyMetaForObject($ossClient, $bucket)
 }
 
 /**
- * Gets object meta
+ * 获取object meta, 也就是getObjectMeta接口
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function getObjectMeta($ossClient, $bucket)
@@ -453,10 +452,10 @@ function getObjectMeta($ossClient, $bucket)
 }
 
 /**
- * Deletes object
+ * 删除object
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function deleteObject($ossClient, $bucket)
@@ -474,10 +473,10 @@ function deleteObject($ossClient, $bucket)
 
 
 /**
- * Deletes multiple objects
+ * 批量删除object
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function deleteObjects($ossClient, $bucket)
@@ -496,10 +495,10 @@ function deleteObjects($ossClient, $bucket)
 }
 
 /**
- * Checks if the object exists
+ * 判断object是否存在
  *
- * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param OssClient $ossClient OssClient实例
+ * @param string $bucket 存储空间名称
  * @return null
  */
 function doesObjectExist($ossClient, $bucket)

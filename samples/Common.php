@@ -14,7 +14,7 @@ use OSS\Core\OssException;
 /**
  * Class Common
  *
- * 示例程序【Samples/*.php】 的Common类，用于获取OssClient实例和其他公用方法
+ * Common for【Samples/*.php]. It has the common functions such as get OSSClient instance.
  */
 class Common
 {
@@ -24,9 +24,9 @@ class Common
     const bucket = Config::OSS_TEST_BUCKET;
 
     /**
-     * 根据Config配置，得到一个OssClient实例
+     * Gets a OSSClient instance according to config.
      *
-     * @return OssClient 一个OssClient实例
+     * @return OssClient An OssClient instance
      */
     public static function getOssClient()
     {
@@ -46,7 +46,7 @@ class Common
     }
 
     /**
-     * 工具方法，创建一个存储空间，如果发生异常直接exit
+     * Create a bucket, exist the process if there's exceptions.
      */
     public static function createBucket()
     {
@@ -81,4 +81,4 @@ class Common
     }
 }
 
-Common::createBucket();
+# Common::createBucket();
