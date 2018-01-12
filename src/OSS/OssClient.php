@@ -1840,6 +1840,33 @@ class OssClient
     }
 
     /**
+     * 创建符号链接
+     *
+     * @param string $bucket Bucket名称
+     * @param string $object 链接成的名字
+     * @param string $symlinkTarget 原始目标
+     * @param array $options Key-Value数组
+     * @throws OssException
+     * @return null
+     */
+    public function putSymlink($bucket, $object, $symlinkTarget, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SYMLINK_TARGET] = $symlinkTarget;
+        $response = $this->auth($options);
+        if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
+            $result = new CallbackResult($response);
+        } else {
+            $result = new PutSetDeleteResult($response);
+        }
+        return $result->getData();
+    }
+
+
+    /**
      * 支持生成get和put签名, 用户可以生成一个具有一定有效期的
      * 签名过的url
      *
@@ -2658,6 +2685,7 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
     const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const OSS_SYMLINK = 'symlink';
