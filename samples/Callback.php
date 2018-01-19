@@ -9,10 +9,10 @@ if (is_null($ossClient)) exit(1);
 
 //******************************* Simple Usage ***************************************************************
 
-/** putObject upload the content to the OSS file by callback
-  * callbackurl specifies the server url for the request callback
+/**  putObject Upload content to an OSS file using callback.
+  * The callbackurl specifies the server url for the request callback.
   * The callbackbodytype can be application/json or application/x-www-form-urlencoded,the optional parameters,the default for the application/x - WWW - form - urlencoded
-  * The OSS_BACK_VAR can not be  set
+  * Users can choose not to set OSS_BACK_VAR
   */
 $url =
     '{
@@ -35,22 +35,22 @@ Common::println($result['body']);
 Common::println($result['info']['http_code']);
 
 /**
-  * completeMultipartUpload  upload the content to the OSS file by callback
+  * completeMultipartUpload  Upload content to an OSS file using callback.
   * callbackurl specifies the server url for the request callback
   * The callbackbodytype can be application/json or application/x-www-form-urlencoded,the optional parameters,the default for the application/x - WWW - form - urlencoded
- * OSS_CALLBACK_VAR can not be set
-  */  
+  * Users can choose not to set OSS_BACK_VAR.
+ */
 $object = "multipart-callback-test.txt";
 $copiedObject = "multipart-callback-test.txt.copied";
 $ossClient->putObject($bucket, $copiedObject, file_get_contents(__FILE__));
 
 /**
-  *  step 1. Initializes a block upload event, which is to initialize the upload Multipart, gets upload id
+  *  step 1. Initialize a block upload event, that is, a multipart upload process to get an upload id
   */
 $upload_id = $ossClient->initiateMultipartUpload($bucket, $object);
 
 /**
- * step 2. uploadPartCopy  uploadPartCopy
+ * step 2. uploadPartCopy
  */
 $copyId = 1;
 $eTag = $ossClient->uploadPartCopy($bucket, $copiedObject, $bucket, $object, $copyId, $upload_id);

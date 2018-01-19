@@ -29,7 +29,7 @@ abstract class Result
     }
 
     /**
-     * gets requestId
+     * Get requestId
      *
      * @return string
      */
@@ -46,7 +46,7 @@ abstract class Result
     }
 
     /**
-     * Get the return data, different request returns the data format is different
+     * Get the returned data, different request returns the data format is different
      *
      * $return mixed
      */
@@ -63,7 +63,7 @@ abstract class Result
     abstract protected function parseDataFromResponse();
 
     /**
-     * The operation is successful
+     * Whether the operation is successful
      *
      * @return mixed
      */
@@ -99,7 +99,7 @@ abstract class Result
     }
 
     /**
-     * Attempt to get error Message from body
+     * Try to get the error message from body
      *
      * @param $body
      * @return string
@@ -159,7 +159,7 @@ abstract class Result
     }
 
     /**
-     * Whether the request was successful
+     * Indicate whether the request is successful
      */
     protected $isOk = false;
     /**
@@ -167,7 +167,7 @@ abstract class Result
      */
     protected $parsedData = null;
     /**
-     * Stores the original Response returned by the auth function
+     * Store the original Response returned by the auth function
      *
      * @var ResponseCore
      */

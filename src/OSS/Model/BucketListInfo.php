@@ -21,7 +21,7 @@ class BucketListInfo
     }
 
     /**
-     * Gets the BucketInfo list
+     * Get the BucketInfo list
      *
      * @return BucketInfo[]
      */
@@ -31,7 +31,7 @@ class BucketListInfo
     }
 
     /**
-     * BucketInfo array
+     * BucketInfo list
      *
      * @var array
      */

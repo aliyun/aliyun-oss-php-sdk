@@ -87,7 +87,7 @@ class ObjectListInfo
     }
 
     /**
-     * Gets the ObjectInfo list.
+     * Get the ObjectInfo list.
      *
      * @return ObjectInfo[]
      */
@@ -97,7 +97,7 @@ class ObjectListInfo
     }
 
     /**
-     * Gets the PrefixInfo list
+     * Get the PrefixInfo list
      *
      * @return PrefixInfo[]
      */

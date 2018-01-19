@@ -12,7 +12,7 @@ namespace OSS\Model;
 class LifecycleRule
 {
     /**
-     * Gets Id
+     * Get Id
      *
      * @return string
      */
@@ -30,7 +30,7 @@ class LifecycleRule
     }
 
     /**
-     * Get file prefix
+     * Get a file prefix
      *
      * @return string
      */
@@ -40,7 +40,7 @@ class LifecycleRule
     }
 
     /**
-     * Sets file prefix
+     * Set a file prefix
      *
      * @param string $prefix The file prefix
      */
@@ -50,7 +50,7 @@ class LifecycleRule
     }
 
     /**
-     * Gets Lifecycle status
+     * Get Lifecycle status
      *
      * @return string
      */
@@ -60,7 +60,7 @@ class LifecycleRule
     }
 
     /**
-     * Sets Lifecycle status
+     * Set Lifecycle status
      *
      * @param string $status
      */
@@ -92,7 +92,7 @@ class LifecycleRule
      *
      * @param string $id rule Id
      * @param string $prefix File prefix
-     * @param string $status rule status，Valid values are [self::LIFECYCLE_STATUS_ENABLED, self::LIFECYCLE_STATUS_DISABLED]
+     * @param string $status Rule status, which has the following valid values: [self::LIFECYCLE_STATUS_ENABLED, self::LIFECYCLE_STATUS_DISABLED]
      * @param LifecycleAction[] $actions
      */
     public function __construct($id, $prefix, $status, $actions)

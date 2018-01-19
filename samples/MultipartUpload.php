@@ -9,28 +9,27 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//*******************************Simple usage***************************************************************
+//******************************* Simple usage ***************************************************************
 
 /**
- * Checks the putObjectByRawAPis usage in complete example. 
- * Checks out basic multipart upload APIs which could be used as resumable upload.
+ * See the putObjectByRawAPis usage in complete example to check out basic multipart upload APIs which can be used as resumable upload.
  */
 
-// Uploads a file with multipart upload or simple upload internally.
+// Upload a file using the multipart upload interface, which determines to use simple upload or multipart upload based on the file size.
 $ossClient->multiuploadFile($bucket, "file.php", __FILE__, array());
 Common::println("local file " . __FILE__ . " is uploaded to the bucket $bucket, file.php");
 
 
-// Uploads local directory's data into target dir
+// Upload local directory's data into target dir
 $ossClient->uploadDir($bucket, "targetdir", __DIR__);
 Common::println("local dir " . __DIR__ . " is uploaded to the bucket $bucket, targetdir/");
 
 
-// Lists the incomplete multipart uploads
+// List the incomplete multipart uploads
 $listMultipartUploadInfo = $ossClient->listMultipartUploads($bucket, array());
 
 
-//******************************* Complete example****************************************************
+//******************************* For complete usage, see the following functions ****************************************************
 
 multiuploadFile($ossClient, $bucket);
 putObjectByRawApis($ossClient, $bucket);
@@ -38,7 +37,7 @@ uploadDir($ossClient, $bucket);
 listMultipartUploads($ossClient, $bucket);
 
 /**
- * Use multipart upload for uploading file
+ * Upload files using multipart upload
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -71,7 +70,7 @@ function putObjectByRawApis($ossClient, $bucket)
 {
     $object = "test/multipart-test.txt";
     /**
-     *  step 1. Initialize a multipart upload, get upload Id
+     *  step 1. Initialize a block upload event, that is, a multipart upload process to get an upload id
      */
     try {
         $uploadId = $ossClient->initiateMultipartUpload($bucket, $object);
@@ -105,7 +104,7 @@ function putObjectByRawApis($ossClient, $bucket)
             $contentMd5 = OssUtil::getMd5SumForFile($uploadFile, $fromPos, $toPos);
             $upOptions[$ossClient::OSS_CONTENT_MD5] = $contentMd5;
         }
-        //2. upload a part to OSS
+        //2. Upload each part to OSS
         try {
             $responseUploadPart[] = $ossClient->uploadPart($bucket, $object, $uploadId, $upOptions);
         } catch (OssException $e) {
@@ -123,7 +122,7 @@ function putObjectByRawApis($ossClient, $bucket)
         );
     }
     /**
-     * step 3. Completes the upload
+     * step 3. Complete the upload
      */
     try {
         $ossClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
@@ -136,7 +135,7 @@ function putObjectByRawApis($ossClient, $bucket)
 }
 
 /**
- * Upload a directory's content to OSS
+ * Upload by directories
  *
  * @param OssClient $ossClient OssClient
  * @param string $bucket bucket name
@@ -157,7 +156,7 @@ function uploadDir($ossClient, $bucket)
 }
 
 /**
- * Gets ongoing multipart uploads
+ * Get ongoing multipart uploads
  *
  * @param $ossClient OssClient
  * @param $bucket   string

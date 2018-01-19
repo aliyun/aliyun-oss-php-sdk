@@ -71,7 +71,7 @@ class LifecycleAction
     }
 
     /**
-     * Insert actions into xml=
+     * Use appendToXml to insert actions into xml.
      *
      * @param \SimpleXMLElement $xmlRule
      */

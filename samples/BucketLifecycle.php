@@ -13,7 +13,7 @@ if (is_null($ossClient)) exit(1);
 
 //******************************* Simple Usage *******************************************************
 
-//Sets lifecycle cors
+// Set lifecycle cors
 $lifecycleConfig = new LifecycleConfig();
 $actions = array();
 $actions[] = new LifecycleAction("Expiration", "Days", 3);
@@ -22,16 +22,16 @@ $lifecycleConfig->addRule($lifecycleRule);
 $ossClient->putBucketLifecycle($bucket, $lifecycleConfig);
 Common::println("bucket $bucket lifecycleConfig created:" . $lifecycleConfig->serializeToXml());
 
-//Gets lifecycle cors
+// Get lifecycle cors
 $lifecycleConfig = $ossClient->getBucketLifecycle($bucket);
 Common::println("bucket $bucket lifecycleConfig fetched:" . $lifecycleConfig->serializeToXml());
 
-//Deletes bucket lifecycle configuration
+// Delete bucket lifecycle cors
 $ossClient->deleteBucketLifecycle($bucket);
 Common::println("bucket $bucket lifecycleConfig deleted");
 
 
-//***************************** Below is the complete usage  ***********************************************
+//***************************** For complete usage, see the following functions  ***********************************************
 
 putBucketLifecycle($ossClient, $bucket);
 getBucketLifecycle($ossClient, $bucket);
@@ -39,7 +39,7 @@ deleteBucketLifecycle($ossClient, $bucket);
 getBucketLifecycle($ossClient, $bucket);
 
 /**
- * Sets bucket's lifecycle
+ * Set bucket lifecycle configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -67,7 +67,7 @@ function putBucketLifecycle($ossClient, $bucket)
 }
 
 /**
- * Gets bucket's lifecycle
+ * Get bucket lifecycle configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -88,7 +88,7 @@ function getBucketLifecycle($ossClient, $bucket)
 }
 
 /**
- * Deletes the bucket's lifecycle
+ * Delete bucket lifecycle configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name

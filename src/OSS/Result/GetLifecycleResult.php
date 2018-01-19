@@ -25,7 +25,7 @@ class GetLifecycleResult extends Result
     }
 
     /**
-     * Checks if the response is OK according to the http status.
+     * Check if the response is OK according to the http status.
      * [200-299]: OK, and the LifecycleConfig could be got; [404] The Life cycle config is not found.
      *
      * @return bool

@@ -13,7 +13,7 @@ use OSS\Core\OssException;
 class CorsRule
 {
     /**
-     * Adds an allowedOrigin rule
+     * Add an allowedOrigin rule
      *
      * @param string $allowedOrigin
      */
@@ -25,7 +25,7 @@ class CorsRule
     }
 
     /**
-     * Adds an allowedMethod rule
+     * Add an allowedMethod rule
      *
      * @param string $allowedMethod
      */
@@ -37,7 +37,7 @@ class CorsRule
     }
 
     /**
-     * Adds an allowedHeader rule
+     * Add an allowedHeader rule
      *
      * @param string $allowedHeader
      */
@@ -49,7 +49,7 @@ class CorsRule
     }
 
     /**
-     * Adds an exposeHeader rule
+     * Add an exposeHeader rule
      *
      * @param string $exposeHeader
      */
@@ -77,7 +77,7 @@ class CorsRule
     }
 
     /**
-     * Gets the AllowedHeaders list
+     * Get the AllowedHeaders list
      *
      * @return string[]
      */
@@ -87,7 +87,7 @@ class CorsRule
     }
 
     /**
-     * Gets the AllowedOrigins list
+     * Get the AllowedOrigins list
      *
      * @return string[]
      */
@@ -97,7 +97,7 @@ class CorsRule
     }
 
     /**
-     * Gets the AllowedMethods list
+     * Get the AllowedMethods list
      *
      * @return string[]
      */
@@ -107,7 +107,7 @@ class CorsRule
     }
 
     /**
-     * Gets the ExposeHeaders list
+     * Get the ExposeHeaders list
      *
      * @return string[]
      */

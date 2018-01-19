@@ -11,24 +11,24 @@ if (is_null($ossClient)) exit(1);
 
 //******************************* Simple Usage ****************************************************************
 
-//Sets referer whitelist
+// Set referer whitelist
 $refererConfig = new RefererConfig();
 $refererConfig->setAllowEmptyReferer(true);
 $refererConfig->addReferer("www.aliiyun.com");
 $refererConfig->addReferer("www.aliiyuncs.com");
 $ossClient->putBucketReferer($bucket, $refererConfig);
 Common::println("bucket $bucket refererConfig created:" . $refererConfig->serializeToXml());
-//Gets Referer white list
+// Get referer whitelist
 $refererConfig = $ossClient->getBucketReferer($bucket);
 Common::println("bucket $bucket refererConfig fetched:" . $refererConfig->serializeToXml());
 
-//Deletes referrer whitelist
+// Delete referrer whitelist
 $refererConfig = new RefererConfig();
 $ossClient->putBucketReferer($bucket, $refererConfig);
 Common::println("bucket $bucket refererConfig deleted");
 
 
-//******************************* Below is the complete usage****************************************************
+//******************************* For complete usage, see the following functions ****************************************************
 
 putBucketReferer($ossClient, $bucket);
 getBucketReferer($ossClient, $bucket);
@@ -36,7 +36,7 @@ deleteBucketReferer($ossClient, $bucket);
 getBucketReferer($ossClient, $bucket);
 
 /**
- * Sets bucket referer config
+ * Set bucket referer configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -59,7 +59,7 @@ function putBucketReferer($ossClient, $bucket)
 }
 
 /**
- * Gets bucket referrer config
+ * Get bucket referer configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -80,7 +80,7 @@ function getBucketReferer($ossClient, $bucket)
 }
 
 /**
- * Deletes the bucket referrer
+ * Delete bucket logging configuration
  * Referer whitelist cannot be directly deleted. So use a empty one to overwrite it.
  *
  * @param OssClient $ossClient OssClient instance

@@ -13,9 +13,9 @@ namespace OSS\Core;
 class MimeTypes
 {
     /**
-     * Gets the content-type value of http header from the file's extension name.
+     * Get the content-type value of http header from the file's extension name.
      *
-     * @param string $name file extension name.
+     * @param string $name Default file extension name.
      * @return string content-type
      */
     public static function getMimetype($name)

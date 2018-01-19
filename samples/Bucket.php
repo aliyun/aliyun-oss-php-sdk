@@ -10,26 +10,26 @@ $bucket = Common::getBucketName();
 
 //******************************* Simple Usage****************************************************************
 
-//Creates bucket
+// Create a bucket
 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket created");
 
-// Checks if Bucket exists
+// Check whether a bucket exists
 $doesExist = $ossClient->doesBucketExist($bucket);
 Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 
-// Gets Bucket list
+// Get the bucket list
 $bucketListInfo = $ossClient->listBuckets();
 
-// Sets bucket ACL
+// Set bucket ACL
 $ossClient->putBucketAcl($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket acl put");
-// Gets bucket ACL
+// Get bucket ACL
 $acl = $ossClient->getBucketAcl($bucket);
 Common::println("bucket $bucket acl get: " . $acl);
 
 
-//******************************* For complete usage, check out the following functions ****************************************************
+//******************************* For complete usage, see the following functions ****************************************************
 
 createBucket($ossClient, $bucket);
 doesBucketExist($ossClient, $bucket);
@@ -39,13 +39,13 @@ getBucketAcl($ossClient, $bucket);
 listBuckets($ossClient);
 
 /**
- * Creates a new bucket
- * acl is the bucket's access permission : private, public-read-only/private-read-write, public read-write.
- * Private means only the bucket owner could access the data.
- * The three permissions are defined by (OssClient::OSS_ACL_TYPE_PRIVATE，OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
+ * Create a new bucket
+ * acl indicates the access permission of a bucket, including: private, public-read-only/private-read-write, and public read-write.
+ * Private indicates that only the bucket owner or authorized users can access the data..
+ * The three permissions are separately defined by (OssClient::OSS_ACL_TYPE_PRIVATE，OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
  *
  * @param OssClient $ossClient OssClient instance
- * @param string $bucket bucket name
+ * @param string $bucket Name of the bucket to create
  * @return null
  */
 function createBucket($ossClient, $bucket)
@@ -61,7 +61,7 @@ function createBucket($ossClient, $bucket)
 }
 
 /**
- *  Checks if the bucket exists.
+ * Check whether a bucket exists.
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -83,10 +83,11 @@ function doesBucketExist($ossClient, $bucket)
 }
 
 /**
- * Deletes bucket. If the bucket is not empty, the deletion will not succeed.
+ * Delete a bucket. If the bucket is not empty, the deletion fails.
+ * A bucket which is not empty indicates that it does not contain any objects or parts that are not completely uploaded during multipart upload
  *
  * @param OssClient $ossClient OssClient instance
- * @param string $bucket The bucket name to delete
+ * @param string $bucket Name of the bucket to delete
  * @return null
  */
 function deleteBucket($ossClient, $bucket)
@@ -123,7 +124,7 @@ function putBucketAcl($ossClient, $bucket)
 
 
 /**
- * Gets the bucket ACL
+ * Get bucket ACL
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -144,7 +145,7 @@ function getBucketAcl($ossClient, $bucket)
 
 
 /**
- * Lists all Bucket
+ * List all buckets
  *
  * @param OssClient $ossClient OssClient instance
  * @return null

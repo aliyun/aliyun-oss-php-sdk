@@ -26,7 +26,7 @@ class BucketInfo
     }
 
     /**
-     * Gets bucket location
+     * Get bucket location
      *
      * @return string
      */
@@ -36,7 +36,7 @@ class BucketInfo
     }
 
     /**
-     * Gets bucket name
+     * Get bucket name
      *
      * @return string
      */
@@ -46,7 +46,7 @@ class BucketInfo
     }
 
     /**
-     * Gets the bucket creation time.
+     * Get bucket creation time.
      *
      * @return string
      */

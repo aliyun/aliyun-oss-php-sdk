@@ -11,7 +11,7 @@ namespace OSS\Result;
 class HeaderResult extends Result
 {
     /**
-     * The returned ResponseCore header as the return data
+     * The returned ResponseCore header is used as the return data
      *
      * @return array
      */

@@ -14,7 +14,7 @@ use OSS\Model\UploadInfo;
 class ListMultipartUploadResult extends Result
 {
     /**
-     * Resolve the return data from the ListMultipartUpload interface
+     * Parse the return data from the ListMultipartUpload interface
      *
      * @return ListMultipartUploadInfo
      */

@@ -11,9 +11,11 @@ if (is_null($ossClient)) exit(1);
 //******************************* Simple Usage *******************************************************
 
 /**
- *  Creates a Live Channel
- *  The live channel's name is test_rtmp_live. The play url file is test.m3u8, which has 3 ts file and each file is 5 seconds.（It's just for demo purpose, the actual length
- *  depends on the key frame.
+ * Create a Live Channel
+ * The live channel's name is test_rtmp_live.
+ * The play url file is named as test.m3u8, which includes 3 ts files.
+ * The time period of each file is 5 seconds.(It is recommneded value only for demo purpose, the actual period depends on the key frame.)
+ *
  */
 $config = new LiveChannelConfig(array(
             'description' => 'live channel test',
@@ -30,9 +32,9 @@ Common::println("bucket $bucket liveChannel created:\n" .
 "playurls: ". $info->getPlayUrls()[0] . "\n");
 
 /**
-  * list all existing live channels
-  * prefix is the filter based on the live channel name's prefix.
-  * max_keys means the max entries one list() call returns. Its max value is 1000. By default it's 100
+  * You can use listBucketLiveChannels to list and manage all existing live channels.
+  * Prefix can be used to filter listed live channels by prefix.
+  * Max_keys indicates the maximum numbers of live channels that can be listed in an iterator at one time. Its value is 1000 in maximum and 100 by default.
  */
 $list = $ossClient->listBucketLiveChannels($bucket);
 Common::println("bucket $bucket listLiveChannel:\n" . 
@@ -51,7 +53,9 @@ foreach($list->getChannelList()  as $list)
     "list live channel getNextMarker: ". $list->getLastModified() . "\n");
 }
 /**
-  * Signs the RTMP url and publish url after the channel is created
+  * Obtain the play_url (url used for rtmp stream pushing.
+  * If the the bucket is not globally readable and writable,
+  * the url must be signed as shown in the following.) and pulish_url (the url included in the m3u8 file generated in stream pushing) used to push streams.
  */
 $play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600, array('params' => array('playlistName' => 'playlist.m3u8')));
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
@@ -59,13 +63,13 @@ $play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600);
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
 
 /**
-  * If you want to disable a live channel (disable the pushing streaming), call putLiveChannelStatus with "Disabled" status.
-  * Otherwise to enable a live channel, call PutLiveChannelStatus with "Enabled" status.
+  * If you want to disable a created live channel (disable the pushing streaming or do not allow stream pushing to an IP address), call putLiveChannelStatus to change the channel status to "Disabled".
+  * If you want to enable a disabled live channel, call PutLiveChannelStatus to chanage the channel status to "Enabled".
  */
 $resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
 
 /**
-  * Gets the Live channel information
+  * You can callLiveChannelInfo to get the information about a live channel.
  */
 $info = $ossClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
 Common::println("bucket $bucket LiveChannelInfo:\n" . 
@@ -92,7 +96,7 @@ if (count($history->getLiveRecordList()) != 0)
 }
 
 /**
-  * Gets the live channel's status by calling getLiveChannelStatus.
+  * Get the live channel's status by calling getLiveChannelStatus.
   * If the live channel is receiving the pushing stream, all attributes in stat_result are valid.
   * If the live channel is idle or disabled, then the status is idle or Disabled and other attributes have no meaning.
  */
@@ -110,9 +114,9 @@ Common::println("bucket $bucket listLiveChannel:\n" .
 "live channel status AdioCodec: ". $status->getAudioCodec() . "\n");
 
 /**
- *  If you want to generate a play url from the ts files generated from pushing streaming, call postVodPlayList.
- *  The start tiem is the current time minus 60s. The endtime is the current time.
- *  The playlist file is “vod_playlist.m3u8”. In other words, the vod_playlist.m3u8 is created after the all suceeded.
+ * If you want to generate a play url from the ts files generated from pushing streaming, call postVodPlayList.
+ * Specify the start time to 60 seconds before the current time and the end time to the current time, which means that a video of 60 seconds is generated.
+ * The playlist file is specified to “vod_playlist.m3u8”, which means that a palylist file named vod_playlist.m3u8 is created after the interface is called.
  */
 $current_time = time();
 $ossClient->postVodPlaylist($bucket,
@@ -122,6 +126,6 @@ $ossClient->postVodPlaylist($bucket,
 );
 
 /**
- *  Deletes the live channel if the channel is not going to be used.
+  *  Call delete_live_channel to delete a live channel if it will no longer be in used.
  */
 $ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");

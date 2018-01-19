@@ -14,7 +14,7 @@ use OSS\Core\OssException;
 /**
  * Class Common
  *
- * Common for【Samples/*.php]. It has the common functions such as get OSSClient instance.
+ * The Common class for 【Samples/*.php】 used to obtain OssClient instance and other common functions
  */
 class Common
 {
@@ -24,7 +24,7 @@ class Common
     const bucket = Config::OSS_TEST_BUCKET;
 
     /**
-     * Gets a OSSClient instance according to config.
+     * Get an OSSClient instance according to config.
      *
      * @return OssClient An OssClient instance
      */
@@ -46,7 +46,7 @@ class Common
     }
 
     /**
-     * Create a bucket, exist the process if there's exceptions.
+     * A tool function which creates a bucket and exists the process if there are exceptions
      */
     public static function createBucket()
     {

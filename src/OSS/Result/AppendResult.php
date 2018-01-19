@@ -11,7 +11,7 @@ use OSS\Core\OssException;
 class AppendResult extends Result
 {
     /**
-     * gets the value of next-append-position from append's response headers
+     * Get the value of next-append-position from append's response headers
      *
      * @return int
      * @throws OssException

@@ -13,7 +13,7 @@ use OSS\Core\OssException;
 class LifecycleConfig implements XmlConfig
 {
     /**
-     * Parses the xml into this object.
+     * Parse the xml into this object.
      *
      * @param string $strXml
      * @throws OssException
@@ -65,7 +65,7 @@ class LifecycleConfig implements XmlConfig
 
     /**
      *
-     * Adds a LifecycleRule
+     * Add a LifecycleRule
      *
      * @param LifecycleRule $lifecycleRule
      * @throws OssException
@@ -89,7 +89,7 @@ class LifecycleConfig implements XmlConfig
     }
 
     /**
-     * Get all rules.
+     * Get all lifecycle rules.
      *
      * @return LifecycleRule[]
      */

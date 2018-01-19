@@ -9,9 +9,9 @@ $ossClient = Common::getOssClient();
 $download_file = "download.jpg";
 if (is_null($ossClient)) exit(1);
 
-//*******************************Simple Usage***************************************************************
+//******************************* Simple Usage ***************************************************************
 
-// Upload the example.jpg to specified bucket and rename as $object.
+// Upload example.jpg to the specified bucket and rename it to $object.
 $ossClient->uploadFile($bucketName, $object, "example.jpg");
 
 // Image resize
@@ -21,7 +21,7 @@ $options = array(
 $ossClient->getObject($bucketName, $object, $options);
 printImage("imageResize",$download_file);
 
-// Image Crop
+// Image crop
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => $download_file,
     OssClient::OSS_PROCESS => "image/crop,w_100,h_100,x_100,y_100,r_1", );
@@ -42,7 +42,7 @@ $options = array(
 $ossClient->getObject($bucketName, $object, $options);
 printImage("imageSharpen", $download_file);
 
-// Add watermark into image
+// Add watermark into a image
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => $download_file,
     OssClient::OSS_PROCESS => "image/watermark,text_SGVsbG8g5Zu-54mH5pyN5YqhIQ", );
@@ -56,7 +56,7 @@ $options = array(
 $ossClient->getObject($bucketName, $object, $options);
 printImage("imageFormat", $download_file);
 
-// Gets image information
+// Get image information
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => $download_file,
     OssClient::OSS_PROCESS => "image/info", );
@@ -65,7 +65,7 @@ printImage("imageInfo", $download_file);
 
 
 /**
- *  Generates a signed url which could be used in browser to access the object. The expiration time is 1 hour.
+ * Generate a signed url which could be used in browser to access the object. The expiration time is 1 hour.
  */
  $timeout = 3600;
 $options = array(
@@ -74,7 +74,7 @@ $options = array(
 $signedUrl = $ossClient->signUrl($bucketName, $object, $timeout, "GET", $options);
 Common::println("rtmp url: \n" . $signedUrl);
 
-//Finally deletes the $object uploaded.
+// Finally delete the $object uploaded.
 $ossClient->deleteObject($bucketName, $object);     
 
 function printImage($func, $imageFile)

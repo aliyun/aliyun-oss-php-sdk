@@ -22,7 +22,7 @@ class CorsConfig implements XmlConfig
     }
 
     /**
-     * Gets CorsRule list
+     * Get CorsRule list
      *
      * @return CorsRule[]
      */
@@ -33,7 +33,7 @@ class CorsConfig implements XmlConfig
 
 
     /**
-     * Adds a new CorsRule
+     * Add a new CorsRule
      *
      * @param CorsRule $rule
      * @throws OssException
@@ -47,7 +47,7 @@ class CorsConfig implements XmlConfig
     }
 
     /**
-     * Adds CorsRules which are parsed from the xml.
+     * Parse CorsConfig from the xml.
      *
      * @param string $strXml
      * @throws OssException
@@ -105,7 +105,7 @@ class CorsConfig implements XmlConfig
     const OSS_MAX_RULES = 10;
 
     /**
-     * orsRule list
+     * CorsRule list
      *
      * @var CorsRule[]
      */

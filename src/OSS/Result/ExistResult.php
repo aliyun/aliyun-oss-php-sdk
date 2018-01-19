@@ -17,7 +17,7 @@ class ExistResult extends Result
     }
 
     /**
-     * Checks if the response status is OK according to the http status code. 
+     * Check if the response status is OK according to the http status code.
      * [200-299]: OK; [404]: Not found. It means the object or bucket is not found--it's a valid response too.
      *
      * @return bool

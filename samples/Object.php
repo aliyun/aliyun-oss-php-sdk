@@ -7,9 +7,9 @@ use OSS\Core\OssException;
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
-//*******************************Simple usage***************************************************************
+//******************************* Simple usage ***************************************************************
 
-// Uploads in memory string (hi, oss) to OSS file
+// Upload the in-memory string (hi, oss) to an OSS file
 $result = $ossClient->putObject($bucket, "b.file", "hi, oss");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
@@ -17,7 +17,7 @@ Common::println($result['etag']);
 Common::println($result['content-md5']);
 Common::println($result['body']);
 
-// Uploads local file to OSS file
+// Uploads a local file to an OSS file
 $result = $ossClient->uploadFile($bucket, "c.file", __FILE__);
 Common::println("c.file is created");
 Common::println("b.file is created");
@@ -26,21 +26,21 @@ Common::println($result['etag']);
 Common::println($result['content-md5']);
 Common::println($result['body']);
 
-// Downloads oss object as in-memory variable
+// Download an oss object as an in-memory variable
 $content = $ossClient->getObject($bucket, "b.file");
 Common::println("b.file is fetched, the content is: " . $content);
 
-// add symlink object
+// Add a symlink to an object
 $content = $ossClient->putSymlink($bucket, "test-symlink", "b.file");
 Common::println("test-symlink is created");
 Common::println($result['x-oss-request-id']);
 Common::println($result['etag']);
 
-// gets symlink
+// Get a symlink
 $content = $ossClient->getSymlink($bucket, "test-symlink");
 Common::println("test-symlink refer to : " . $content[OssClient::OSS_SYMLINK_TARGET]);
 
-// Downloads the object to local file.
+// Download an object to a local file.
 $options = array(
     OssClient::OSS_FILE_DOWNLOAD => "./c.file.localcopy",
 );
@@ -48,26 +48,26 @@ $ossClient->getObject($bucket, "c.file", $options);
 Common::println("b.file is fetched to the local file: c.file.localcopy");
 Common::println("b.file is created");
 
-// Copy object
+// Copy an object
 $result = $ossClient->copyObject($bucket, "c.file", $bucket, "c.file.copy");
 Common::println("lastModifiedTime: " . $result[0]);
 Common::println("ETag: " . $result[1]);
 
-// Checks if the object exists
+// Check whether an object exists
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
 Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
-// Deletes object
+// Delete an object
 $result = $ossClient->deleteObject($bucket, "c.file.copy");
 Common::println("c.file.copy is deleted");
 Common::println("b.file is created");
 Common::println($result['x-oss-request-id']);
 
-// Checks if the object exists
+// Check whether an object exists
 $doesExist = $ossClient->doesObjectExist($bucket, "c.file.copy");
 Common::println("file c.file.copy exist? " . ($doesExist ? "yes" : "no"));
 
-// Deletes the multiple objects
+// Delete multiple objects in batch
 $result = $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
 foreach($result as $object)
     Common::println($object);
@@ -75,7 +75,7 @@ foreach($result as $object)
 sleep(2);
 unlink("c.file.localcopy");
 
-//******************************* Complete Example****************************************************
+//******************************* For complete usage, see the following functions ****************************************************
 
 listObjects($ossClient, $bucket);
 listAllObjects($ossClient, $bucket);
@@ -114,7 +114,7 @@ function createObjectDir($ossClient, $bucket)
 /**
  * Upload in-memory data to oss
  *
- * Simple upload---upload in-memory data to OSS
+ * Simple upload---upload specified in-memory data to an OSS object
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -205,7 +205,7 @@ function listObjects($ossClient, $bucket)
 }
 
 /**
- * Lists all folders and files under the bucket. Use nextMarker for next call's marker parameter.
+ * Lists all folders and files under the bucket. Use nextMarker repeatedly to get all objects.
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -213,7 +213,7 @@ function listObjects($ossClient, $bucket)
  */
 function listAllObjects($ossClient, $bucket)
 {
-    //creates obj 'folder' and put some files into it
+    // Create dir/obj 'folder' and put some files into it.
     for ($i = 0; $i < 100; $i += 1) {
         $ossClient->putObject($bucket, "dir/obj" . strval($i), "hi");
         $ossClient->createObjectDir($bucket, "dir/obj" . strval($i));
@@ -239,7 +239,7 @@ function listAllObjects($ossClient, $bucket)
             printf($e->getMessage() . "\n");
             return;
         }
-        // Gets the nextMarker, and it would be used as the next call's marker parameter to resume from the last call
+        // Get the nextMarker, and it would be used as the next call's marker parameter to resume from the last call
         $nextMarker = $listObjectInfo->getNextMarker();
         $listObject = $listObjectInfo->getObjectList();
         $listPrefix = $listObjectInfo->getPrefixList();
@@ -252,7 +252,7 @@ function listAllObjects($ossClient, $bucket)
 }
 
 /**
- * Gets object content.
+ * Get the content of an object.
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -278,7 +278,7 @@ function getObject($ossClient, $bucket)
 }
 
 /**
- * put symlink
+ * Put symlink
  *
  * @param OssClient $ossClient  The Instance of OssClient
  * @param string $bucket bucket name
@@ -306,10 +306,10 @@ function putSymlink($ossClient, $bucket)
 }
 
 /**
- * get symlink
+ * Get symlink
  *
- * @param OssClient $ossClient  The instance of OssClient
- * @param string $bucket  ucket name
+ * @param OssClient $ossClient  OssClient instance
+ * @param string $bucket  bucket name
  * @return null
  */
 function getSymlink($ossClient, $bucket)
@@ -334,10 +334,10 @@ function getSymlink($ossClient, $bucket)
 }
 
 /**
- * get_object_to_local_file
+ * Get_object_to_local_file
  *
- * Gets object
- * Downloads object to the specified file.
+ * Get object
+ * Download object to a specified file.
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -396,7 +396,7 @@ function copyObject($ossClient, $bucket)
 }
 
 /**
- * Updates Object Meta
+ * Update Object Meta
  * it leverages the feature of copyObject： when the source object is just the target object, the metadata could be updated via copy
  *
  * @param OssClient $ossClient OssClient instance
@@ -426,7 +426,7 @@ function modifyMetaForObject($ossClient, $bucket)
 }
 
 /**
- * Gets object meta
+ * Get object meta, that is, getObjectMeta
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -453,7 +453,7 @@ function getObjectMeta($ossClient, $bucket)
 }
 
 /**
- * Deletes object
+ * Delete an object
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -474,7 +474,7 @@ function deleteObject($ossClient, $bucket)
 
 
 /**
- * Deletes multiple objects
+ * Delete multiple objects in batch
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -496,7 +496,7 @@ function deleteObjects($ossClient, $bucket)
 }
 
 /**
- * Checks if the object exists
+ * Check whether an object exists
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name

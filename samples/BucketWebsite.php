@@ -9,22 +9,22 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//*******************************Simple Usage***************************************************************
+//******************************* Simple Usage ***************************************************************
 
-// Sets the bucket's static website config
+// Set bucket static website configuration
 $websiteConfig = new WebsiteConfig("index.html", "error.html");
 $ossClient->putBucketWebsite($bucket, $websiteConfig);
 Common::println("bucket $bucket websiteConfig created:" . $websiteConfig->serializeToXml());
 
-// Gets the bucket's static website config
+// Get bucket static website configuration
 $websiteConfig = $ossClient->getBucketWebsite($bucket);
 Common::println("bucket $bucket websiteConfig fetched:" . $websiteConfig->serializeToXml());
 
-// Deletes bucket's static website config
+// Delete bucket static website configuration
 $ossClient->deleteBucketWebsite($bucket);
 Common::println("bucket $bucket websiteConfig deleted");
 
-//******************************* Below is the complete usage ****************************************************
+//******************************* For complete usage, see the following functions  ****************************************************
 
 putBucketWebsite($ossClient, $bucket);
 getBucketWebsite($ossClient, $bucket);
@@ -32,7 +32,7 @@ deleteBucketWebsite($ossClient, $bucket);
 getBucketWebsite($ossClient, $bucket);
 
 /**
- * Sets the bucket's static website config
+ * Sets bucket static website configuration
  *
  * @param $ossClient OssClient
  * @param  $bucket string bucket name
@@ -52,7 +52,7 @@ function putBucketWebsite($ossClient, $bucket)
 }
 
 /**
- * Gets the bucket's static website
+ * Get bucket static website configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -73,7 +73,7 @@ function getBucketWebsite($ossClient, $bucket)
 }
 
 /**
- * Deletes bucket's static website config
+ * Delete bucket static website configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name

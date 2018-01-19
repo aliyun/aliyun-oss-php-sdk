@@ -8,9 +8,9 @@ namespace OSS\Model;
  *
  * The element type of ObjectListInfo, which is the return value type of listObjects
  *
- * The return value of listObjects has two array
- * One is ObjectListInfo, which is kind of a file list in the file system.
- * The other is the prefix list, which is kind of a folder list in the file system.
+ * The return value of listObjects includes two arrays
+ * One is the returned ObjectListInfo, which is similar to a file list in a file system.
+ * The other is the returned prefix list, which is similar to a folder list in a file system.
  *
  * @package OSS\Model
  */

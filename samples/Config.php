@@ -3,7 +3,8 @@
 /**
  * Class Config
  *
- * Config for the sample config. All the information is needed to run RunAll.php which runs all the samples.
+ * Make configurations required by the sample.
+ * Users can run RunAll.php which runs all the samples after configuring Endpoint, AccessId, and AccessKey.
  */
 final class Config
 {

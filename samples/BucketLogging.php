@@ -8,21 +8,21 @@ $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
 if (is_null($ossClient)) exit(1);
 
-//*******************************Simple Usage***************************************************************
+//*******************************Simple Usage ***************************************************************
 
-// Sets the bucket logging config. The logging file is under the same bucket with 'access.log' prefix.
+// Set bucket access logging rules. Access logs are stored under the same bucket with a 'access.log' prefix.
 $ossClient->putBucketLogging($bucket, $bucket, "access.log", array());
 Common::println("bucket $bucket lifecycleConfig created");
 
-// Gets the bucket logging config
+// Get bucket access logging rules
 $loggingConfig = $ossClient->getBucketLogging($bucket, array());
 Common::println("bucket $bucket lifecycleConfig fetched:" . $loggingConfig->serializeToXml());
 
-// Deletes Bucket logging config
+// Delete bucket access logging rules
 $loggingConfig = $ossClient->getBucketLogging($bucket, array());
 Common::println("bucket $bucket lifecycleConfig deleted");
 
-//******************************* Below is the complete usage****************************************************
+//******************************* For complete usage, see the following functions ****************************************************
 
 putBucketLogging($ossClient, $bucket);
 getBucketLogging($ossClient, $bucket);
@@ -30,7 +30,7 @@ deleteBucketLogging($ossClient, $bucket);
 getBucketLogging($ossClient, $bucket);
 
 /**
- * Sets the bucket logging config
+ * Set bucket logging configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -39,7 +39,7 @@ getBucketLogging($ossClient, $bucket);
 function putBucketLogging($ossClient, $bucket)
 {
     $option = array();
-    //Access log is in the same bucket
+    // Access logs are stored in the same bucket.
     $targetBucket = $bucket;
     $targetPrefix = "access.log";
 
@@ -54,7 +54,7 @@ function putBucketLogging($ossClient, $bucket)
 }
 
 /**
- * Gets bucket's logging config
+ * Get bucket logging configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -76,7 +76,7 @@ function getBucketLogging($ossClient, $bucket)
 }
 
 /**
- * Deletes bucket's logging config
+ * Delete bucket logging configuration
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name

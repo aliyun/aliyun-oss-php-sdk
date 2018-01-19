@@ -20,7 +20,7 @@ class OssUtil
     const OSS_MIN_PART_SIZE = 102400; // 100KB
 
     /**
-     * Generates query params
+     * Generate query params
      *
      * @param array $options: a key-value pair array.
      * @return string: the key-value list in the format such as key1=value1&key2=value2
@@ -51,7 +51,7 @@ class OssUtil
     }
 
     /**
-     * Checks if the string has any chinese character
+     * Check whether the string includes any chinese character
      *
      * @param $str
      * @return int
@@ -116,9 +116,9 @@ class OssUtil
     /**
      * Checks if the bucket name is valid
      * bucket naming rules
-     * 1. Can only have lowercase letter, number or dash
-     * 2. Must start and end with lowercase letter or number
-     * 3. Length should be from 3 to 63.
+     * 1. Can only include lowercase letters, numbers, or dashes
+     * 2. Must start and end with lowercase letters or numbers
+     * 3. Must be within a length from 3 to 63 bytes.
      *
      * @param string $bucket Bucket name
      * @return boolean
@@ -135,9 +135,9 @@ class OssUtil
     /**
      * Checks if object name is valid
      * object naming rules:
-     * 1. Length is from 1 to 1023 bytes
+     * 1. Must be within a length from 1 to 1023 bytes
      * 2. Cannot start with '/' or '\\'.
-     * 3. Encoded in UTF-8.
+     * 3. Must be encoded in UTF-8.
      *
      * @param string $object Object名称
      * @return boolean
@@ -172,7 +172,7 @@ class OssUtil
 
 
     /**
-     * createBucketXmlBody xml informations.
+     * Generate the xml message of createBucketXmlBody.
      *
      * @param string $storageClass
      * @return string
@@ -185,7 +185,7 @@ class OssUtil
     }
 
     /**
-     * validates $options
+     * validate $options
      *
      * @param array $options
      * @throws OssException
@@ -200,7 +200,7 @@ class OssUtil
     }
 
     /**
-     * checks if the $content is valid.
+     * check whether the Content is valid.
      *
      * @param $content string
      * @throws OssException
@@ -213,7 +213,7 @@ class OssUtil
     }
 
     /**
-     * Checks if BUCKET/OBJECT/OBJECT GROUP is empty.
+     * Check if BUCKET/OBJECT/OBJECT GROUP is empty.
      *
      * @param  string $name
      * @param  string $errMsg
@@ -228,7 +228,7 @@ class OssUtil
     }
 
     /**
-     * test method. DO NOT USE.
+     * This is a method for test only. DO NOT USE.
      *
      * @param $filename
      * @param $size
@@ -269,7 +269,7 @@ BBB;
     }
 
     /**
-     * Get MD5 of the content
+     * Get MD5 of the file.
      *
      * @param $filename
      * @param $from_pos
@@ -319,7 +319,7 @@ BBB;
     }
 
     /**
-     * Is OS Windows? The default encoding in Windows
+     * Check if the OS is Windows. The default encoding in Windows is GBK.
      *
      * @return bool
      */
@@ -345,7 +345,7 @@ BBB;
     }
 
     /**
-     * Checks if the endpoint is in the IPv4 format, such as xxx.xxx.xxx.xxx:port or xxx.xxx.xxx.xxx.
+     * Check if the endpoint is in the IPv4 format, such as xxx.xxx.xxx.xxx:port or xxx.xxx.xxx.xxx.
      *
      * @param string $endpoint The endpoint to check.
      * @return boolean
@@ -363,7 +363,7 @@ BBB;
     }
 
     /**
-     * Generates the xml message of DeleteMultiObjects.
+     * Generate the xml message of DeleteMultiObjects.
      *
      * @param string[] $objects
      * @param bool $quiet
@@ -382,7 +382,7 @@ BBB;
     }
 
     /**
-     * Generates the xml message of CompleteMultipartUpload.
+     * Generate the xml message of CompleteMultipartUpload.
      *
      * @param array[] $listParts
      * @return string
@@ -399,7 +399,7 @@ BBB;
     }
 
     /**
-     * read the directory, return a associative array in which the MD5 is the named key and the <path,filanme> is the value.
+     * Read the directory, return a associative array in which the MD5 is the named key and the <path,filanme> is the value.
      *
      * @param string $dir
      * @param string $exclude
