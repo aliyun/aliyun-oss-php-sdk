@@ -1540,6 +1540,35 @@ class OssClient
     }
 
     /**
+     * 分片上传的块上传接口，上传内存中的数据
+     *
+     * @param string $bucket Bucket名称
+     * @param string $object Object名称
+     * @param string $uploadId
+     * @param string $content 上传的内容
+     * @param array  $options Key-Value数组
+     *
+     * @return string eTag
+     * @throws OssException
+     */
+    public function putObjectPart($bucket, $object, $uploadId, $content, $options = null)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $this->precheckParam($options, self::OSS_PART_NUM, __FUNCTION__);
+
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_UPLOAD_ID] = $uploadId;
+
+        $options[self::OSS_CONTENT] = $content;
+        $options[self::OSS_CONTENT_LENGTH] = strlen($content);
+        $response = $this->auth($options);
+        $result = new UploadPartResult($response);
+        return $result->getData();
+    }
+
+    /**
      * 获取已成功上传的part
      *
      * @param string $bucket Bucket名称
