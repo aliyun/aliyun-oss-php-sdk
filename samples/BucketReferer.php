@@ -80,7 +80,7 @@ function getBucketReferer($ossClient, $bucket)
 }
 
 /**
- * Delete bucket logging configuration
+ * Delete bucket referer configuration
  * Referer whitelist cannot be directly deleted. So use a empty one to overwrite it.
  *
  * @param OssClient $ossClient OssClient instance

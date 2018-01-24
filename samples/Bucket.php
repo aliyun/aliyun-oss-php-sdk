@@ -42,7 +42,7 @@ listBuckets($ossClient);
  * Create a new bucket
  * acl indicates the access permission of a bucket, including: private, public-read-only/private-read-write, and public read-write.
  * Private indicates that only the bucket owner or authorized users can access the data..
- * The three permissions are separately defined by (OssClient::OSS_ACL_TYPE_PRIVATE，OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
+ * The three permissions are separately defined by (OssClient::OSS_ACL_TYPE_PRIVATE,OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket Name of the bucket to create

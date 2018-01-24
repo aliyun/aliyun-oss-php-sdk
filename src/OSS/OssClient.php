@@ -73,7 +73,7 @@ class OssClient
      *
      * @param string $accessKeyId The AccessKeyId from OSS or STS
      * @param string $accessKeySecret The AccessKeySecret from OSS or STS
-     * @param string $endpoint The domain name of the datacenter，For example: oss-cn-hangzhou.aliyuncs.com
+     * @param string $endpoint The domain name of the datacenter,For example: oss-cn-hangzhou.aliyuncs.com
      * @param boolean $isCName If this is the CName and binded in the bucket.
      * @param string $securityToken from STS.
      * @param string $requestProxy
@@ -124,7 +124,7 @@ class OssClient
     }
 
     /**
-     * Creates bucket，The ACL of the bucket created by default is OssClient::OSS_ACL_TYPE_PRIVATE
+     * Creates bucket,The ACL of the bucket created by default is OssClient::OSS_ACL_TYPE_PRIVATE
      *
      * @param string $bucket
      * @param string $acl

@@ -13,7 +13,7 @@ if (is_null($ossClient)) exit(1);
 
 //******************************* Simple Usage *******************************************************
 
-// Set lifecycle cors
+// Set lifecycle configuration
 $lifecycleConfig = new LifecycleConfig();
 $actions = array();
 $actions[] = new LifecycleAction("Expiration", "Days", 3);
@@ -22,11 +22,11 @@ $lifecycleConfig->addRule($lifecycleRule);
 $ossClient->putBucketLifecycle($bucket, $lifecycleConfig);
 Common::println("bucket $bucket lifecycleConfig created:" . $lifecycleConfig->serializeToXml());
 
-// Get lifecycle cors
+// Get lifecycle configuration
 $lifecycleConfig = $ossClient->getBucketLifecycle($bucket);
 Common::println("bucket $bucket lifecycleConfig fetched:" . $lifecycleConfig->serializeToXml());
 
-// Delete bucket lifecycle cors
+// Delete bucket lifecycle configuration
 $ossClient->deleteBucketLifecycle($bucket);
 Common::println("bucket $bucket lifecycleConfig deleted");
 
