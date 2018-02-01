@@ -275,7 +275,7 @@ class RequestCore
     /**
      * Set the credentials to use for authentication.
      *
-     * 
+     *
      * @param string $user (Required) The username to authenticate with.
      * @param string $pass (Required) The password to authenticate with.
      * @return $this A reference to the current instance.
@@ -290,6 +290,7 @@ class RequestCore
     /**
      * Add a custom HTTP header to the cURL request.
      *
+     * 
      * @param string $key (Required) The custom HTTP header to set.
      * @param mixed $value (Required) The value to assign to the custom HTTP header.
      * @return $this A reference to the current instance.
