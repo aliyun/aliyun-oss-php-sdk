@@ -275,6 +275,7 @@ class RequestCore
     /**
      * Set the credentials to use for authentication.
      *
+     * 
      * @param string $user (Required) The username to authenticate with.
      * @param string $pass (Required) The password to authenticate with.
      * @return $this A reference to the current instance.
