@@ -166,6 +166,7 @@ class RequestCore
 
     /**
      * The user-defined callback function to call when a stream is written to.
+     *
      */
     public $registered_streaming_write_callback = null;
 
