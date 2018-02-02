@@ -164,7 +164,6 @@ function uploadFile($ossClient, $bucket)
  * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
  * Loop through all the items returned from ListObjects.
  *
- * 
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
  * @return null
