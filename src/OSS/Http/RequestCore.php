@@ -290,7 +290,7 @@ class RequestCore
     /**
      * Add a custom HTTP header to the cURL request.
      *
-     * 
+     *
      * @param string $key (Required) The custom HTTP header to set.
      * @param mixed $value (Required) The value to assign to the custom HTTP header.
      * @return $this A reference to the current instance.
