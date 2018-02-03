@@ -8,22 +8,22 @@ namespace OSS\Http;
 class ResponseCore
 {
     /**
-     * Stores the HTTP header information.
+     * Store the HTTP header information.
      */
     public $header;
 
     /**
-     * Stores the SimpleXML response.
+     * Store the SimpleXML response.
      */
     public $body;
 
     /**
-     * Stores the HTTP response code.
+     * Store the HTTP response code.
      */
     public $status;
 
     /**
-     * Constructs a new instance of this class.
+     * Construct a new instance of this class.
      *
      * @param array $header (Required) Associative array of HTTP headers (typically returned by <RequestCore::get_response_header()>).
      * @param string $body (Required) XML-formatted response from AWS.
