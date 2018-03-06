@@ -212,4 +212,34 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result['info']['primary_port'], $proxys['port']);
         $this->assertTrue(array_key_exists('via', $result));
     }
+
+    //获取唯一序列号
+    public static function generateNum()
+    {
+        //strtoupper转换成全大写的
+        $charid = strtolower(md5(uniqid(mt_rand(), true)));
+        $uuid = substr($charid, 0, 8).substr($charid, 8, 4).substr($charid,12, 4).substr($charid,16, 4).substr($charid,20,12);
+        return $uuid;
+    }
+
+    public static function setUpBeforeClass()
+    {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+        $bucket = self::generateNum() . '-' . getenv('OSS_BUCKET');
+        putenv('OSS_BUCKET =' . $bucket);
+        $ossClient ->createBucket($bucket);
+    }
+
+    public static function tearDownAfterClass()
+    {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+        $bucket = getenv('OSS_BUCKET');
+        $ossClient ->deleteBucket($bucket);
+    }
 }
