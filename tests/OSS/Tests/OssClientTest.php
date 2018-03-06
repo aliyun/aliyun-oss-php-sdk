@@ -217,7 +217,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
     private static function generateNum()
     {
         //strtoupper转换成全大写的
-        $charid = strtoupper(md5(uniqid(mt_rand(), true)));
+        $charid = strtolower(md5(uniqid(mt_rand(), true)));
         $uuid = substr($charid, 0, 8).substr($charid, 8, 4).substr($charid,12, 4).substr($charid,16, 4).substr($charid,20,12);
         return $uuid;
     }
