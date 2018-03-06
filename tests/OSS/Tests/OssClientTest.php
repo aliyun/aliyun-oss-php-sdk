@@ -228,9 +228,9 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
-        $bucket = self::generateNum() . '-' . getenv('OSS_BUCKET');
-        putenv('OSS_BUCKET =' . $bucket);
-        $ossClient ->createBucket($bucket);
+       // $bucket = self::generateNum() . '-' . getenv('OSS_BUCKET');
+      //  putenv('OSS_BUCKET =' . $bucket);
+      //  $ossClient ->createBucket($bucket);
     }
 
     public static function tearDownAfterClass()
@@ -239,7 +239,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
-        $bucket = getenv('OSS_BUCKET');
-        $ossClient ->deleteBucket($bucket);
+       // $bucket = getenv('OSS_BUCKET');
+       // $ossClient ->deleteBucket($bucket);
     }
 }
