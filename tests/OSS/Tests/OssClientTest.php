@@ -222,7 +222,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $charid = strtolower(md5(uniqid(mt_rand(), true)));
         $uuid = substr($charid, 0, 8).substr($charid, 8, 4).substr($charid,12, 4).substr($charid,16, 4).substr($charid,20,12);
         $bucket = $uuid . '-' . getenv('OSS_BUCKET');
-        putenv('OSS_BUCKET =' . $bucket);
+        putenv('OSS_BUCKET1 =' . $bucket);
         $ossClient ->createBucket($bucket);
     }
 
@@ -232,7 +232,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('OSS_BUCKET1');
         $listObjectInfo = $ossClient->listObjects($bucket);
         $listObject = $listObjectInfo->getObjectList();
         if(count($listObject) != 0){
