@@ -4,6 +4,7 @@ namespace OSS\Tests;
 
 
 use OSS\Model\WebsiteConfig;
+use OSS\OssClient;
 
 class WebsiteConfigTest extends \PHPUnit_Framework_TestCase
 {
@@ -52,5 +53,53 @@ BBBB;
     private function cleanXml($xml)
     {
         return str_replace("\n", "", str_replace("\r", "", $xml));
+    }
+
+    public static function tearDownAfterClass()
+    {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+        $bucket = getenv('OSS_BUCKET');
+
+        $listObjectInfo = $ossClient->listObjects($bucket);
+        $listObject = $listObjectInfo->getObjectList();
+        if(count($listObject) != 0){
+            foreach($listObject as $object){
+                $fileName = $object->getkey();
+                $ossClient->deleteObject($bucket,$fileName);
+            }
+        }
+        $prefix = 'test/';
+        $delimiter = '/';
+        $nextMarker = '';
+        $maxkeys = 30;
+        while (true) {
+            $options = array(
+                'delimiter' => $delimiter,
+                'prefix' => $prefix,
+                'max-keys' => $maxkeys,
+                'marker' => $nextMarker,
+            );
+
+            $listObjectInfo = $ossClient->listObjects($bucket, $options);
+
+            $nextMarker = $listObjectInfo->getNextMarker();
+            $listObject = $listObjectInfo->getObjectList();
+
+            foreach($listObject as $info){
+                $file =$info->getKey();
+                $ossClient->deleteObject($bucket,$file);
+            }
+
+            if ($nextMarker === '') {
+                break;
+            }
+        }
+
+        $ossClient->deleteObject($bucket,'test-dir/');
+
+        $ossClient ->deleteBucket($bucket);
     }
 }
