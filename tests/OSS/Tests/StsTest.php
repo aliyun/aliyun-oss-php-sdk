@@ -17,26 +17,26 @@ class StsTest extends \PHPUnit_Framework_TestCase
     public function  testAssumeRole()
     {
         $request = new Sts\AssumeRoleRequest();
-        $request->setRoleSessionName(CLIENT_NAME);
-        $request->setRoleArn(ROLE_ARN);
-        $request->setPolicy(POLICY);
-        $request->setDurationSeconds(EXPIRE_TIME);
+        $request->setRoleSessionName(self::CLIENT_NAME);
+        $request->setRoleArn(self::ROLE_ARN);
+        $request->setPolicy(self::POLICY);
+        $request->setDurationSeconds(self::EXPIRE_TIME);
 
-        $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, self::ACCESS_KEY_ID, self::ACCESS_KEY_SECRET);
         $this->client = new \DefaultAcsClient($iClientProfile);
         $response = $this->client->getAcsResponse($request);
 
         $this->assertTrue(isset($response->AssumedRoleUser));
         $this->assertTrue(isset($response->Credentials));
-        $this->assertEquals($response->AssumedRoleUser->Arn, ROLE_ARN.'/'.CLIENT_NAME);
+        $this->assertEquals($response->AssumedRoleUser->Arn, self::ROLE_ARN.'/'.self::CLIENT_NAME);
         $time = substr($response->Credentials->Expiration, 0, 10).' '.substr($response->Credentials->Expiration, 11, 8);
-        $this->assertEquals(strtotime($time)-strtotime("now"),EXPIRE_TIME);
+        $this->assertEquals(strtotime($time)-strtotime("now"),self::EXPIRE_TIME);
     }
 
     public function testGetCallerIdentity()
     {
         $request = new Sts\GetCallerIdentityRequest();
-        $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, self::ACCESS_KEY_ID, self::ACCESS_KEY_SECRET);
 
         $this->client = new \DefaultAcsClient($iClientProfile);
         $response = $this->client->getAcsResponse($request);
