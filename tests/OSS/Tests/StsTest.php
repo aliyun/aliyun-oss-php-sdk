@@ -36,7 +36,6 @@ class StsTest extends \PHPUnit_Framework_TestCase
 POLICY;
         define("POLICY", $policy);
 
-        \DefaultProfile::addEndpoint(REGION_ID, REGION_ID, "Sts", ENDPOINT);
         $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
         $this->client = new \DefaultAcsClient($iClientProfile);
 
