@@ -12,14 +12,49 @@ class StsTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         date_default_timezone_set("UTC");
-        define("REGION_ID", "cn-shanghai");
-        define("ENDPOINT", "sts.cn-shanghai.aliyuncs.com");
-        define("ACCESS_KEY_ID", "LTAIVdxMrOBUSWoS");
-        define("ACCESS_KEY_SECRET", "vtGoCcfxjf76gK2ZTwHabtRaUPzlfQ");
-        define("CLIENT_NAME", "sts");
-        define("EXPIRE_TIME", "3600");
-        define("ROLE_ARN", "acs:ram::1521081174204619:role/test");
-        $policy = <<<POLICY
+    }
+
+    public function  testAssumeRole()
+    {
+        $request = new Sts\AssumeRoleRequest();
+        $request->setRoleSessionName(CLIENT_NAME);
+        $request->setRoleArn(ROLE_ARN);
+        $request->setPolicy(POLICY);
+        $request->setDurationSeconds(EXPIRE_TIME);
+
+        $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+        $this->client = new \DefaultAcsClient($iClientProfile);
+        $response = $this->client->getAcsResponse($request);
+
+        $this->assertTrue(isset($response->AssumedRoleUser));
+        $this->assertTrue(isset($response->Credentials));
+        $this->assertEquals($response->AssumedRoleUser->Arn, ROLE_ARN.'/'.CLIENT_NAME);
+        $time = substr($response->Credentials->Expiration, 0, 10).' '.substr($response->Credentials->Expiration, 11, 8);
+        $this->assertEquals(strtotime($time)-strtotime("now"),EXPIRE_TIME);
+    }
+
+    public function testGetCallerIdentity()
+    {
+        $request = new Sts\GetCallerIdentityRequest();
+        $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+
+        $this->client = new \DefaultAcsClient($iClientProfile);
+        $response = $this->client->getAcsResponse($request);
+
+        $this->assertTrue(isset($response->AccountId));
+        $this->assertTrue(isset($response->Arn));
+        $this->assertTrue(isset($response->RequestId));
+        $this->assertTrue(isset($response->UserId));
+    }
+
+    const REGION_ID = "cn-shanghai";
+    const ENDPOINT = "sts.cn-shanghai.aliyuncs.com";
+    const ACCESS_KEY_ID = "LTAIVdxMrOBUSWoS";
+    const ACCESS_KEY_SECRET = "vtGoCcfxjf76gK2ZTwHabtRaUPzlfQ";
+    const CLIENT_NAME = "sts";
+    const EXPIRE_TIME = "3600";
+    const ROLE_ARN = "acs:ram::1521081174204619:role/test";
+    const POLICY = <<<POLICY
                     {
                       "Statement": [
                         {
@@ -34,35 +69,5 @@ class StsTest extends \PHPUnit_Framework_TestCase
                       "Version": "1"
                     }
 POLICY;
-        define("POLICY", $policy);
 
-        $iClientProfile = \DefaultProfile::getProfile(REGION_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-        $this->client = new \DefaultAcsClient($iClientProfile);
-
-    }
-
-    public function  testAssumeRole()
-    {
-        $request = new Sts\AssumeRoleRequest();
-        $request->setRoleSessionName(CLIENT_NAME);
-        $request->setRoleArn(ROLE_ARN);
-        $request->setPolicy(POLICY);
-        $request->setDurationSeconds(EXPIRE_TIME);
-        $response = $this->client->getAcsResponse($request);
-        $this->assertTrue(isset($response->AssumedRoleUser));
-        $this->assertTrue(isset($response->Credentials));
-        $this->assertEquals($response->AssumedRoleUser->Arn, ROLE_ARN.'/'.CLIENT_NAME);
-        $time = substr($response->Credentials->Expiration, 0, 10).' '.substr($response->Credentials->Expiration, 11, 8);
-        $this->assertEquals(strtotime($time)-strtotime("now"),EXPIRE_TIME);
-    }
-
-    public function testGetCallerIdentity()
-    {
-        $request = new Sts\GetCallerIdentityRequest();
-        $response = $this->client->getAcsResponse($request);
-        $this->assertTrue(isset($response->AccountId));
-        $this->assertTrue(isset($response->Arn));
-        $this->assertTrue(isset($response->RequestId));
-        $this->assertTrue(isset($response->UserId));
-    }
 }
