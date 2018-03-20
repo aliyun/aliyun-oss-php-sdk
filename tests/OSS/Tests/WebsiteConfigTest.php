@@ -60,8 +60,9 @@ BBBB;
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
+
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
-        $bucket = getenv('OSS_BUCKET');
 
         $listObjectInfo = $ossClient->listObjects($bucket);
         $listObject = $listObjectInfo->getObjectList();

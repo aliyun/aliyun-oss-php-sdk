@@ -34,14 +34,9 @@ BBBB;
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
-        $charid = strtolower(md5(uniqid(mt_rand(), true)));
-        $uuid = substr($charid, 0, 8).substr($charid, 8, 4).substr($charid,12, 4).substr($charid,16, 4).substr($charid,20,12);
-        $uuid = substr($uuid,0,5).rand(1,20);
-        $bucket = getenv('OSS_BUCKET');
-        $bucket = $uuid . '-' . getenv('OSS_BUCKET');
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
 
-        putenv("OSS_BUCKET=$bucket");
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
 
         $ossClient ->createBucket($bucket);
     }
