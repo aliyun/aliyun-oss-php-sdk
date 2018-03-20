@@ -36,7 +36,7 @@ class Common
 
     public static function getBucketName()
     {
-        return gentv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
+        return getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
     }
 
     /**
