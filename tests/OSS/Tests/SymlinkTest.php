@@ -13,7 +13,7 @@ class SymlinkTest extends TestOssClientBase
 {
     public function testPutSymlink()
     {
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
         $symlink = 'test-link';
         $special_object = 'exist_object^$#!~';
         $object = 'exist_object';
@@ -31,7 +31,7 @@ class SymlinkTest extends TestOssClientBase
 
     public function testGetSymlink()
     {
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
         $symlink = 'test-link';
         $object = 'exist_object^$#!~';
 
@@ -44,7 +44,7 @@ class SymlinkTest extends TestOssClientBase
 
     public function testPutNullSymlink()
     {
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
         $symlink = 'null-link';
         $object_not_exist = 'not_exist_object+$#!b不';
         $this->ossClient->putSymlink($bucket, $symlink, $object_not_exist);
@@ -59,7 +59,7 @@ class SymlinkTest extends TestOssClientBase
 
     public function testGetNullSymlink()
     {
-        $bucket = getenv('OSS_BUCKET');
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
         $symlink = 'null-link-new';
 
         try{
