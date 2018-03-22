@@ -338,8 +338,8 @@ BBB;
      */
     public static function encodePath($file_path)
     {
-        if (self::chkChinese($file_path) && self::isWin()) {
-            $file_path = iconv('utf-8', 'gbk', $file_path);
+        if (mb_detect_encoding($file_path, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5')) !== 'UTF-8') {
+            $file_path = iconv('gbk', 'utf-8', $file_path);
         }
         return $file_path;
     }
