@@ -64,43 +64,23 @@ BBBB;
 
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
 
-        $listObjectInfo = $ossClient->listObjects($bucket);
-        $listObject = $listObjectInfo->getObjectList();
-        if(count($listObject) != 0){
-            foreach($listObject as $object){
-                $fileName = $object->getkey();
-                $ossClient->deleteObject($bucket,$fileName);
-            }
-        }
-        $prefix = 'test/';
-        $delimiter = '/';
-        $nextMarker = '';
-        $maxkeys = 30;
-        while (true) {
-            $options = array(
-                'delimiter' => $delimiter,
-                'prefix' => $prefix,
-                'max-keys' => $maxkeys,
-                'marker' => $nextMarker,
-            );
-
-            $listObjectInfo = $ossClient->listObjects($bucket, $options);
-
-            $nextMarker = $listObjectInfo->getNextMarker();
-            $listObject = $listObjectInfo->getObjectList();
-
-            foreach($listObject as $info){
-                $file =$info->getKey();
-                $ossClient->deleteObject($bucket,$file);
-            }
-
-            if ($nextMarker === '') {
-                break;
-            }
+        if (!$ossClient->doesBucketExist($bucket)) {
+            return;
         }
 
-        $ossClient->deleteObject($bucket,'test-dir/');
+        $objects = $ossClient->listObjects($bucket, array('max-keys' => 1000, 'delimiter' => ''))->getObjectList();
+        $keys = array();
+        foreach ($objects as $obj) {
+            $keys[] = $obj->getKey();
+        }
+        if (count($keys) > 0) {
+            $ossClient->deleteObjects($bucket, $keys);
+        }
+        $uploads = $ossClient->listMultipartUploads($bucket)->getUploads();
+        foreach ($uploads as $up) {
+            $ossClient->abortMultipartUpload($bucket, $up->getKey(), $up->getUploadId());
+        }
 
-        $ossClient ->deleteBucket($bucket);
+        $ossClient->deleteBucket($bucket);
     }
 }

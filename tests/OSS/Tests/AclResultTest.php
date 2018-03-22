@@ -39,7 +39,7 @@ BBBB;
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
 
         $ossClient ->createBucket($bucket);
-        sleep(3);
+        sleep(5);
     }
 
     public function testParseValidXml()
