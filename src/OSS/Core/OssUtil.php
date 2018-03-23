@@ -20,6 +20,23 @@ class OssUtil
     const OSS_MIN_PART_SIZE = 102400; // 100KB
 
     /**
+     * Get the file size
+     *
+     * @param string $file
+     * @return number
+     */
+    public static function getFilesize($file)
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN") {
+            exec('for %I in ("' . $file . '") do @echo %~zI', $output);
+            $return = $output[0];
+        } else {
+            $return = filesize($file);
+        }
+        return $return;
+    }
+
+    /**
      * Generate query params
      *
      * @param array $options: a key-value pair array.

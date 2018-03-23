@@ -1730,8 +1730,7 @@ class OssClient
         if (isset($options[self::OSS_CONTENT_LENGTH])) {
             $upload_file_size = (integer)$options[self::OSS_CONTENT_LENGTH];
         } else {
-            $uploadFile = strtr($uploadFile, ['/' => DIRECTORY_SEPARATOR]);
-            $upload_file_size = filesize($uploadFile);
+            $upload_file_size = OssUtil::getFilesize($uploadFile);
             if ($upload_file_size !== false) {
                 $upload_file_size -= $upload_position;
             }
