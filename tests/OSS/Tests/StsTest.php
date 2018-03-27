@@ -18,17 +18,17 @@ class StsTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Sts\AssumeRoleRequest();
         $request->setRoleSessionName(self::CLIENT_NAME);
-        $request->setRoleArn(self::ROLE_ARN);
+        $request->setRoleArn(getenv('OSS_STS_ARN'));
         $request->setPolicy(self::POLICY);
         $request->setDurationSeconds(self::EXPIRE_TIME);
 
-        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, self::ACCESS_KEY_ID, self::ACCESS_KEY_SECRET);
+        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, getenv('OSS_STS_ID'), getenv('OSS_STS_KEY'));
         $this->client = new \DefaultAcsClient($iClientProfile);
         $response = $this->client->getAcsResponse($request);
 
         $this->assertTrue(isset($response->AssumedRoleUser));
         $this->assertTrue(isset($response->Credentials));
-        $this->assertEquals($response->AssumedRoleUser->Arn, self::ROLE_ARN.'/'.self::CLIENT_NAME);
+        $this->assertEquals($response->AssumedRoleUser->Arn, getenv('OSS_STS_ARN').'/'.self::CLIENT_NAME);
         $time = substr($response->Credentials->Expiration, 0, 10).' '.substr($response->Credentials->Expiration, 11, 8);
         $this->assertEquals(strtotime($time)-strtotime("now"),self::EXPIRE_TIME);
     }
@@ -36,7 +36,7 @@ class StsTest extends \PHPUnit_Framework_TestCase
     public function testGetCallerIdentity()
     {
         $request = new Sts\GetCallerIdentityRequest();
-        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, self::ACCESS_KEY_ID, self::ACCESS_KEY_SECRET);
+        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, getenv('OSS_STS_ID'), getenv('OSS_STS_KEY'));
 
         $this->client = new \DefaultAcsClient($iClientProfile);
         $response = $this->client->getAcsResponse($request);
@@ -49,11 +49,8 @@ class StsTest extends \PHPUnit_Framework_TestCase
 
     const REGION_ID = "cn-shanghai";
     const ENDPOINT = "sts.cn-shanghai.aliyuncs.com";
-    const ACCESS_KEY_ID = "LTAIVdxMrOBUSWoS";
-    const ACCESS_KEY_SECRET = "vtGoCcfxjf76gK2ZTwHabtRaUPzlfQ";
     const CLIENT_NAME = "sts";
     const EXPIRE_TIME = "3600";
-    const ROLE_ARN = "acs:ram::1521081174204619:role/test";
     const POLICY = <<<POLICY
                     {
                       "Statement": [
