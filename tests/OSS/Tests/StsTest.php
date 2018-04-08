@@ -1,13 +1,22 @@
 <?php
+
 namespace OSS\Tests;
 
-include_once __DIR__ . DIRECTORY_SEPARATOR.'../../../vendor/openaliyuns/aliyun-openapi-php-sdk/aliyun-php-sdk-core/Config.php';
+use OSS\OssClient;
 
-use Sts\Request\V20150401 as Sts;
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'StsClient.php';
 
-class StsTest extends \PHPUnit_Framework_TestCase
+Class StTest extends \PHPUnit_Framework_TestCase
 {
     private $client;
+
+    public $accessKeyId;
+
+    public $accessKeySecret;
+
+    public $securityToken;
+
+    public $endpoint;
 
     public function setUp()
     {
@@ -16,55 +25,69 @@ class StsTest extends \PHPUnit_Framework_TestCase
 
     public function  testAssumeRole()
     {
-        $request = new Sts\AssumeRoleRequest();
-        $request->setRoleSessionName(self::CLIENT_NAME);
-        $request->setRoleArn(getenv('OSS_STS_ARN'));
-        $request->setPolicy(self::POLICY);
-        $request->setDurationSeconds(self::EXPIRE_TIME);
-
-        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, getenv('OSS_STS_ID'), getenv('OSS_STS_KEY'));
-        $this->client = new \DefaultAcsClient($iClientProfile);
-        $response = $this->client->getAcsResponse($request);
-
+        $this->client = new StsClient();
+        $assumeRole = new AssumeRole();
+        $assumeRole->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
+        $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
+        $assumeRole->SignatureNonce = time();
+        $assumeRole->RoleSessionName = "sts";
+        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
+        $params = get_object_vars($assumeRole);
+        $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AssumedRoleUser));
         $this->assertTrue(isset($response->Credentials));
-        $this->assertEquals($response->AssumedRoleUser->Arn, getenv('OSS_STS_ARN').'/'.self::CLIENT_NAME);
+
         $time = substr($response->Credentials->Expiration, 0, 10).' '.substr($response->Credentials->Expiration, 11, 8);
-        $this->assertEquals(strtotime($time)-strtotime("now"),self::EXPIRE_TIME);
+        $this->assertEquals(strtotime($time)-strtotime("now"),3600);
+
+        $this->accessKeyId = $response->Credentials->AccessKeyId;
+        $this->accessKeySecret = $response->Credentials->AccessKeySecret;
+        $this->securityToken = $response->Credentials->SecurityToken;
+        $this->endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
+
+        $content = "test-content";
+        $key = "test-sts";
+        $bucket = "sts-test-bucket-123456";
+
+        $ossClient = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->endpoint, false, $this->securityToken);
+
+        $ossClient->createBucket($bucket);
+
+        $ossClient->putObject($bucket, $key, $content);
+
+        $result = $ossClient->getObject($bucket, $key);
+        $this->assertEquals($content, $result);
+
+        // list object
+        $objectListInfo = $ossClient->listObjects($bucket);
+        $objectList = $objectListInfo->getObjectList();
+        $this->assertNotNull($objectList);
+        $this->assertTrue(is_array($objectList));
+        $objects = array();
+        foreach ($objectList as $value) {
+            $objects[] = $value->getKey();
+        }
+        $this->assertEquals(1, count($objects));
+        $this->assertTrue(in_array($key, $objects));
+
+        $ossClient->deleteObject($bucket, $key);
+
+        $ossClient->deleteBucket($bucket);
+
     }
 
-    public function testGetCallerIdentity()
+    public function  testGetCallerIdentity()
     {
-        $request = new Sts\GetCallerIdentityRequest();
-        $iClientProfile = \DefaultProfile::getProfile(self::REGION_ID, getenv('OSS_STS_ID'), getenv('OSS_STS_KEY'));
-
-        $this->client = new \DefaultAcsClient($iClientProfile);
-        $response = $this->client->getAcsResponse($request);
-
+        $this->client = new StsClient();
+        $callerIdentity = new GetCallerIdentity();
+        $callerIdentity->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
+        $callerIdentity->AccessKeyId = getenv('OSS_STS_ID');
+        $callerIdentity->SignatureNonce = time();
+        $params = get_object_vars($callerIdentity);
+        $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AccountId));
         $this->assertTrue(isset($response->Arn));
         $this->assertTrue(isset($response->RequestId));
         $this->assertTrue(isset($response->UserId));
     }
-
-    const REGION_ID = "cn-shanghai";
-    const ENDPOINT = "sts.cn-shanghai.aliyuncs.com";
-    const CLIENT_NAME = "sts";
-    const EXPIRE_TIME = "3600";
-    const POLICY = <<<POLICY
-                    {
-                      "Statement": [
-                        {
-                          "Action": [
-                            "oss:Get*",
-                            "oss:List*"
-                          ],
-                          "Effect": "Allow",
-                          "Resource": "*"
-                        }
-                      ],
-                      "Version": "1"
-                    }
-POLICY;
-
 }
