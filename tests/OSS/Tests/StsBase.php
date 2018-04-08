@@ -25,9 +25,4 @@ class StsBase
         $this->$name = $value;
     }
 
-    public function get($name)
-    {
-        return $this->$name;
-    }
-
 }

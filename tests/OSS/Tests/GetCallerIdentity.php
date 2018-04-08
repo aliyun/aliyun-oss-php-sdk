@@ -16,9 +16,4 @@ class GetCallerIdentity extends StsBase
         $this->$name = $value;
     }
 
-    public function get($name)
-    {
-        return $this->$name;
-    }
-
 }
