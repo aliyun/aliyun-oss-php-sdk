@@ -1700,37 +1700,6 @@ class OssClient
         return $result->getData();
     }
 
-
-    public function stsClient()
-    {
-        $arr = [];
-        $arr[self::SignatureVersion] = "1.0";
-        $arr[self::Version] =  "2015-04-01";
-        $arr[self::StsHost] = "https://sts.aliyuncs.com/?";
-        $arr[self::Timestamp] = "2012-06-01T12:00:00Z";
-        $arr[self::SignatureMethod] = "HMAC-SHA1";
-        $arr[self::Format] = "JSON";$arr[self::AccessKeyId] = "1.0";
-
-        foreach ($arr as $key => $value) {
-            $this->request_url .=   "$key=$value";
-        }
-        $curl_handle = curl_init();
-        curl_setopt($curl_handle, CURLOPT_URL, $this->request_url);
-        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl_handle, CURLOPT_HEADER, true);
-        $result = curl_exec($curl_handle);
-        curl_close($curl_handle);
-
-
-    }
-    const SignatureVersion = "1.0";
-    const Version = "2015-04-01";
-    const StsHost = "https://sts.aliyuncs.com/";
-    const Timestamp = "2012-06-01T12:00:00Z";
-    const SignatureMethod = "HMAC-SHA1";
-    const Format = "JSON";
-    const AccessKeyId = "";
-
     /**
      * A higher level API for uploading a file with multipart upload. It consists of initialization, parts upload and completion.
      *

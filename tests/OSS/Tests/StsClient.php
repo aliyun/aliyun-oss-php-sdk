@@ -66,7 +66,7 @@ class StsClient
         $request_url = 'https://sts.aliyuncs.com/?';
 
         foreach ($arr as $key=>$item) {
-            if (isNull($item)) unset($arr[$key]);
+            if (is_null($item)) unset($arr[$key]);
         }
 
         $this->AccessSecret = getenv('OSS_STS_KEY');
