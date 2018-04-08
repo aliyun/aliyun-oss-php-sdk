@@ -70,12 +70,12 @@ class StsClient
         }
 
         $this->AccessSecret = getenv('OSS_STS_KEY');
-        $this->Signature = $this->computeSignature($arr, $this->AccessSecret);
+        $Signature = $this->computeSignature($arr, $this->AccessSecret);
         ksort($arr);
         foreach ($arr as $key => $value) {
             $request_url .=   $key."=".urlencode($value)."&";
         }
-        $request_url .="Signature=".urlencode($this->Signature);
+        $request_url .="Signature=".urlencode($Signature);
 
         return $request_url;
     }

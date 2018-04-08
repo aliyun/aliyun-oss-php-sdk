@@ -32,7 +32,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
         $assumeRole->SignatureNonce = time();
         $assumeRole->RoleSessionName = "sts";
         $assumeRole->RoleArn = getenv('OSS_STS_ARN');
-        $params = get_object_vars($assumeRole);
+        $params = $assumeRole->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AssumedRoleUser));
         $this->assertTrue(isset($response->Credentials));
@@ -83,7 +83,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
         $callerIdentity->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
         $callerIdentity->AccessKeyId = getenv('OSS_STS_ID');
         $callerIdentity->SignatureNonce = time();
-        $params = get_object_vars($callerIdentity);
+        $params = $callerIdentity->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AccountId));
         $this->assertTrue(isset($response->Arn));

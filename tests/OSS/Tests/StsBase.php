@@ -4,20 +4,30 @@ namespace OSS\Tests;
 
 class StsBase
 {
-    public $SignatureVersion = "1.0";
+    protected $SignatureVersion = "1.0";
 
-    public $Version = "2015-04-01";
+    protected $Version = "2015-04-01";
 
-    public $Timestamp;
+    protected $Timestamp;
 
-    public $SignatureMethod = "HMAC-SHA1";
+    protected $SignatureMethod = "HMAC-SHA1";
 
-    public $Format = "JSON";
+    protected $Format = "JSON";
 
-    public $AccessKeyId;
+    protected $AccessKeyId;
 
-    public $SignatureNonce;
+    protected $SignatureNonce;
 
     private $Signature;
+
+    public function __set($name, $value)
+    {
+        $this->$name = $value;
+    }
+
+    public function get($name)
+    {
+        return $this->$name;
+    }
 
 }

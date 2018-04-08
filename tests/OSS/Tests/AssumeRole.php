@@ -4,14 +4,28 @@ namespace OSS\Tests;
 
 class AssumeRole extends StsBase
 {
-    public $Action = "AssumeRole";
+    private $Action = "AssumeRole";
 
-    public $RoleArn;
+    private $RoleArn;
 
-    public $RoleSessionName;
+    private $RoleSessionName;
 
-    public  $Policy;
+    private  $Policy;
 
-    public  $DurationSeconds;
+    private  $DurationSeconds;
 
+    public function getAttributes()
+    {
+        return get_object_vars($this);
+    }
+
+    public function __set($name, $value)
+    {
+        $this->$name = $value;
+    }
+
+    public function get($name)
+    {
+        return $this->$name;
+    }
 }
