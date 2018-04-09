@@ -25,4 +25,9 @@ class StsBase
         $this->$name = $value;
     }
 
+    public function __construct()
+    {
+        $this->Timestamp = date("Y-m-d")."T".date("h:i:s")."Z";
+        $this->SignatureNonce = time().rand(10000,99999);
+    }
 }

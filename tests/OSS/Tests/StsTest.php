@@ -28,11 +28,8 @@ Class StTest extends \PHPUnit_Framework_TestCase
     {
         $this->client = new StsClient();
         $assumeRole = new AssumeRole();
-        $assumeRole->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
         $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
-        $assumeRole->SignatureNonce = time();
-        $assumeRole->RoleSessionName = "sts";
-        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
+        $this->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AssumedRoleUser));
@@ -81,9 +78,6 @@ Class StTest extends \PHPUnit_Framework_TestCase
     {
         $this->client = new StsClient();
         $callerIdentity = new GetCallerIdentity();
-        $callerIdentity->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
-        $callerIdentity->AccessKeyId = getenv('OSS_STS_ID');
-        $callerIdentity->SignatureNonce = time();
         $params = $callerIdentity->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AccountId));
@@ -97,47 +91,36 @@ Class StTest extends \PHPUnit_Framework_TestCase
         $this->client = new StsClient();
         //AccessKeyId invalid
         $assumeRole = new AssumeRole();
-        $assumeRole->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
         $assumeRole->AccessKeyId = "";
-        $assumeRole->SignatureNonce = time();
-        $assumeRole->RoleSessionName = "sts";
-        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
+        $this->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
-        try{
+        try {
             $response = $this->client->doAction($params);
             $this->assertTrue(false);
-        }catch(OssException $e){
+        } catch(OssException $e) {
             $this->assertEquals("InvalidAccessKeyId.NotFound", $e->getMessage());
         }
 
         //RoleArn invalid
         $assumeRole = new AssumeRole();
-        $assumeRole->Timestamp = date("Y-m-d")."H".date("h:i:s")."Z";
-        $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
-        $assumeRole->SignatureNonce = time()."df";
-        $assumeRole->RoleSessionName = "sts";
         $assumeRole->RoleArn = "d";
         $params = $assumeRole->getAttributes();
-        try{
+        try {
             $response = $this->client->doAction($params);
             $this->assertTrue(false);
-        }catch(OssException $e){
-
+        } catch(OssException $e) {
             $this->assertEquals("InvalidParameter.RoleArn", $e->getMessage());
         }
 
         //InvalidTimeStamp
         $assumeRole = new AssumeRole();
-        $assumeRole->Timestamp = "2017-03-12"."H".date("h:i:s")."Z";
-        $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
-        $assumeRole->SignatureNonce = time();
-        $assumeRole->RoleSessionName = "sts";
-        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
+        $assumeRole->Timestamp = "2017-03-12"."T".date("h:i:s")."Z";
+        $this->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
-        try{
+        try {
             $response = $this->client->doAction($params);
             $this->assertTrue(false);
-        }catch(OssException $e){
+        } catch(OssException $e) {
             $this->assertEquals("InvalidTimeStamp.Expired", $e->getMessage());
         }
     }

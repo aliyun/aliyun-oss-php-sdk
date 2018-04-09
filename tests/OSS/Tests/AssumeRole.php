@@ -24,8 +24,9 @@ class AssumeRole extends StsBase
         $this->$name = $value;
     }
 
-    public function get($name)
+    public function __construct()
     {
-        return $this->$name;
+        parent::__construct();
+        $this->RoleSessionName = "sts";
     }
 }

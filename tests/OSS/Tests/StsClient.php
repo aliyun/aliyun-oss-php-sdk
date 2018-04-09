@@ -13,6 +13,7 @@ class StsClient
 
     private $AccessSecret;
 
+
     public function doAction($params, $format="JSON")
     {
         $request_url = $this->generateSignedURL($params);
