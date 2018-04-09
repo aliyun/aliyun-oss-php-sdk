@@ -93,7 +93,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
         //AccessKeyId invalid
         $assumeRole = new AssumeRole();
         $assumeRole->AccessKeyId = "";
-        $this->RoleArn = getenv('OSS_STS_ARN');
+        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
         try {
             $response = $this->client->doAction($params);
