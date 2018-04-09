@@ -13,18 +13,18 @@ class StsClient
 
     private $AccessSecret;
 
-    public function doAction($params,$format="JSON")
+    public function doAction($params, $format="JSON")
     {
         $request_url = $this->generateSignedURL($params);
 
-        $response = $this->sendRequest($request_url);
+        $response = $this->sendRequest($request_url, $format);
 
         $result= $this->parseResponse($response, $format);
 
         return $result;
     }
 
-    private function sendRequest($url)
+    private function sendRequest($url, $format)
     {
         $curl_handle = curl_init();
 
@@ -36,12 +36,12 @@ class StsClient
         curl_setopt($curl_handle, CURLOPT_HEADER, true);
 
         $response = curl_exec($curl_handle);
+        $headerSize = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
+        $response = substr($response, $headerSize);
 
-        if (curl_getinfo($curl_handle, CURLINFO_HTTP_CODE) == '200') {
-            $headerSize = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
-            $response = substr($response, $headerSize);
-        }else{
-            throw new OssException("curl errors");
+        if (curl_getinfo($curl_handle, CURLINFO_HTTP_CODE) != '200') {
+            $errors = $this->parseResponse($response, $format);
+            throw new OssException($errors->Code);
         }
 
         curl_close($curl_handle);
