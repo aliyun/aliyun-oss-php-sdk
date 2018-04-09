@@ -36,7 +36,7 @@ class Common
 
     public static function getBucketName()
     {
-        return getenv('OSS_BUCKET');
+        return getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
     }
 
     /**
@@ -63,8 +63,8 @@ class Common
      */
     public static function waitMetaSync()
     {
-        if (getenv('TRAVIS')) {
-            sleep(10);
-        }
+       // if (getenv('TRAVIS')) {
+            sleep(5);
+        //}
     }
 }

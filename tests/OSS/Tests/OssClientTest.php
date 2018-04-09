@@ -115,7 +115,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
             $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
             $ossClient->putObject($bucket,'test_emptybody','');
         } catch (OssException $e) {
@@ -129,13 +129,14 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
             $object='test-dir';
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->createObjectDir($bucket,$object);
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+        $ossClient->deleteObject($bucket,"$object/");
     }
 
     public function testGetBucketCors()
@@ -144,7 +145,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCors($bucket);
         } catch (OssException $e) {
@@ -158,7 +159,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCname($bucket);
         } catch (OssException $e) {
@@ -171,7 +172,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
         $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-        $bucket = getenv('OSS_BUCKET') . '-proxy';
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET') . '-proxy';
         $requestProxy  = getenv('OSS_PROXY');
         $key = 'test-proxy-srv-object';
         $content = 'test-content';
@@ -208,9 +209,10 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
 
     private function checkProxy($result, $proxys)
     {
-        $this->assertEquals($result['info']['primary_ip'], $proxys['host']);
-        $this->assertEquals($result['info']['primary_port'], $proxys['port']);
+        if (substr(PHP_VERSION, 0, 3) > '5.3') {
+            $this->assertEquals($result["info"]["primary_ip"], $proxys["host"]);
+            $this->assertEquals($result["info"]["primary_port"], $proxys["port"]);
+        }
         $this->assertTrue(array_key_exists('via', $result));
     }
-
 }

@@ -4,6 +4,7 @@ namespace OSS\Tests;
 
 
 use OSS\Model\WebsiteConfig;
+use OSS\OssClient;
 
 class WebsiteConfigTest extends \PHPUnit_Framework_TestCase
 {
@@ -52,5 +53,34 @@ BBBB;
     private function cleanXml($xml)
     {
         return str_replace("\n", "", str_replace("\r", "", $xml));
+    }
+
+    public static function tearDownAfterClass()
+    {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
+
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+
+        if (!$ossClient->doesBucketExist($bucket)) {
+            return;
+        }
+
+        $objects = $ossClient->listObjects($bucket, array('max-keys' => 1000, 'delimiter' => ''))->getObjectList();
+        $keys = array();
+        foreach ($objects as $obj) {
+            $keys[] = $obj->getKey();
+        }
+        if (count($keys) > 0) {
+            $ossClient->deleteObjects($bucket, $keys);
+        }
+        $uploads = $ossClient->listMultipartUploads($bucket)->getUploads();
+        foreach ($uploads as $up) {
+            $ossClient->abortMultipartUpload($bucket, $up->getKey(), $up->getUploadId());
+        }
+
+        $ossClient->deleteBucket($bucket);
     }
 }

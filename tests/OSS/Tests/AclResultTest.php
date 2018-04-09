@@ -5,6 +5,7 @@ namespace OSS\Tests;
 use OSS\Result\AclResult;
 use OSS\Core\OssException;
 use OSS\Http\ResponseCore;
+use OSS\OssClient;
 
 class AclResultTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,6 +28,19 @@ BBBB;
 <AccessControlPolicy>
 </AccessControlPolicy>
 BBBB;
+
+    public static function setUpBeforeClass()
+    {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $bucket = getenv('BUCKET_NAME_PREFIX').'-'.getenv('OSS_BUCKET');
+
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+
+        $ossClient ->createBucket($bucket);
+        sleep(5);
+    }
 
     public function testParseValidXml()
     {
