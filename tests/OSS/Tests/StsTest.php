@@ -29,7 +29,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
         $this->client = new StsClient();
         $assumeRole = new AssumeRole();
         $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
-        $this->RoleArn = getenv('OSS_STS_ARN');
+        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AssumedRoleUser));
@@ -78,6 +78,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
     {
         $this->client = new StsClient();
         $callerIdentity = new GetCallerIdentity();
+        $callerIdentity->AccessKeyId = getenv('OSS_STS_ID');
         $params = $callerIdentity->getAttributes();
         $response = $this->client->doAction($params);
         $this->assertTrue(isset($response->AccountId));
@@ -103,6 +104,7 @@ Class StTest extends \PHPUnit_Framework_TestCase
 
         //RoleArn invalid
         $assumeRole = new AssumeRole();
+        $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
         $assumeRole->RoleArn = "d";
         $params = $assumeRole->getAttributes();
         try {
@@ -114,8 +116,9 @@ Class StTest extends \PHPUnit_Framework_TestCase
 
         //InvalidTimeStamp
         $assumeRole = new AssumeRole();
+        $assumeRole->AccessKeyId = getenv('OSS_STS_ID');
         $assumeRole->Timestamp = "2017-03-12"."T".date("h:i:s")."Z";
-        $this->RoleArn = getenv('OSS_STS_ARN');
+        $assumeRole->RoleArn = getenv('OSS_STS_ARN');
         $params = $assumeRole->getAttributes();
         try {
             $response = $this->client->doAction($params);
