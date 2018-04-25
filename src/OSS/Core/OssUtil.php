@@ -416,7 +416,7 @@ BBB;
         if ($recursive) {
             foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir)) as $new_file) {
                 if ($new_file->isDir()) continue;
-                $object = str_replace($base_path, '', $new_file);
+                $object = preg_replace('/'. $base_path . '/', '', $new_file, 1);
                 if (!in_array(strtolower($object), $exclude_array)) {
                     $object = ltrim($object, '/');
                     if (is_file($new_file)) {
