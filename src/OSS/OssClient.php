@@ -1266,6 +1266,41 @@ class OssClient
     }
 
     /**
+     * process an existing OSS object, and save the result to another OSS object.
+     * If the target object exists already, it will be overwritten.
+     *
+     * references: https://help.aliyun.com/document_detail/55811.html?spm=a2c4g.11186623.6.1005.LED4mf
+     *
+     * @param      $bucket
+     * @param      $object
+     * @param      $xProcess: image/quality,q_90/resize,m_lfit,w_300,h_300
+     * @param      $saveAs: sys/saveas,o_cHBjL2VlZWVfdy5wbmc,b_cHBjLWRvY3VtZW50
+     * @param null $options
+     *
+     * @return \OSS\Http\ResponseCore
+     * @throws \OSS\Core\OssException
+     * @throws \OSS\Http\RequestCore_Exception
+     */
+    public function saveProcess($bucket, $object, $xProcess, $saveAs, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        
+        //method
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_CONTENT] = self::OSS_PROCESS . "={$xProcess}|$saveAs";
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_PROCESS;
+        $options[self::OSS_CONTENT_TYPE] = "application/octet-stream";
+
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = '';
+        }
+
+        return $this->auth($options);
+    }
+    
+    /**
      * Copy from an existing OSS object to another OSS object. If the target object exists already, it will be overwritten.
      *
      * @param string $fromBucket Source bucket name
