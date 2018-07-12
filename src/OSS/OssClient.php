@@ -1183,6 +1183,36 @@ class OssClient
     }
 
     /**
+     * POST方式处理图片，用于数据处理持久化 https://help.aliyun.com/document_detail/55811.html
+     * ```
+     * $object = '20180118152412.jpg';
+     * $style = 'image/watermark,image_bG9nby5wbmc,t_100,g_se'; //例如打水印
+     * $result = $ossCient->processObject($bucket, $object, $style);
+     * ```
+     * @param string $bucket bucket名称
+     * @param string $object objcet名称
+     * @param string $style 要处理的样式
+     * @param string $saveAs 要另存的文件名，不写默认为当前object名
+     * @param string $saveBucket 要另存为bucket的名称，不写默认保存到当前bucket
+     * @param array $options
+     * @return null
+     * @throws OssException
+     * @author suyaqi <su@revoke.cc>
+     */
+    public function processObject($bucket, $object, $style, $saveAs = null, $saveBucket = null, $options = null)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_CONTENT] = "x-oss-process={$style}|sys/saveas,o_" . base64_encode($saveAs ?: $object) . ($saveBucket ? ',b_' . base64_encode($saveBucket) : '');
+        $options[self::OSS_PROCESS] = $style;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Append the object with the content at the specified position.
      * The specified position is typically the lengh of the current file.
      * @param string $bucket bucket name

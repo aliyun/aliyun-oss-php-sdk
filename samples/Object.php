@@ -516,3 +516,22 @@ function doesObjectExist($ossClient, $bucket)
     var_dump($exist);
 }
 
+/**
+ * Process the image and save it
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ */
+function processObject($ossClient, $bucket)
+{
+    $testImg = 'test.png';
+    $object = 'test.png';
+    $style = 'image/resize,w_100';
+    try {
+        $ossClient->uploadFile($bucket, $object, $testImg);
+        $ossClient->processObject($bucket, $object, $style);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+}

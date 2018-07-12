@@ -75,6 +75,36 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testProcessObject()
+    {
+        $testImg = 'test.png';
+        $object = 'test.png';
+        $style = 'image/resize,w_100';
+
+        /**
+         * Upload the local file to object
+         */
+        try {
+            $this->ossClient->uploadFile($this->bucket, $object, $testImg);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        /**
+         * Process the object
+         */
+        try {
+            //Default
+            $this->ossClient->processObject($this->bucket, $object, $style);
+            //Specify alias
+            $this->ossClient->processObject($this->bucket, $object, $style, 'test1.png');
+            //Specify bucket
+            $this->ossClient->processObject($this->bucket, $object, $style, null, $this->bucket);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
     public function testObject()
     {
         /**
