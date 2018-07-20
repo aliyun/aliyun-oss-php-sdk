@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssUtil;
-use OSS\Core\OssException;
+use OBS\ObsClient;
+use OBS\Core\ObsUtil;
+use OBS\Core\ObsException;
 
 $bucket = Common::getBucketName();
-$ossClient = Common::getOssClient();
-if (is_null($ossClient)) exit(1);
+$obsClient = Common::getObsClient();
+if (is_null($obsClient)) exit(1);
 
 //******************************* Simple usage ***************************************************************
 
@@ -16,42 +16,42 @@ if (is_null($ossClient)) exit(1);
  */
 
 // Upload a file using the multipart upload interface, which determines to use simple upload or multipart upload based on the file size.
-$ossClient->multiuploadFile($bucket, "file.php", __FILE__, array());
+$obsClient->multiuploadFile($bucket, "file.php", __FILE__, array());
 Common::println("local file " . __FILE__ . " is uploaded to the bucket $bucket, file.php");
 
 
 // Upload local directory's data into target dir
-$ossClient->uploadDir($bucket, "targetdir", __DIR__);
+$obsClient->uploadDir($bucket, "targetdir", __DIR__);
 Common::println("local dir " . __DIR__ . " is uploaded to the bucket $bucket, targetdir/");
 
 
 // List the incomplete multipart uploads
-$listMultipartUploadInfo = $ossClient->listMultipartUploads($bucket, array());
+$listMultipartUploadInfo = $obsClient->listMultipartUploads($bucket, array());
 
 
 //******************************* For complete usage, see the following functions ****************************************************
 
-multiuploadFile($ossClient, $bucket);
-putObjectByRawApis($ossClient, $bucket);
-uploadDir($ossClient, $bucket);
-listMultipartUploads($ossClient, $bucket);
+multiuploadFile($obsClient, $bucket);
+putObjectByRawApis($obsClient, $bucket);
+uploadDir($obsClient, $bucket);
+listMultipartUploads($obsClient, $bucket);
 
 /**
  * Upload files using multipart upload
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function multiuploadFile($ossClient, $bucket)
+function multiuploadFile($obsClient, $bucket)
 {
     $object = "test/multipart-test.txt";
     $file = __FILE__;
     $options = array();
 
     try {
-        $ossClient->multiuploadFile($bucket, $object, $file, $options);
-    } catch (OssException $e) {
+        $obsClient->multiuploadFile($bucket, $object, $file, $options);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -62,19 +62,19 @@ function multiuploadFile($ossClient, $bucket)
 /**
  * Use basic multipart upload for file upload.
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
- * @throws OssException
+ * @throws ObsException
  */
-function putObjectByRawApis($ossClient, $bucket)
+function putObjectByRawApis($obsClient, $bucket)
 {
     $object = "test/multipart-test.txt";
     /**
      *  step 1. Initialize a block upload event, that is, a multipart upload process to get an upload id
      */
     try {
-        $uploadId = $ossClient->initiateMultipartUpload($bucket, $object);
-    } catch (OssException $e) {
+        $uploadId = $obsClient->initiateMultipartUpload($bucket, $object);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": initiateMultipartUpload FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -86,28 +86,28 @@ function putObjectByRawApis($ossClient, $bucket)
     $partSize = 10 * 1024 * 1024;
     $uploadFile = __FILE__;
     $uploadFileSize = filesize($uploadFile);
-    $pieces = $ossClient->generateMultiuploadParts($uploadFileSize, $partSize);
+    $pieces = $obsClient->generateMultiuploadParts($uploadFileSize, $partSize);
     $responseUploadPart = array();
     $uploadPosition = 0;
     $isCheckMd5 = true;
     foreach ($pieces as $i => $piece) {
-        $fromPos = $uploadPosition + (integer)$piece[$ossClient::OSS_SEEK_TO];
-        $toPos = (integer)$piece[$ossClient::OSS_LENGTH] + $fromPos - 1;
+        $fromPos = $uploadPosition + (integer)$piece[$obsClient::OBS_SEEK_TO];
+        $toPos = (integer)$piece[$obsClient::OBS_LENGTH] + $fromPos - 1;
         $upOptions = array(
-            $ossClient::OSS_FILE_UPLOAD => $uploadFile,
-            $ossClient::OSS_PART_NUM => ($i + 1),
-            $ossClient::OSS_SEEK_TO => $fromPos,
-            $ossClient::OSS_LENGTH => $toPos - $fromPos + 1,
-            $ossClient::OSS_CHECK_MD5 => $isCheckMd5,
+            $obsClient::OBS_FILE_UPLOAD => $uploadFile,
+            $obsClient::OBS_PART_NUM => ($i + 1),
+            $obsClient::OBS_SEEK_TO => $fromPos,
+            $obsClient::OBS_LENGTH => $toPos - $fromPos + 1,
+            $obsClient::OBS_CHECK_MD5 => $isCheckMd5,
         );
         if ($isCheckMd5) {
-            $contentMd5 = OssUtil::getMd5SumForFile($uploadFile, $fromPos, $toPos);
-            $upOptions[$ossClient::OSS_CONTENT_MD5] = $contentMd5;
+            $contentMd5 = ObsUtil::getMd5SumForFile($uploadFile, $fromPos, $toPos);
+            $upOptions[$obsClient::OBS_CONTENT_MD5] = $contentMd5;
         }
-        //2. Upload each part to OSS
+        //2. Upload each part to OBS
         try {
-            $responseUploadPart[] = $ossClient->uploadPart($bucket, $object, $uploadId, $upOptions);
-        } catch (OssException $e) {
+            $responseUploadPart[] = $obsClient->uploadPart($bucket, $object, $uploadId, $upOptions);
+        } catch (ObsException $e) {
             printf(__FUNCTION__ . ": initiateMultipartUpload, uploadPart - part#{$i} FAILED\n");
             printf($e->getMessage() . "\n");
             return;
@@ -125,8 +125,8 @@ function putObjectByRawApis($ossClient, $bucket)
      * step 3. Complete the upload
      */
     try {
-        $ossClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
-    } catch (OssException $e) {
+        $obsClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": completeMultipartUpload FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -137,17 +137,17 @@ function putObjectByRawApis($ossClient, $bucket)
 /**
  * Upload by directories
  *
- * @param OssClient $ossClient OssClient
+ * @param ObsClient $obsClient ObsClient
  * @param string $bucket bucket name
  *
  */
-function uploadDir($ossClient, $bucket)
+function uploadDir($obsClient, $bucket)
 {
     $localDirectory = ".";
     $prefix = "samples/codes";
     try {
-        $ossClient->uploadDir($bucket, $prefix, $localDirectory);
-    } catch (OssException $e) {
+        $obsClient->uploadDir($bucket, $prefix, $localDirectory);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -158,10 +158,10 @@ function uploadDir($ossClient, $bucket)
 /**
  * Get ongoing multipart uploads
  *
- * @param $ossClient OssClient
+ * @param $obsClient ObsClient
  * @param $bucket   string
  */
-function listMultipartUploads($ossClient, $bucket)
+function listMultipartUploads($obsClient, $bucket)
 {
     $options = array(
         'max-uploads' => 100,
@@ -170,8 +170,8 @@ function listMultipartUploads($ossClient, $bucket)
         'upload-id-marker' => ''
     );
     try {
-        $listMultipartUploadInfo = $ossClient->listMultipartUploads($bucket, $options);
-    } catch (OssException $e) {
+        $listMultipartUploadInfo = $obsClient->listMultipartUploads($bucket, $options);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": listMultipartUploads FAILED\n");
         printf($e->getMessage() . "\n");
         return;

@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
-use \OSS\Model\RefererConfig;
+use OBS\ObsClient;
+use OBS\Core\ObsException;
+use \OBS\Model\RefererConfig;
 
 $bucket = Common::getBucketName();
-$ossClient = Common::getOssClient();
-if (is_null($ossClient)) exit(1);
+$obsClient = Common::getObsClient();
+if (is_null($obsClient)) exit(1);
 
 //******************************* Simple Usage ****************************************************************
 
@@ -16,41 +16,41 @@ $refererConfig = new RefererConfig();
 $refererConfig->setAllowEmptyReferer(true);
 $refererConfig->addReferer("www.aliiyun.com");
 $refererConfig->addReferer("www.aliiyuncs.com");
-$ossClient->putBucketReferer($bucket, $refererConfig);
+$obsClient->putBucketReferer($bucket, $refererConfig);
 Common::println("bucket $bucket refererConfig created:" . $refererConfig->serializeToXml());
 // Get referer whitelist
-$refererConfig = $ossClient->getBucketReferer($bucket);
+$refererConfig = $obsClient->getBucketReferer($bucket);
 Common::println("bucket $bucket refererConfig fetched:" . $refererConfig->serializeToXml());
 
 // Delete referrer whitelist
 $refererConfig = new RefererConfig();
-$ossClient->putBucketReferer($bucket, $refererConfig);
+$obsClient->putBucketReferer($bucket, $refererConfig);
 Common::println("bucket $bucket refererConfig deleted");
 
 
 //******************************* For complete usage, see the following functions ****************************************************
 
-putBucketReferer($ossClient, $bucket);
-getBucketReferer($ossClient, $bucket);
-deleteBucketReferer($ossClient, $bucket);
-getBucketReferer($ossClient, $bucket);
+putBucketReferer($obsClient, $bucket);
+getBucketReferer($obsClient, $bucket);
+deleteBucketReferer($obsClient, $bucket);
+getBucketReferer($obsClient, $bucket);
 
 /**
  * Set bucket referer configuration
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function putBucketReferer($ossClient, $bucket)
+function putBucketReferer($obsClient, $bucket)
 {
     $refererConfig = new RefererConfig();
     $refererConfig->setAllowEmptyReferer(true);
     $refererConfig->addReferer("www.aliiyun.com");
     $refererConfig->addReferer("www.aliiyuncs.com");
     try {
-        $ossClient->putBucketReferer($bucket, $refererConfig);
-    } catch (OssException $e) {
+        $obsClient->putBucketReferer($bucket, $refererConfig);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -61,16 +61,16 @@ function putBucketReferer($ossClient, $bucket)
 /**
  * Get bucket referer configuration
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function getBucketReferer($ossClient, $bucket)
+function getBucketReferer($obsClient, $bucket)
 {
     $refererConfig = null;
     try {
-        $refererConfig = $ossClient->getBucketReferer($bucket);
-    } catch (OssException $e) {
+        $refererConfig = $obsClient->getBucketReferer($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -83,16 +83,16 @@ function getBucketReferer($ossClient, $bucket)
  * Delete bucket referer configuration
  * Referer whitelist cannot be directly deleted. So use a empty one to overwrite it.
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function deleteBucketReferer($ossClient, $bucket)
+function deleteBucketReferer($obsClient, $bucket)
 {
     $refererConfig = new RefererConfig();
     try {
-        $ossClient->putBucketReferer($bucket, $refererConfig);
-    } catch (OssException $e) {
+        $obsClient->putBucketReferer($bucket, $refererConfig);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

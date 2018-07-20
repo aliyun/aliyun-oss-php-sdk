@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Model\LiveChannelConfig;
+use OBS\ObsClient;
+use OBS\Model\LiveChannelConfig;
 
 $bucket = Common::getBucketName();
-$ossClient = Common::getOssClient();
-if (is_null($ossClient)) exit(1);
+$obsClient = Common::getObsClient();
+if (is_null($obsClient)) exit(1);
 
 //******************************* Simple Usage *******************************************************
 
@@ -24,7 +24,7 @@ $config = new LiveChannelConfig(array(
             'fragCount' => 5,
             'playListName' => 'hello.m3u8'
         ));
-$info = $ossClient->putBucketLiveChannel($bucket, 'test_rtmp_live', $config);
+$info = $obsClient->putBucketLiveChannel($bucket, 'test_rtmp_live', $config);
 Common::println("bucket $bucket liveChannel created:\n" . 
 "live channel name: ". $info->getName() . "\n" .
 "live channel description: ". $info->getDescription() . "\n" .
@@ -36,7 +36,7 @@ Common::println("bucket $bucket liveChannel created:\n" .
   * Prefix can be used to filter listed live channels by prefix.
   * Max_keys indicates the maximum numbers of live channels that can be listed in an iterator at one time. Its value is 1000 in maximum and 100 by default.
  */
-$list = $ossClient->listBucketLiveChannels($bucket);
+$list = $obsClient->listBucketLiveChannels($bucket);
 Common::println("bucket $bucket listLiveChannel:\n" . 
 "list live channel prefix: ". $list->getPrefix() . "\n" .
 "list live channel marker: ". $list->getMarker() . "\n" .
@@ -57,21 +57,21 @@ foreach($list->getChannelList()  as $list)
   * If the the bucket is not globally readable and writable,
   * the url must be signed as shown in the following.) and pulish_url (the url included in the m3u8 file generated in stream pushing) used to push streams.
  */
-$play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600, array('params' => array('playlistName' => 'playlist.m3u8')));
+$play_url = $obsClient->signRtmpUrl($bucket, "test_rtmp_live", 3600, array('params' => array('playlistName' => 'playlist.m3u8')));
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
-$play_url = $ossClient->signRtmpUrl($bucket, "test_rtmp_live", 3600);
+$play_url = $obsClient->signRtmpUrl($bucket, "test_rtmp_live", 3600);
 Common::println("bucket $bucket rtmp url: \n" . $play_url);
 
 /**
   * If you want to disable a created live channel (disable the pushing streaming or do not allow stream pushing to an IP address), call putLiveChannelStatus to change the channel status to "Disabled".
   * If you want to enable a disabled live channel, call PutLiveChannelStatus to chanage the channel status to "Enabled".
  */
-$resp = $ossClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
+$resp = $obsClient->putLiveChannelStatus($bucket, "test_rtmp_live", "enabled");
 
 /**
   * You can callLiveChannelInfo to get the information about a live channel.
  */
-$info = $ossClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
+$info = $obsClient->getLiveChannelInfo($bucket, 'test_rtmp_live');
 Common::println("bucket $bucket LiveChannelInfo:\n" . 
 "live channel info description: ". $info->getDescription() . "\n" .
 "live channel info status: ". $info->getStatus() . "\n" .
@@ -83,7 +83,7 @@ Common::println("bucket $bucket LiveChannelInfo:\n" .
 /**
   * Gets the historical pushing streaming records by calling getLiveChannelHistory. Now the max records to return is 10.
  */
-$history = $ossClient->getLiveChannelHistory($bucket, "test_rtmp_live");
+$history = $obsClient->getLiveChannelHistory($bucket, "test_rtmp_live");
 if (count($history->getLiveRecordList()) != 0)
 {
     foreach($history->getLiveRecordList() as $recordList)
@@ -100,7 +100,7 @@ if (count($history->getLiveRecordList()) != 0)
   * If the live channel is receiving the pushing stream, all attributes in stat_result are valid.
   * If the live channel is idle or disabled, then the status is idle or Disabled and other attributes have no meaning.
  */
-$status = $ossClient->getLiveChannelStatus($bucket, "test_rtmp_live");
+$status = $obsClient->getLiveChannelStatus($bucket, "test_rtmp_live");
 Common::println("bucket $bucket listLiveChannel:\n" . 
 "live channel status status: ". $status->getStatus() . "\n" .
 "live channel status ConnectedTime: ". $status->getConnectedTime() . "\n" .
@@ -119,7 +119,7 @@ Common::println("bucket $bucket listLiveChannel:\n" .
  * The playlist file is specified to “vod_playlist.m3u8”, which means that a palylist file named vod_playlist.m3u8 is created after the interface is called.
  */
 $current_time = time();
-$ossClient->postVodPlaylist($bucket,
+$obsClient->postVodPlaylist($bucket,
     "test_rtmp_live", "vod_playlist.m3u8", 
     array('StartTime' => $current_time - 60, 
           'EndTime' => $current_time)
@@ -128,4 +128,4 @@ $ossClient->postVodPlaylist($bucket,
 /**
   *  Call delete_live_channel to delete a live channel if it will no longer be in used.
  */
-$ossClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");
+$obsClient->deleteBucketLiveChannel($bucket, "test_rtmp_live");

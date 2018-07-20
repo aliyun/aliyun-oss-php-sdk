@@ -1,58 +1,71 @@
 <?php
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
+use OBS\ObsClient;
+use OBS\Core\ObsException;
 
-$ossClient = Common::getOssClient();
-if (is_null($ossClient)) exit(1);
+
+$obsClient = Common::getObsClient();
+if (is_null($obsClient)) exit(1);
 $bucket = Common::getBucketName();
 
+// Get the bucket list
+$bucketListInfo = $obsClient->listBuckets();
+
+//$res = $obsClient->createBucket($bucket, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE);
+
+
+//$res = $obsClient->createBucket($bucket, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE);
+
+echo '<pre/>';
+print_r($bucketListInfo);
+//print_r($res);
+exit;
 //******************************* Simple Usage****************************************************************
 
 // Create a bucket
-$ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+$obsClient->createBucket($bucket, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket created");
 
 // Check whether a bucket exists
-$doesExist = $ossClient->doesBucketExist($bucket);
+$doesExist = $obsClient->doesBucketExist($bucket);
 Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 
 // Get the bucket list
-$bucketListInfo = $ossClient->listBuckets();
+$bucketListInfo = $obsClient->listBuckets();
 
 // Set bucket ACL
-$ossClient->putBucketAcl($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+$obsClient->putBucketAcl($bucket, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket acl put");
 // Get bucket ACL
-$acl = $ossClient->getBucketAcl($bucket);
+$acl = $obsClient->getBucketAcl($bucket);
 Common::println("bucket $bucket acl get: " . $acl);
 
 
 //******************************* For complete usage, see the following functions ****************************************************
 
-createBucket($ossClient, $bucket);
-doesBucketExist($ossClient, $bucket);
-deleteBucket($ossClient, $bucket);
-putBucketAcl($ossClient, $bucket);
-getBucketAcl($ossClient, $bucket);
-listBuckets($ossClient);
+createBucket($obsClient, $bucket);
+doesBucketExist($obsClient, $bucket);
+deleteBucket($obsClient, $bucket);
+putBucketAcl($obsClient, $bucket);
+getBucketAcl($obsClient, $bucket);
+listBuckets($obsClient);
 
 /**
  * Create a new bucket
  * acl indicates the access permission of a bucket, including: private, public-read-only/private-read-write, and public read-write.
  * Private indicates that only the bucket owner or authorized users can access the data..
- * The three permissions are separately defined by (OssClient::OSS_ACL_TYPE_PRIVATE,OssClient::OSS_ACL_TYPE_PUBLIC_READ, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE)
+ * The three permissions are separately defined by (ObsClient::OBS_ACL_TYPE_PRIVATE,ObsClient::OBS_ACL_TYPE_PUBLIC_READ, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE)
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket Name of the bucket to create
  * @return null
  */
-function createBucket($ossClient, $bucket)
+function createBucket($obsClient, $bucket)
 {
     try {
-        $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
-    } catch (OssException $e) {
+        $obsClient->createBucket($bucket, ObsClient::OBS_ACL_TYPE_PUBLIC_READ_WRITE);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -63,14 +76,14 @@ function createBucket($ossClient, $bucket)
 /**
  * Check whether a bucket exists.
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  */
-function doesBucketExist($ossClient, $bucket)
+function doesBucketExist($obsClient, $bucket)
 {
     try {
-        $res = $ossClient->doesBucketExist($bucket);
-    } catch (OssException $e) {
+        $res = $obsClient->doesBucketExist($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -86,15 +99,15 @@ function doesBucketExist($ossClient, $bucket)
  * Delete a bucket. If the bucket is not empty, the deletion fails.
  * A bucket which is not empty indicates that it does not contain any objects or parts that are not completely uploaded during multipart upload
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket Name of the bucket to delete
  * @return null
  */
-function deleteBucket($ossClient, $bucket)
+function deleteBucket($obsClient, $bucket)
 {
     try {
-        $ossClient->deleteBucket($bucket);
-    } catch (OssException $e) {
+        $obsClient->deleteBucket($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -105,16 +118,16 @@ function deleteBucket($ossClient, $bucket)
 /**
  * Set bucket ACL
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function putBucketAcl($ossClient, $bucket)
+function putBucketAcl($obsClient, $bucket)
 {
-    $acl = OssClient::OSS_ACL_TYPE_PRIVATE;
+    $acl = ObsClient::OBS_ACL_TYPE_PRIVATE;
     try {
-        $ossClient->putBucketAcl($bucket, $acl);
-    } catch (OssException $e) {
+        $obsClient->putBucketAcl($bucket, $acl);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -126,15 +139,15 @@ function putBucketAcl($ossClient, $bucket)
 /**
  * Get bucket ACL
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function getBucketAcl($ossClient, $bucket)
+function getBucketAcl($obsClient, $bucket)
 {
     try {
-        $res = $ossClient->getBucketAcl($bucket);
-    } catch (OssException $e) {
+        $res = $obsClient->getBucketAcl($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -147,15 +160,15 @@ function getBucketAcl($ossClient, $bucket)
 /**
  * List all buckets
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @return null
  */
-function listBuckets($ossClient)
+function listBuckets($obsClient)
 {
     $bucketList = null;
     try {
-        $bucketListInfo = $ossClient->listBuckets();
-    } catch (OssException $e) {
+        $bucketListInfo = $obsClient->listBuckets();
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;

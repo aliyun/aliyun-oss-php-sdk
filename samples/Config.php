@@ -8,8 +8,8 @@
  */
 final class Config
 {
-    const OSS_ACCESS_ID = 'update me';
-    const OSS_ACCESS_KEY = 'update me';
-    const OSS_ENDPOINT = 'update me';
-    const OSS_TEST_BUCKET = 'update me';
+    const OBS_ACCESS_ID = 'demo';
+    const OBS_ACCESS_KEY = 'demo';
+    const OBS_ENDPOINT = 'obs.cn-north-1.myhwclouds.com';
+    const OBS_TEST_BUCKET = 'obs-8622-34534534';
 }

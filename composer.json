@@ -1,13 +1,12 @@
 {
-    "name": "aliyuncs/oss-sdk-php",
-    "description": "Aliyun OSS SDK for PHP",
-    "homepage": "http://www.aliyun.com/product/oss/",
+    "name": "xp/huawei-obs",
+    "description": "huawei OBS",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Aliyuncs",
-            "homepage": "http://www.aliyun.com"
+            "name": "xp",
+            "email": "xp796@163.com"
         }
     ],
     "require": {
@@ -17,8 +16,8 @@
         "phpunit/phpunit": "~4.0",
         "satooshi/php-coveralls": "~1.0"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "autoload": {
-        "psr-4": {"OSS\\": "src/OSS"}
+        "psr-4": {"OBS\\": "src/OBS"}
     }
 }

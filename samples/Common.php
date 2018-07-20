@@ -8,36 +8,36 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 }
 require_once __DIR__ . '/Config.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
+use OBS\ObsClient;
+use OBS\Core\ObsException;
 
 /**
  * Class Common
  *
- * The Common class for 【Samples/*.php】 used to obtain OssClient instance and other common functions
+ * The Common class for 【Samples/*.php】 used to obtain ObsClient instance and other common functions
  */
 class Common
 {
-    const endpoint = Config::OSS_ENDPOINT;
-    const accessKeyId = Config::OSS_ACCESS_ID;
-    const accessKeySecret = Config::OSS_ACCESS_KEY;
-    const bucket = Config::OSS_TEST_BUCKET;
+    const endpoint = Config::OBS_ENDPOINT;
+    const accessKeyId = Config::OBS_ACCESS_ID;
+    const accessKeySecret = Config::OBS_ACCESS_KEY;
+    const bucket = Config::OBS_TEST_BUCKET;
 
     /**
-     * Get an OSSClient instance according to config.
+     * Get an OBSClient instance according to config.
      *
-     * @return OssClient An OssClient instance
+     * @return ObsClient An ObsClient instance
      */
-    public static function getOssClient()
+    public static function getObsClient()
     {
         try {
-            $ossClient = new OssClient(self::accessKeyId, self::accessKeySecret, self::endpoint, false);
-        } catch (OssException $e) {
-            printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
+            $obsClient = new ObsClient(self::accessKeyId, self::accessKeySecret, self::endpoint, false);
+        } catch (ObsException $e) {
+            printf(__FUNCTION__ . "creating ObsClient instance: FAILED\n");
             printf($e->getMessage() . "\n");
             return null;
         }
-        return $ossClient;
+        return $obsClient;
     }
 
     public static function getBucketName()
@@ -50,16 +50,16 @@ class Common
      */
     public static function createBucket()
     {
-        $ossClient = self::getOssClient();
-        if (is_null($ossClient)) exit(1);
+        $obsClient = self::getObsClient();
+        if (is_null($obsClient)) exit(1);
         $bucket = self::getBucketName();
-        $acl = OssClient::OSS_ACL_TYPE_PUBLIC_READ;
+        $acl = ObsClient::OBS_ACL_TYPE_PUBLIC_READ;
         try {
-            $ossClient->createBucket($bucket, $acl);
-        } catch (OssException $e) {
+            $obsClient->createBucket($bucket, $acl);
+        } catch (ObsException $e) {
 
             $message = $e->getMessage();
-            if (\OSS\Core\OssUtil::startsWith($message, 'http status: 403')) {
+            if (\OBS\Core\ObsUtil::startsWith($message, 'http status: 403')) {
                 echo "Please Check your AccessKeyId and AccessKeySecret" . "\n";
                 exit(0);
             } elseif (strpos($message, "BucketAlreadyExists") !== false) {

@@ -1,49 +1,49 @@
 <?php
 require_once __DIR__ . '/Common.php';
 
-use OSS\OssClient;
-use OSS\Core\OssException;
-use OSS\Model\WebsiteConfig;
+use OBS\ObsClient;
+use OBS\Core\ObsException;
+use OBS\Model\WebsiteConfig;
 
 $bucket = Common::getBucketName();
-$ossClient = Common::getOssClient();
-if (is_null($ossClient)) exit(1);
+$obsClient = Common::getObsClient();
+if (is_null($obsClient)) exit(1);
 
 //******************************* Simple Usage ***************************************************************
 
 // Set bucket static website configuration
 $websiteConfig = new WebsiteConfig("index.html", "error.html");
-$ossClient->putBucketWebsite($bucket, $websiteConfig);
+$obsClient->putBucketWebsite($bucket, $websiteConfig);
 Common::println("bucket $bucket websiteConfig created:" . $websiteConfig->serializeToXml());
 
 // Get bucket static website configuration
-$websiteConfig = $ossClient->getBucketWebsite($bucket);
+$websiteConfig = $obsClient->getBucketWebsite($bucket);
 Common::println("bucket $bucket websiteConfig fetched:" . $websiteConfig->serializeToXml());
 
 // Delete bucket static website configuration
-$ossClient->deleteBucketWebsite($bucket);
+$obsClient->deleteBucketWebsite($bucket);
 Common::println("bucket $bucket websiteConfig deleted");
 
 //******************************* For complete usage, see the following functions  ****************************************************
 
-putBucketWebsite($ossClient, $bucket);
-getBucketWebsite($ossClient, $bucket);
-deleteBucketWebsite($ossClient, $bucket);
-getBucketWebsite($ossClient, $bucket);
+putBucketWebsite($obsClient, $bucket);
+getBucketWebsite($obsClient, $bucket);
+deleteBucketWebsite($obsClient, $bucket);
+getBucketWebsite($obsClient, $bucket);
 
 /**
  * Sets bucket static website configuration
  *
- * @param $ossClient OssClient
+ * @param $obsClient ObsClient
  * @param  $bucket string bucket name
  * @return null
  */
-function putBucketWebsite($ossClient, $bucket)
+function putBucketWebsite($obsClient, $bucket)
 {
     $websiteConfig = new WebsiteConfig("index.html", "error.html");
     try {
-        $ossClient->putBucketWebsite($bucket, $websiteConfig);
-    } catch (OssException $e) {
+        $obsClient->putBucketWebsite($bucket, $websiteConfig);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -54,16 +54,16 @@ function putBucketWebsite($ossClient, $bucket)
 /**
  * Get bucket static website configuration
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function getBucketWebsite($ossClient, $bucket)
+function getBucketWebsite($obsClient, $bucket)
 {
     $websiteConfig = null;
     try {
-        $websiteConfig = $ossClient->getBucketWebsite($bucket);
-    } catch (OssException $e) {
+        $websiteConfig = $obsClient->getBucketWebsite($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
@@ -75,15 +75,15 @@ function getBucketWebsite($ossClient, $bucket)
 /**
  * Delete bucket static website configuration
  *
- * @param OssClient $ossClient OssClient instance
+ * @param ObsClient $obsClient ObsClient instance
  * @param string $bucket bucket name
  * @return null
  */
-function deleteBucketWebsite($ossClient, $bucket)
+function deleteBucketWebsite($obsClient, $bucket)
 {
     try {
-        $ossClient->deleteBucketWebsite($bucket);
-    } catch (OssException $e) {
+        $obsClient->deleteBucketWebsite($bucket);
+    } catch (ObsException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
