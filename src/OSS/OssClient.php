@@ -2305,6 +2305,11 @@ class OssClient
                 $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
             } catch (\Throwable $e) {
             }
+        } catch (\Exception $e) {
+            try {
+                $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
+            } catch (\Exception $e) {
+            }
         }
         $options[self::OSS_OBJECT] = $tmp_object;
     }
