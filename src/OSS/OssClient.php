@@ -1,6 +1,7 @@
 <?php
 namespace OSS;
 
+use Carbon\Carbon;
 use OSS\Core\MimeTypes;
 use OSS\Core\OssException;
 use OSS\Http\RequestCore;
@@ -789,7 +790,7 @@ class OssClient
     public function signRtmpUrl($bucket, $channelName, $timeout = 60, $options = NULL)
     {
         $this->precheckCommon($bucket, $channelName, $options, false);
-        $expires = time() + $timeout;
+        $expires = Carbon::now()->addSeconds($timeout)->timestamp;
         $proto = 'rtmp://';
         $hostname = $this->generateHostname($bucket);
         $cano_params = '';
@@ -1864,7 +1865,7 @@ class OssClient
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = '';
         }
-        $timeout = time() + $timeout;
+        $timeout = Carbon::now()->addSeconds($timeout)->timestamp;
         $options[self::OSS_PREAUTH] = $timeout;
         $options[self::OSS_DATE] = $timeout;
         $this->setSignStsInUrl(true);
