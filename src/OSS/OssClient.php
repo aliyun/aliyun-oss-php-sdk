@@ -2541,6 +2541,8 @@ class OssClient
             $ret_endpoint = $endpoint;
         }
 
+        $ret_endpoint = OssUtil::getHostPortFromEndpoint($ret_endpoint);
+
         if ($isCName) {
             $this->hostType = self::OSS_HOST_TYPE_CNAME;
         } elseif (OssUtil::isIPFormat($ret_endpoint)) {

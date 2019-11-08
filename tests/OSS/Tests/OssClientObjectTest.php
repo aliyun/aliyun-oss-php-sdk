@@ -580,6 +580,16 @@ class OssClientObjectTest extends TestOssClientBase
     	}
     }
 
+    public function testWithInvalidBucketName()
+    {
+        try {
+            $this->ossClient->createBucket("abcefc/", "test-key");
+            $this->assertFalse(true);
+        } catch (OssException $e) {
+            $this->assertEquals('"abcefc/"bucket name is invalid', $e->getMessage());
+        }
+    }
+
     public function setUp()
     {
         parent::setUp();

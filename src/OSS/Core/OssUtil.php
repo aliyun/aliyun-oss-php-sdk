@@ -363,6 +363,43 @@ BBB;
     }
 
     /**
+     * Get the host:port from endpoint.
+     *
+     * @param string $endpoint the endpoint.
+     * @return boolean
+     */
+    public static function getHostPortFromEndpoint($endpoint)
+    {
+        $str = $endpoint;
+        $pos = strpos($str, "://");
+        if ($pos !== false) {
+            $str = substr($str, $pos+3);
+        }
+    
+        $pos = strpos($str, '#');
+        if ($pos !== false) {
+            $str = substr($str, 0, $pos);
+        }
+    
+        $pos = strpos($str, '?');
+        if ($pos !== false) {
+            $str = substr($str, 0, $pos);
+        }
+    
+        $pos = strpos($str, '/');
+        if ($pos !== false) {
+            $str = substr($str, 0, $pos);
+        }
+    
+        $pos = strpos($str, '@');
+        if ($pos !== false) {
+            $str = substr($str, $pos+1);
+        }
+        
+        return $str;
+    }
+
+    /**
      * Generate the xml message of DeleteMultiObjects.
      *
      * @param string[] $objects
