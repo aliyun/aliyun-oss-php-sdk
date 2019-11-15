@@ -1,5 +1,10 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.3.1 / 2019-011-15
+
+* translate chinese comments into english
+* Added: endpoint validity check
+
 ## v2.3.0 / 2018-01-05
 
 * Fixed: putObject support creating empty files
