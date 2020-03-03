@@ -121,6 +121,19 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+
+        //use invalid sts-token, should fail.
+        try {
+            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false, "invalid-sts-token");
+            $ossClient->putObject($bucket,'test_emptybody','');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertEquals('InvalidAccessKeyId', $e->getErrorCode());
+        }
     }
 
     public function testCreateObjectDir()
@@ -213,4 +226,57 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('via', $result));
     }
 
+    public function testIpEndpoint()
+    {
+        try {
+            $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = '192.168.1.1';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+            $object = "a.file";
+            $timeout = 3600;
+            $options = array('Content-Type' => 'txt');
+            $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(strpos($signedUrl, '192.168.1.1/skyranch-php-test/a.file?') != false);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
+    public function testCnameEndpoint()
+    {
+        try {
+            $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = 'cname.endpoint';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, true);
+            $object = "a.file";
+            $timeout = 3600;
+            $options = array('Content-Type' => 'txt');
+            $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(strpos($signedUrl, 'cname.endpoint/a.file?') != false);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
+    public function testStsToken()
+    {
+        try {
+            $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $bucket = getenv('OSS_BUCKET');
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, "test-token");
+            $object = "a.file";
+            $timeout = 3600;
+            $options = array('Content-Type' => 'txt');
+            $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(strpos($signedUrl, 'security-token=test-token') != false);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
 }
