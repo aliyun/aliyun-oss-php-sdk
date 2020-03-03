@@ -155,6 +155,10 @@ BBBB;
     public function testGetMd5SumForFile()
     {
         $this->assertEquals(OssUtil::getMd5SumForFile(__FILE__, 0, filesize(__FILE__) - 1), base64_encode(md5(file_get_contents(__FILE__), true)));
+        // false case
+        $this->assertEquals(OssUtil::getMd5SumForFile(__FILE__, 0, OssClient::OSS_MAX_PART_SIZE + 1), "");
+        $this->assertEquals(OssUtil::getMd5SumForFile(__FILE__, 0, filesize(__FILE__) + 1), "");
+
     }
 
     public function testGenerateFile()
@@ -247,5 +251,15 @@ BBBB;
 
         $str =  OssUtil::getHostPortFromEndpoint('file://username:password@hostname:80/path?arg=value#anchor');
         $this->assertEquals('hostname:80', $str);
+    }
+
+    public function testDecodeKey()
+    {
+        try {
+            OssUtil::decodeKey("key", "unknown");
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
     }
 }
