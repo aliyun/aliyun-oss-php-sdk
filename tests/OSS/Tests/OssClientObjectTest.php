@@ -88,7 +88,6 @@ class OssClientObjectTest extends TestOssClientBase
                 'Expires' => 'Fri, 28 Feb 2020 05:38:42 GMT',
                 'Cache-Control' => 'no-cache',
                 'Content-Disposition' => 'attachment;filename=oss_download.log',
-                'Content-Encoding' => 'utf-8',
                 'Content-Language' => 'zh-CN',
                 'x-oss-server-side-encryption' => 'AES256',
                 'x-oss-meta-self-define-title' => 'user define meta info',
@@ -328,12 +327,18 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertTrue($this->ossClient->doesObjectExist($this->bucket, $object2));
             
             $result = $this->ossClient->deleteObjects($this->bucket, $list);
-            $this->assertEquals($list[1], $result[0]);
-            $this->assertEquals($list[0], $result[1]);
+            $this->assertEquals($list[0], $result[0]);
+            $this->assertEquals($list[1], $result[1]);
             
             $result = $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => 'true'));
             $this->assertEquals(array(), $result);
             $this->assertFalse($this->ossClient->doesObjectExist($this->bucket, $object2));
+
+            $this->ossClient->putObject($this->bucket, $object, $content);
+            $this->assertTrue($this->ossClient->doesObjectExist($this->bucket, $object));
+            $result = $this->ossClient->deleteObjects($this->bucket, $list, array('quiet' => true));
+            $this->assertEquals(array(), $result);
+            $this->assertFalse($this->ossClient->doesObjectExist($this->bucket, $object));
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
@@ -352,8 +357,8 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertEquals($position, strlen($content_array[0]));
             $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[1], $position);
             $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]));
-            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[2], $position);
-            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]) + strlen($content_array[1]));
+            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[2], $position, array(OssClient::OSS_LENGTH => strlen($content_array[2])));
+            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]) + strlen($content_array[2]));
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
@@ -378,6 +383,16 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertFalse(true);
         }
         
+        /**
+         * Append the upload of invalid local files
+         */
+        try {
+            $position = $this->ossClient->appendFile($this->bucket, $object, "invalid-file-path", 0);
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
+
         /**
          * Append the upload of local files
          */
