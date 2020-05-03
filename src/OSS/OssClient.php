@@ -2298,7 +2298,12 @@ class OssClient
             if (OssUtil::isGb2312($options[self::OSS_OBJECT])) {
                 $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
             } elseif (OssUtil::checkChar($options[self::OSS_OBJECT], true)) {
-                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+                if (PHP_VERSION_ID > 70100) {
+					//高版本的 PHP 不支持 //IGNORE
+					$options[self::OSS_OBJECT] = iconv('GBK', "UTF-8", $options[self::OSS_OBJECT]);
+				} else {
+					$options[self::OSS_OBJECT] = iconv('GBK', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+				}
             }
         } catch (\Exception $e) {
             try {
