@@ -2150,7 +2150,7 @@ class OssClient
                 strtolower($header_key) === 'content-md5' ||
                 strtolower($header_key) === 'content-type' ||
                 strtolower($header_key) === 'date' ||
-                (isset($options['self::OSS_PREAUTH']) && (integer)$options['self::OSS_PREAUTH'] > 0)
+                (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0)
             ) {
                 $string_to_sign .= $header_value . "\n";
             } elseif (substr(strtolower($header_key), 0, 6) === self::OSS_DEFAULT_PREFIX) {
