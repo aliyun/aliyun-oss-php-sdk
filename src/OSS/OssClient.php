@@ -51,6 +51,8 @@ use OSS\Model\WebsiteConfig;
 use OSS\Core\OssUtil;
 use OSS\Model\ListPartsInfo;
 use OSS\Result\GetBucketInfoResult;
+use OSS\Model\BucketStat;
+use OSS\Result\GetBucketStatResult;
 
 /**
  * Class OssClient
@@ -1013,6 +1015,26 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'bucketInfo';
         $response = $this->auth($options);
         $result = new GetBucketInfoResult($response);
+        return $result->getData();
+    }
+
+     /**
+     * Get the stat of the bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return BucketStat
+     */
+    public function getBucketStat($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'stat';
+        $response = $this->auth($options);
+        $result = new GetBucketStatResult($response);
         return $result->getData();
     }
 
