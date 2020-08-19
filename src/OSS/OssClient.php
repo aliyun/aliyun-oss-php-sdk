@@ -60,6 +60,8 @@ use OSS\Result\GetBucketRequestPaymentResult;
 use OSS\Model\Tag;
 use OSS\Model\TaggingConfig;
 use OSS\Result\GetBucketTagsResult;
+use OSS\Model\VersioningConfig;
+use OSS\Result\GetBucketVersioningResult;
 
 /**
  * Class OssClient
@@ -1285,6 +1287,50 @@ class OssClient
         }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Set the versioning of the bucket, Can be BucketOwner and Requester
+     *
+     * @param string $bucket bucket name
+     * @param string $status
+     * @param array $options
+     * @return ResponseCore
+     * @throws null
+     */
+    public function putBucketVersioning($bucket, $status, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'versioning';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new VersioningConfig($status);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the versioning of the bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return string
+     */
+    public function getBucketVersioning($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'versioning';
+        $response = $this->auth($options);
+        $result = new GetBucketVersioningResult($response);
         return $result->getData();
     }
 
