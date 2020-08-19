@@ -55,6 +55,8 @@ use OSS\Model\BucketStat;
 use OSS\Result\GetBucketStatResult;
 use OSS\Model\ServerSideEncryptionConfig;
 use OSS\Result\GetBucketEncryptionResult;
+use OSS\Model\RequestPaymentConfig;
+use OSS\Result\GetBucketRequestPaymentResult;
 
 /**
  * Class OssClient
@@ -1162,6 +1164,50 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'encryption';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Set the request playment of the bucket, Can be BucketOwner and Requester
+     *
+     * @param string $bucket bucket name
+     * @param string $payer
+     * @param array $options
+     * @return ResponseCore
+     * @throws null
+     */
+    public function putBucketRequestPayment($bucket, $payer, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'requestPayment';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new RequestPaymentConfig($payer);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the request playment of the bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return string
+     */
+    public function getBucketRequestPayment($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'requestPayment';
+        $response = $this->auth($options);
+        $result = new GetBucketRequestPaymentResult($response);
         return $result->getData();
     }
 
