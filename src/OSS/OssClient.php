@@ -57,6 +57,9 @@ use OSS\Model\ServerSideEncryptionConfig;
 use OSS\Result\GetBucketEncryptionResult;
 use OSS\Model\RequestPaymentConfig;
 use OSS\Result\GetBucketRequestPaymentResult;
+use OSS\Model\Tag;
+use OSS\Model\TaggingConfig;
+use OSS\Result\GetBucketTagsResult;
 
 /**
  * Class OssClient
@@ -1208,6 +1211,80 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'requestPayment';
         $response = $this->auth($options);
         $result = new GetBucketRequestPaymentResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Sets the bucket's tags
+     *
+     * @param string $bucket bucket name
+     * @param TaggingConfig $taggingConfig
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function putBucketTags($bucket, $taggingConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $taggingConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets bucket's tags
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return TaggingConfig
+     */
+    public function getBucketTags($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        $response = $this->auth($options);
+        $result = new GetBucketTagsResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Deletes the bucket's tags
+     * If want to delete specified tags for a bucket, please set the $tags
+     *
+     * @param string $bucket bucket name
+     * @param tag[] $tags (optional)
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function deleteBucketTags($bucket, $tags = NULL, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        if (empty($tags)) {
+            $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        } else {
+            $value = '';
+            foreach ($tags as $tag ) {
+                $value .= $tag->getKey().',';
+            }
+            $value = rtrim($value, ',');
+            $options[self::OSS_TAGGING] = $value;
+        }
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
         return $result->getData();
     }
 
@@ -2614,6 +2691,7 @@ class OssClient
             self::OSS_POSITION,
             self::OSS_SYMLINK,
             self::OSS_RESTORE,
+            self::OSS_TAGGING,
         );
 
         foreach ($signableList as $item) {
@@ -2884,6 +2962,7 @@ class OssClient
     const OSS_STORAGE_STANDARD = 'Standard';
     const OSS_STORAGE_IA = 'IA';
     const OSS_STORAGE_ARCHIVE = 'Archive';
+    const OSS_TAGGING = 'tagging';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
