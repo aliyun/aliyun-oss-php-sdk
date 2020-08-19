@@ -1914,6 +1914,71 @@ class OssClient
     }
 
     /**
+     * Sets the object tagging
+     *
+     * @param string $bucket bucket name
+     * @param string $object object name
+     * @param TaggingConfig $taggingConfig
+     * @throws OssException
+     * @return null
+     */
+    public function putObjectTagging($bucket, $object, $taggingConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options, true);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $taggingConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets the object tagging
+     *
+     * @param string $bucket
+     * @param string $object
+     * @throws OssException
+     * @return TaggingConfig
+     */
+    public function getObjectTagging($bucket, $object, $options = NULL)
+    {
+        $options = array();
+        $this->precheckCommon($bucket, $object, $options, true);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        $response = $this->auth($options);
+        $result = new GetBucketTagsResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Deletes the object tagging
+     *
+     * @param string $bucket
+     * @param string $object
+     * @throws OssException
+     * @return TaggingConfig
+     */
+    public function deleteObjectTagging($bucket, $object, $options = NULL)
+    {
+        $options = array();
+        $this->precheckCommon($bucket, $object, $options, true);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Gets the part size according to the preferred part size.
      * If the specified part size is too small or too big, it will return a min part or max part size instead.
      * Otherwise returns the specified part size.
@@ -2206,7 +2271,7 @@ class OssClient
         } else {
             $upload_file_size = filesize($uploadFile);
             if ($upload_file_size !== false) {
-                $upload_file_size -= $upload_position;
+                $upload_file_size -= $upload_position;  
             }
         }
 
