@@ -1039,6 +1039,68 @@ class OssClient
     }
 
     /**
+     * Sets the bucket's policy
+     *
+     * @param string $bucket bucket name
+     * @param string $policy policy json format content
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function putBucketPolicy($bucket, $policy, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy';
+        $options[self::OSS_CONTENT_TYPE] = 'application/json';
+        $options[self::OSS_CONTENT] = $policy;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets bucket's policy
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return string policy json content
+     */
+    public function getBucketPolicy($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy';
+        $response = $this->auth($options);
+        return $response->body;
+    }
+
+    /**
+     * Deletes the bucket's policy
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function deleteBucketPolicy($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Lists the bucket's object list (in ObjectListInfo)
      *
      * @param string $bucket
