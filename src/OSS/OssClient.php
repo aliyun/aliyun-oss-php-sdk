@@ -66,6 +66,7 @@ use OSS\Model\InitiateWormConfig;
 use OSS\Result\InitiateBucketWormResult;
 use OSS\Model\ExtendWormConfig;
 use OSS\Result\GetBucketWormResult;
+use OSS\Model\RestoreConfig;
 
 /**
  * Class OssClient
@@ -1908,6 +1909,11 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_SUB_RESOURCE] = self::OSS_RESTORE;
+        if (isset($options[self::OSS_RESTORE_CONFIG])) {
+            $config = $options[self::OSS_RESTORE_CONFIG];
+            $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+            $options[self::OSS_CONTENT] = $config->serializeToXml();
+        }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -2462,6 +2468,8 @@ class OssClient
                 case self::OSS_STORAGE_IA:
                     return;
                 case self::OSS_STORAGE_STANDARD:
+                    return;
+                case self::OSS_STORAGE_COLDARCHIVE:
                     return;
                 default:
                     break;
@@ -3211,8 +3219,10 @@ class OssClient
     const OSS_STORAGE_STANDARD = 'Standard';
     const OSS_STORAGE_IA = 'IA';
     const OSS_STORAGE_ARCHIVE = 'Archive';
+    const OSS_STORAGE_COLDARCHIVE = 'ColdArchive';
     const OSS_TAGGING = 'tagging';
     const OSS_WORM_ID = 'wormId';
+    const OSS_RESTORE_CONFIG = 'restore-config';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
