@@ -53,6 +53,8 @@ use OSS\Model\ListPartsInfo;
 use OSS\Result\GetBucketInfoResult;
 use OSS\Model\BucketStat;
 use OSS\Result\GetBucketStatResult;
+use OSS\Model\ServerSideEncryptionConfig;
+use OSS\Result\GetBucketEncryptionResult;
 
 /**
  * Class OssClient
@@ -1095,6 +1097,69 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'policy';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Sets the bucket's encryption
+     *
+     * @param string $bucket bucket name
+     * @param ServerSideEncryptionConfig $sseConfig
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function putBucketEncryption($bucket, $sseConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'encryption';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $sseConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets bucket's encryption
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return ServerSideEncryptionConfig
+     */
+    public function getBucketEncryption($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'encryption';
+        $response = $this->auth($options);
+        $result = new GetBucketEncryptionResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Deletes the bucket's encryption
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function deleteBucketEncryption($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'encryption';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
