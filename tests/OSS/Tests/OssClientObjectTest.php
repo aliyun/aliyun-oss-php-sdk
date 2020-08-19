@@ -605,6 +605,21 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testGetSimplifiedObjectMeta()
+    {
+        $object = "oss-php-sdk-test/upload-test-object-name.txt";
+
+        try {
+            $objectMeta = $this->ossClient->getSimplifiedObjectMeta($this->bucket, $object);
+            $this->assertEquals(false, array_key_exists(strtolower('Content-Disposition'), $objectMeta));
+            $this->assertEquals(strlen(file_get_contents(__FILE__)), $objectMeta[strtolower('Content-Length')]);
+            $this->assertEquals(true, array_key_exists(strtolower('ETag'), $objectMeta));
+            $this->assertEquals(true, array_key_exists(strtolower('Last-Modified'), $objectMeta));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
     public function setUp()
     {
         parent::setUp();

@@ -1765,6 +1765,27 @@ class OssClient
         return $result->getData();
     }
 
+     /**
+     * Gets the simplified metadata of a object. 
+     * Simplified metadata includes ETag, Size, LastModified.
+     *
+     * @param string $bucket bucket name
+     * @param string $object object name
+     * @param string $options Checks out the SDK document for the detail
+     * @return array
+     */
+    public function getSimplifiedObjectMeta($bucket, $object, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_HEAD;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'objectMeta';
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
     /**
      * Deletes a object
      *
