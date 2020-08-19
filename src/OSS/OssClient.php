@@ -62,6 +62,10 @@ use OSS\Model\TaggingConfig;
 use OSS\Result\GetBucketTagsResult;
 use OSS\Model\VersioningConfig;
 use OSS\Result\GetBucketVersioningResult;
+use OSS\Model\InitiateWormConfig;
+use OSS\Result\InitiateBucketWormResult;
+use OSS\Model\ExtendWormConfig;
+use OSS\Result\GetBucketWormResult;
 
 /**
  * Class OssClient
@@ -1331,6 +1335,118 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'versioning';
         $response = $this->auth($options);
         $result = new GetBucketVersioningResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Initialize a bucket's worm
+     *
+     * @param string $bucket bucket name
+     * @param int $day
+     * @param array $options
+     * @throws OssException
+     * @return string returns uploadid
+     */
+    public function initiateBucketWorm($bucket, $day, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'worm';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new InitiateWormConfig($day);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new InitiateBucketWormResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Aborts the bucket's worm
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return null
+     */
+    public function abortBucketWorm($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'worm';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+     /**
+     * Complete a bucket's worm
+     *
+     * @param string $bucket bucket name
+     * @param string $wormId
+     * @param array $options
+     * @throws OssException
+     * @return string returns uploadid
+     */
+    public function completeBucketWorm($bucket, $wormId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_WORM_ID] = $wormId;
+        $options[self::OSS_CONTENT] = '';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Extend a bucket's worm
+     *
+     * @param string $bucket bucket name
+     * @param string $wormId
+     * @param int $day
+     * @param array $options
+     * @throws OssException
+     * @return string returns uploadid
+     */
+    public function extendBucketWorm($bucket, $wormId, $day, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_WORM_ID] = $wormId;
+        $options[self::OSS_SUB_RESOURCE] = 'wormExtend';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new ExtendWormConfig($day);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get a bucket's worm
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return string
+     */
+    public function getBucketWorm($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'worm';
+        $response = $this->auth($options);
+        $result = new GetBucketWormResult($response);
         return $result->getData();
     }
 
@@ -2738,6 +2854,7 @@ class OssClient
             self::OSS_SYMLINK,
             self::OSS_RESTORE,
             self::OSS_TAGGING,
+            self::OSS_WORM_ID,
         );
 
         foreach ($signableList as $item) {
@@ -3009,6 +3126,7 @@ class OssClient
     const OSS_STORAGE_IA = 'IA';
     const OSS_STORAGE_ARCHIVE = 'Archive';
     const OSS_TAGGING = 'tagging';
+    const OSS_WORM_ID = 'wormId';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
