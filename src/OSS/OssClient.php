@@ -50,6 +50,7 @@ use OSS\Model\RefererConfig;
 use OSS\Model\WebsiteConfig;
 use OSS\Core\OssUtil;
 use OSS\Model\ListPartsInfo;
+use OSS\Result\GetBucketInfoResult;
 
 /**
  * Class OssClient
@@ -950,7 +951,6 @@ class OssClient
         return $result->getData();
     }
 
-
     /**
      * Set the size of the bucket,the unit is GB
      * When the capacity of the bucket is bigger than the set, it's forbidden to continue writing
@@ -996,6 +996,25 @@ class OssClient
         return $result->getData();
     }
 
+    /**
+     * Get the information of the bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return BucketInfo
+     */
+    public function getBucketInfo($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'bucketInfo';
+        $response = $this->auth($options);
+        $result = new GetBucketInfoResult($response);
+        return $result->getData();
+    }
 
     /**
      * Lists the bucket's object list (in ObjectListInfo)
