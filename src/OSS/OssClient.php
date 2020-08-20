@@ -1579,11 +1579,12 @@ class OssClient
 
     /**
      * gets symlink
-     *@param string $bucket bucket name
+     * @param string $bucket bucket name
      * @param string $symlink symlink name
+     * @param array $options
      * @return null
      */
-    public function getSymlink($bucket, $symlink)
+    public function getSymlink($bucket, $symlink, $options = NULL)
     {
         $this->precheckCommon($bucket, $symlink, $options);
 
@@ -1950,7 +1951,6 @@ class OssClient
      */
     public function getObjectTagging($bucket, $object, $options = NULL)
     {
-        $options = array();
         $this->precheckCommon($bucket, $object, $options, true);
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_BUCKET] = $bucket;
@@ -1971,7 +1971,6 @@ class OssClient
      */
     public function deleteObjectTagging($bucket, $object, $options = NULL)
     {
-        $options = array();
         $this->precheckCommon($bucket, $object, $options, true);
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
         $options[self::OSS_BUCKET] = $bucket;
@@ -2330,7 +2329,16 @@ class OssClient
                 'ETag' => $etag,
             );
         }
-        return $this->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
+
+        //build complete options
+        $cmp_options = null;
+        if (isset($options[self::OSS_HEADERS]) && isset($options[self::OSS_HEADERS][self::OSS_REQUEST_PAYER])) {
+            $cmp_options = array(
+                OssClient::OSS_HEADERS => array(
+                    OssClient::OSS_REQUEST_PAYER => $options[self::OSS_HEADERS][self::OSS_REQUEST_PAYER],
+            ));
+        }
+        return $this->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts, $cmp_options);
     }
 
     /**
@@ -3244,6 +3252,7 @@ class OssClient
     const OSS_PROCESS = "x-oss-process";
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
+    const OSS_REQUEST_PAYER = "x-oss-request-payer";
     //Constants for STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
