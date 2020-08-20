@@ -702,7 +702,7 @@ class OssClient
      * @throws OssException
      * @return GetLiveChannelHistory
      */
-   public function getLiveChannelHistory($bucket, $channelName, $options = NULL)
+    public function getLiveChannelHistory($bucket, $channelName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
@@ -1472,16 +1472,14 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_HEADERS] = array(
-            self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
-            self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
-            self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
-            self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '',
-        );
         $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
         $options[self::OSS_QUERY_STRING] = array_merge(
             $query,
-            array(self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL)
+            array(self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL,
+                  self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
+                  self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
+                  self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
+                  self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '')
         );
 
         $response = $this->auth($options);
