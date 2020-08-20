@@ -6,7 +6,7 @@ use OSS\Core\OssException;
 use OSS\OssClient;
 
 
-class OssClientTest extends \PHPUnit_Framework_TestCase
+class OssClientTest extends TestOssClientBase
 {
     public function testConstrunct()
     {
@@ -115,7 +115,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false);
             $ossClient->putObject($bucket,'test_emptybody','');
         } catch (OssException $e) {
@@ -127,7 +127,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret , $endpoint, false, "invalid-sts-token");
             $ossClient->putObject($bucket,'test_emptybody','');
             $this->assertTrue(false);
@@ -142,7 +142,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = $this->bucket;
             $object='test-dir';
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->createObjectDir($bucket,$object);
@@ -171,7 +171,7 @@ class OssClientTest extends \PHPUnit_Framework_TestCase
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCname($bucket);
         } catch (OssException $e) {
