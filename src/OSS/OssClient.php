@@ -1982,6 +1982,28 @@ class OssClient
     }
 
     /**
+     * Processes the object
+     *
+     * @param string $bucket bucket name
+     * @param string $object object name
+     * @param string $process process script
+     * @return string process result, json format
+     */
+    public function processObject($bucket, $object, $process, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'x-oss-process';
+        $options[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
+        $options[self::OSS_CONTENT] = 'x-oss-process='.$process;
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Gets the part size according to the preferred part size.
      * If the specified part size is too small or too big, it will return a min part or max part size instead.
      * Otherwise returns the specified part size.
