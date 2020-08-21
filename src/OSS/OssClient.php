@@ -2955,6 +2955,7 @@ class OssClient
             self::OSS_RESTORE,
             self::OSS_TAGGING,
             self::OSS_WORM_ID,
+            self::OSS_TRAFFIC_LIMIT,
         );
 
         foreach ($signableList as $item) {
@@ -3253,6 +3254,7 @@ class OssClient
     const OSS_CALLBACK = "x-oss-callback";
     const OSS_CALLBACK_VAR = "x-oss-callback-var";
     const OSS_REQUEST_PAYER = "x-oss-request-payer";
+    const OSS_TRAFFIC_LIMIT = "x-oss-traffic-limit";
     //Constants for STS SecurityToken
     const OSS_SECURITY_TOKEN = "x-oss-security-token";
     const OSS_ACL_TYPE_PRIVATE = 'private';
