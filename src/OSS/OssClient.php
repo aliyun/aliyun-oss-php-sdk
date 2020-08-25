@@ -67,6 +67,11 @@ use OSS\Result\InitiateBucketWormResult;
 use OSS\Model\ExtendWormConfig;
 use OSS\Result\GetBucketWormResult;
 use OSS\Model\RestoreConfig;
+use OSS\Model\ObjectVersionListInfo;
+use OSS\Result\ListObjectVersionsResult;
+use OSS\Model\DeleteObjectInfo;
+use OSS\Model\DeletedObjectInfo;
+use OSS\Result\DeleteObjectVersionsResult;
 
 /**
  * Class OssClient
@@ -290,12 +295,12 @@ class OssClient
      *
      * @param string $bucket
      * @param string $object
+     * @param array $options
      * @throws OssException
      * @return string
      */
-    public function getObjectAcl($bucket, $object)
+    public function getObjectAcl($bucket, $object, $options = NULL)
     {
-        $options = array();
         $this->precheckCommon($bucket, $object, $options, true);
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_BUCKET] = $bucket;
@@ -312,10 +317,11 @@ class OssClient
      * @param string $bucket bucket name
      * @param string $object object name
      * @param string $acl access permissions, valid values are ['default', 'private', 'public-read', 'public-read-write']
+     * @param array $options
      * @throws OssException
      * @return null
      */
-    public function putObjectAcl($bucket, $object, $acl)
+    public function putObjectAcl($bucket, $object, $acl, $options = NULL)
     {
         $this->precheckCommon($bucket, $object, $options, true);
         $options[self::OSS_BUCKET] = $bucket;
@@ -1488,6 +1494,45 @@ class OssClient
     }
 
     /**
+     * Lists the bucket's object with version information (in ObjectListInfo)
+     *
+     * @param string $bucket
+     * @param array $options are defined below:
+     * $options = array(
+     *      'max-keys'   => specifies max object count to return. By default is 100 and max value could be 1000.
+     *      'prefix'     => specifies the key prefix the returned objects must have. Note that the returned keys still contain the prefix.
+     *      'delimiter'  => The delimiter of object name for grouping object. When it's specified, listObjectVersions will differeniate the object and folder. And it will return subfolder's objects.
+     *      'key-marker' => The key of returned object must be greater than the 'key-marker'.
+     *      'version-id-marker' => The version id of returned object must be greater than the 'version-id-marker'.
+     *)
+     * Prefix and marker are for filtering and paging. Their length must be less than 256 bytes
+     * @throws OssException
+     * @return ObjectListInfo
+     */
+    public function listObjectVersions($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'versions';
+        $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
+        $options[self::OSS_QUERY_STRING] = array_merge(
+            $query,
+            array(self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL,
+                  self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
+                  self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
+                  self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
+                  self::OSS_KEY_MARKER => isset($options[self::OSS_KEY_MARKER]) ? $options[self::OSS_KEY_MARKER] : '',
+                  self::OSS_VERSION_ID_MARKER => isset($options[self::OSS_VERSION_ID_MARKER]) ? $options[self::OSS_VERSION_ID_MARKER] : '')
+        );
+
+        $response = $this->auth($options);
+        $result = new ListObjectVersionsResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Creates a virtual 'folder' in OSS. The name should not end with '/' because the method will append the name with a '/' anyway.
      *
      * Internal use only.
@@ -1736,10 +1781,15 @@ class OssClient
         $options[self::OSS_BUCKET] = $toBucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = $toObject;
+        $param = '/' . $fromBucket . '/' . rawurlencode($fromObject);
+        if (isset($options[self::OSS_VERSION_ID])) {
+            $param = $param . '?versionId='.$options[self::OSS_VERSION_ID];
+            unset($options[self::OSS_VERSION_ID]);
+        }
         if (isset($options[self::OSS_HEADERS])) {
-            $options[self::OSS_HEADERS][self::OSS_OBJECT_COPY_SOURCE] = '/' . $fromBucket . '/' . $fromObject;
+            $options[self::OSS_HEADERS][self::OSS_OBJECT_COPY_SOURCE] = $param;
         } else {
-            $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_COPY_SOURCE => '/' . $fromBucket . '/' . $fromObject);
+            $options[self::OSS_HEADERS] = array(self::OSS_OBJECT_COPY_SOURCE => $param);
         }
         $response = $this->auth($options);
         $result = new CopyObjectResult($response);
@@ -1837,6 +1887,41 @@ class OssClient
         $options[self::OSS_CONTENT] = $xmlBody;
         $response = $this->auth($options);
         $result = new DeleteObjectsResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Deletes multiple objects with version id in a bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $objects DeleteObjectInfo list
+     * @param array $options
+     * @return ResponseCore
+     * @throws null
+     */
+    public function deleteObjectVersions($bucket, $objects, $options = null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        if (!is_array($objects) || !$objects) {
+            throw new OssException('objects must be array');
+        }
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'delete';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $quiet = 'false';
+        if (isset($options['quiet'])) {
+            if (is_bool($options['quiet'])) { //Boolean
+                $quiet = $options['quiet'] ? 'true' : 'false';
+            } elseif (is_string($options['quiet'])) { // string
+                $quiet = ($options['quiet'] === 'true') ? 'true' : 'false';
+            }
+        }
+        $xmlBody = OssUtil::createDeleteObjectVersionsXmlBody($objects, $quiet);
+        $options[self::OSS_CONTENT] = $xmlBody;
+        $response = $this->auth($options);
+        $result = new DeleteObjectVersionsResult($response);
         return $result->getData();
     }
 
@@ -2257,7 +2342,13 @@ class OssClient
             $options[self::OSS_HEADERS] = array();
         }
 
-        $options[self::OSS_HEADERS][self::OSS_OBJECT_COPY_SOURCE] = '/' . $fromBucket . '/' . $fromObject;
+        $param = '/' . $fromBucket . '/' . rawurlencode($fromObject);
+        if (isset($options[self::OSS_VERSION_ID])) {
+            $param = $param . '?versionId='.$options[self::OSS_VERSION_ID];
+            unset($options[self::OSS_VERSION_ID]);
+        }
+
+        $options[self::OSS_HEADERS][self::OSS_OBJECT_COPY_SOURCE] = $param;
         $options[self::OSS_HEADERS][self::OSS_OBJECT_COPY_SOURCE_RANGE] = "bytes=" . $start_range . "-" . $end_range;
         $response = $this->auth($options);
         $result = new UploadPartResult($response);
@@ -2734,10 +2825,13 @@ class OssClient
         }
         // Generates the signable_resource
         $signable_resource = $this->generateSignableResource($options);
-        $string_to_sign .= rawurldecode($signable_resource) . urldecode($signable_query_string);
+        $signable_resource = rawurldecode($signable_resource) . urldecode($signable_query_string);
+        $string_to_sign_ordered = $string_to_sign;
+        $string_to_sign .= $signable_resource;
 
         // Sort the strings to be signed.
-        $string_to_sign_ordered = $this->stringToSignSorted($string_to_sign);
+        $string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
+
 
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
         $request->add_header('Authorization', 'OSS ' . $this->accessKeyId . ':' . $signature);
@@ -2978,6 +3072,7 @@ class OssClient
             self::OSS_TAGGING,
             self::OSS_WORM_ID,
             self::OSS_TRAFFIC_LIMIT,
+            self::OSS_VERSION_ID,
         );
 
         foreach ($signableList as $item) {
@@ -3252,6 +3347,10 @@ class OssClient
     const OSS_TAGGING = 'tagging';
     const OSS_WORM_ID = 'wormId';
     const OSS_RESTORE_CONFIG = 'restore-config';
+    const OSS_KEY_MARKER = 'key-marker';
+    const OSS_VERSION_ID_MARKER = 'version-id-marker';
+    const OSS_VERSION_ID = 'versionId';
+    const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

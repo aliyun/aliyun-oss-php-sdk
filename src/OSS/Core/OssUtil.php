@@ -419,6 +419,28 @@ BBB;
     }
 
     /**
+     * Generate the xml message of DeleteMultiObjects.
+     *
+     * @param DeleteObjectInfo[] $objects
+     * @param bool $quiet
+     * @return string
+     */
+    public static function createDeleteObjectVersionsXmlBody($objects, $quiet)
+    {
+        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><Delete></Delete>');
+        $xml->addChild('Quiet', $quiet);
+        foreach ($objects as $object) {
+            $sub_object = $xml->addChild('Object');
+            $key = OssUtil::sReplace($object->getKey());
+            $sub_object->addChild('Key', $key);
+            if (!empty($object->getVersionId())) {
+                $sub_object->addChild('VersionId', $object->getVersionId());
+            }
+        }
+        return $xml->asXML();
+    }
+
+    /**
      * Generate the xml message of CompleteMultipartUpload.
      *
      * @param array[] $listParts
