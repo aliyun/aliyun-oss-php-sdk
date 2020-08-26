@@ -395,7 +395,11 @@ BBB;
         if ($pos !== false) {
             $str = substr($str, $pos+1);
         }
-        
+       
+        if (!preg_match('/^[\w.-]+(:[0-9]+)?$/', $str)) {
+            throw new OssException("endpoint is invalid:" . $endpoint);
+        }
+
         return $str;
     }
 

@@ -246,11 +246,46 @@ BBBB;
         $str =  OssUtil::getHostPortFromEndpoint('192.168.1.10:8080');
         $this->assertEquals('192.168.1.10:8080', $str);
 
-        $str =  OssUtil::getHostPortFromEndpoint('http:///path?arg=value#anchor');
-        $this->assertEquals('', $str);
-
         $str =  OssUtil::getHostPortFromEndpoint('file://username:password@hostname:80/path?arg=value#anchor');
         $this->assertEquals('hostname:80', $str);
+
+        $str =  OssUtil::getHostPortFromEndpoint('https://WWW.hostname.com-_www.test.com');
+        $this->assertEquals('WWW.hostname.com-_www.test.com', $str);
+
+        try {
+            $str =  OssUtil::getHostPortFromEndpoint('http:///path?arg=value#anchor');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
+
+        try {
+            $str =  OssUtil::getHostPortFromEndpoint('https://www.hostname.com\www.test.com');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
+
+        try {
+            $str =  OssUtil::getHostPortFromEndpoint('www.hostname.com-_*www.test.com');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
+
+        try {
+            $str =  OssUtil::getHostPortFromEndpoint('www.hostname.com:ab123');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
+
+        try {
+            $str =  OssUtil::getHostPortFromEndpoint('www.hostname.com:');
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+        }
     }
 
     public function testDecodeKey()
