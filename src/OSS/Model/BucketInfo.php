@@ -11,6 +11,20 @@ namespace OSS\Model;
  */
 class BucketInfo
 {
+     /**
+     * BucketInfo constructor.
+     *
+     * @param string $location
+     * @param string $name
+     * @param string $createDate
+     */
+    public function __construct($location = '', $name = '', $createDate = '')
+    {
+        $this->location = $location;
+        $this->createDate = $createDate;
+        $this->name = $name;
+    }
+    
     /**
      * Get bucket location
      *
