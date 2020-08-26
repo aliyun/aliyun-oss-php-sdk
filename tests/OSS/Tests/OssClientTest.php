@@ -60,6 +60,7 @@ class OssClientTest extends TestOssClientBase
     {
         try {
             $ossClient = new OssClient('id', 'key', "123.123.123.1");
+            $this->assertTrue(true);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
@@ -70,6 +71,15 @@ class OssClientTest extends TestOssClientBase
         try {
             $ossClient = new OssClient('id', 'key', "https://123.123.123.1");
             $this->assertTrue($ossClient->isUseSSL());
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            $ossClient = new OssClient('id', 'key', "https://123.123.123.1:3128");
+            $this->assertTrue($ossClient->isUseSSL());
+            $this->assertTrue(true);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
@@ -80,6 +90,15 @@ class OssClientTest extends TestOssClientBase
         try {
             $ossClient = new OssClient('id', 'key', "http://123.123.123.1");
             $this->assertFalse($ossClient->isUseSSL());
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            $ossClient = new OssClient('id', 'key', "http://123.123.123.1:3128");
+            $this->assertFalse($ossClient->isUseSSL());
+            $this->assertTrue(true);
         } catch (OssException $e) {
             $this->assertTrue(false);
         }
@@ -106,6 +125,36 @@ class OssClientTest extends TestOssClientBase
             $ossClient->listBuckets();
         } catch (OssException $e) {
             $this->assertFalse(true);
+        }
+    }
+
+    public function testConstrunct10()
+    {
+        try {
+            $ossClient = new OssClient('id', 'key', "http://ABC-COM.TEST.123.cn", true);
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+    }
+
+    public function testConstrunct11()
+    {
+        try {
+            $ossClient = new OssClient('id', 'key', "oss-test.com\\aliyuncs.com");
+            $this->assertFalse(true);
+        } catch (OssException $e) {
+            $this->assertEquals('endpoint is invalid:'."oss-test.com\\aliyuncs.com", $e->getMessage());
+        }
+    }
+
+    public function testConstrunct12()
+    {
+        try {
+            $ossClient = new OssClient('id', 'key', "192.168.1.0:abc123");
+            $this->assertFalse(true);
+        } catch (OssException $e) {
+            $this->assertEquals('endpoint is invalid:'."192.168.1.0:abc123", $e->getMessage());
         }
     }
 
