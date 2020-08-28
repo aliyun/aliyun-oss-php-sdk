@@ -20,6 +20,23 @@ class OssUtil
     const OSS_MIN_PART_SIZE = 102400; // 100KB
 
     /**
+     * Get the file size
+     *
+     * @param string $file
+     * @return number
+     */
+    public static function getFilesize($file)
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN") {
+            exec('for %I in ("' . $file . '") do @echo %~zI', $output);
+            $return = $output[0];
+        } else {
+            $return = filesize($file);
+        }
+        return $return;
+    }
+
+    /**
      * Generate query params
      *
      * @param array $options: a key-value pair array.
@@ -338,8 +355,8 @@ BBB;
      */
     public static function encodePath($file_path)
     {
-        if (self::chkChinese($file_path) && self::isWin()) {
-            $file_path = iconv('utf-8', 'gbk', $file_path);
+        if (mb_detect_encoding($file_path, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5')) !== 'UTF-8') {
+            $file_path = iconv('gbk', 'utf-8', $file_path);
         }
         return $file_path;
     }
@@ -453,7 +470,7 @@ BBB;
         if ($recursive) {
             foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir)) as $new_file) {
                 if ($new_file->isDir()) continue;
-                $object = str_replace($base_path, '', $new_file);
+                $object = strtr($new_file, array($base_path => '', '\\' => '/'));
                 if (!in_array(strtolower($object), $exclude_array)) {
                     $object = ltrim($object, '/');
                     if (is_file($new_file)) {
