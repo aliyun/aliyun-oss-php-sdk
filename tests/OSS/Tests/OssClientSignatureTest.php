@@ -93,6 +93,43 @@ class OssClientSignatureTest extends TestOssClientBase
         }
     }
 
+    function testGetgenPreSignedUrlForGettingObject()
+    {
+        $object = "a.file";
+        $this->ossClient->putObject($this->bucket, $object, file_get_contents(__FILE__));
+        $expires = time() + 3600;
+        try {
+            $signedUrl = $this->ossClient->generatePresignedUrl($this->bucket, $object, $expires);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        $request = new RequestCore($signedUrl);
+        $request->set_method('GET');
+        $request->add_header('Content-Type', '');
+        $request->send_request();
+        $res = new ResponseCore($request->get_response_header(), $request->get_response_body(), $request->get_response_code());
+        $this->assertEquals(file_get_contents(__FILE__), $res->body);
+    }
+
+    function testGetgenPreSignedUrlVsSignedUrl()
+    {
+        $object = "object-vs.file";
+        $signedUrl1 = '245';
+        $signedUrl2 = '123';
+        $expiration = 0;
+
+        do {
+            usleep(500000);
+            $begin = time();
+            $expiration = time() + 3600;
+            $signedUrl1 = $this->ossClient->generatePresignedUrl($this->bucket, $object, $expiration);
+            $signedUrl2 = $this->ossClient->signUrl($this->bucket, $object, 3600);
+            $end = time();
+        } while ($begin != $end);
+        $this->assertEquals($signedUrl1, $signedUrl2);
+        $this->assertTrue(strpos($signedUrl1, 'Expires='.$expiration) !== false);
+    }
 
     public function tearDown()
     {

@@ -834,6 +834,41 @@ class OssClient
     }
 
     /**
+     * Generates the signed pushing streaming url
+     *
+     * @param string $bucket bucket name
+     * @param string $channelName channel name
+     * @param int $expiration expiration time of the Url, unix epoch, since 1970.1.1 00.00.00 UTC
+     * @param array $options
+     * @throws OssException
+     * @return The signed pushing streaming url
+     */
+    public function generatePresignedRtmpUrl($bucket, $channelName, $expiration, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $channelName, $options, false);
+        $proto = 'rtmp://';
+        $hostname = $this->generateHostname($bucket);
+        $cano_params = '';
+        $query_items = array();
+        $params = isset($options['params']) ? $options['params'] : array();
+        uksort($params, 'strnatcasecmp');
+        foreach ($params as $key => $value) {
+            $cano_params = $cano_params . $key . ':' . $value . "\n";
+            $query_items[] = rawurlencode($key) . '=' . rawurlencode($value);
+        }
+        $resource = '/' . $bucket . '/' . $channelName;
+
+        $string_to_sign = $expiration . "\n" . $cano_params . $resource;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $this->accessKeySecret, true));
+
+        $query_items[] = 'OSSAccessKeyId=' . rawurlencode($this->accessKeyId);
+        $query_items[] = 'Expires=' . rawurlencode($expiration);
+        $query_items[] = 'Signature=' . rawurlencode($signature);
+
+        return $proto . $hostname . '/live/' . $channelName . '?' . implode('&', $query_items);
+    }
+
+    /**
      * Precheck the CORS request. Before sending a CORS request, a preflight request (OPTIONS) is sent with the specific origin.
      * HTTP METHOD and headers information are sent to OSS as well for evaluating if the CORS request is allowed. 
      * 
@@ -2570,6 +2605,37 @@ class OssClient
         $timeout = time() + $timeout;
         $options[self::OSS_PREAUTH] = $timeout;
         $options[self::OSS_DATE] = $timeout;
+        $this->setSignStsInUrl(true);
+        return $this->auth($options);
+    }
+
+    /**
+     * Sign URL with specified expiration time in seconds and HTTP method.
+     * The signed URL could be used to access the object directly.
+     *
+     * @param string $bucket
+     * @param string $object
+     * @param int $expiration expiration time of the Url, unix epoch, since 1970.1.1 00.00.00 UTC
+     * @param string $method
+     * @param array $options Key-Value array
+     * @return string
+     * @throws OssException
+     */
+    public function generatePresignedUrl($bucket, $object, $expiration, $method = self::OSS_HTTP_GET, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        //method
+        if (self::OSS_HTTP_GET !== $method && self::OSS_HTTP_PUT !== $method) {
+            throw new OssException("method is invalid");
+        }
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_METHOD] = $method;
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = '';
+        }
+        $options[self::OSS_PREAUTH] = $expiration;
+        $options[self::OSS_DATE] = $expiration;
         $this->setSignStsInUrl(true);
         return $this->auth($options);
     }
