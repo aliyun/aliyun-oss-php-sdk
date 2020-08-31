@@ -1681,6 +1681,45 @@ class OssClient
     }
 
     /**
+     * Uploads object from file handle
+     *
+     * @param string $bucket bucket name
+     * @param string $object object name
+     * @param resource $handle file handle
+     * @param array $options
+     * @return null
+     * @throws OssException
+     */
+    public function uploadStream($bucket, $object, $handle, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        if (!is_resource($handle)) {
+            throw new OssException("The handle must be an opened stream");
+        }
+        $options[self::OSS_FILE_UPLOAD] = $handle;
+        if ($this->isCheckMD5($options)) {
+            rewind($handle);
+            $ctx = hash_init('md5');
+            hash_update_stream($ctx, $handle);
+            $content_md5 = base64_encode(hash_final($ctx, true));
+            rewind($handle);
+            $options[self::OSS_CONTENT_MD5] = $content_md5;
+        }
+        if (!isset($options[self::OSS_CONTENT_TYPE])) {
+            $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
+        }
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_OBJECT] = $object;
+        if (!isset($options[self::OSS_CONTENT_LENGTH])) {
+            $options[self::OSS_CONTENT_LENGTH] = fstat($handle)[self::OSS_SIZE];
+        }
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
      * Append the object with the content at the specified position.
      * The specified position is typically the lengh of the current file.
      * @param string $bucket bucket name
