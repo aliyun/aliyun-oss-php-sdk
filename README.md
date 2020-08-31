@@ -111,7 +111,7 @@ The OssClient provides the following two types of returned data from interfaces:
     $bucketListInfo = $ossClient->listBuckets();
     $bucketList = $bucketListInfo->getBucketList();
     foreach($bucketList as $bucket) {
-        print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreatedate() . "\n");
+        print($bucket->getLocation() . "\t" . $bucket->getName() . "\t" . $bucket->getCreateDate() . "\n");
     }
     ```
 In the above code, $bucketListInfo falls into the 'OSS\Model\BucketListInfo' data type.
