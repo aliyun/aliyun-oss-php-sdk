@@ -187,15 +187,25 @@ class OssClientTest extends TestOssClientBase
 
     public function testCreateObjectDir()
     {
+        $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
+        $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
+        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $bucket = $this->bucket;
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
+
         try {
-            $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
-            $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = $this->bucket;
             $object='test-dir';
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->createObjectDir($bucket,$object);
         } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $object='0';
+            $ossClient->createObjectDir($bucket,$object);
+            $ossClient->putObject($bucket,$object, '');
+        } catch (OssException $e) {
+            var_dump($e);
             $this->assertFalse(true);
         }
     }

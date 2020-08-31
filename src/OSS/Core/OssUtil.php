@@ -145,7 +145,7 @@ class OssUtil
     public static function validateObject($object)
     {
         $pattern = '/^.{1,1023}$/';
-        if (empty($object) || !preg_match($pattern, $object) ||
+        if (!preg_match($pattern, $object) ||
             self::startsWith($object, '/') || self::startsWith($object, '\\')
         ) {
             return false;
@@ -223,6 +223,8 @@ class OssUtil
     public static function throwOssExceptionWithMessageIfEmpty($name, $errMsg)
     {
         if (empty($name)) {
+            if (is_string($name) && $name == '0')
+                return;
             throw new OssException($errMsg);
         }
     }
