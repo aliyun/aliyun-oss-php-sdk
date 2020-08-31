@@ -620,6 +620,50 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testUploadStream()
+    {
+    	$object = "oss-php-sdk-test/put-from-stream.txt";
+    	$options = array(OssClient::OSS_CHECK_MD5 => true);
+        $handle = fopen(__FILE__, 'rb');
+    	/**
+    	 * Upload data to start MD5
+    	 */
+    	try {
+    		$this->ossClient->uploadStream($this->bucket, $object, $handle, $options);
+    	} catch (OssException $e) {
+    		$this->assertFalse(true);
+    	}
+    	
+    	/**
+    	 * Check if the replication is the same
+    	 */
+    	try {
+    		$content = $this->ossClient->getObject($this->bucket, $object);
+    		$this->assertEquals($content, file_get_contents(__FILE__));
+    	} catch (OssException $e) {
+    		$this->assertFalse(true);
+    	}
+
+    	$object = "oss-php-sdk-test/put-from-stream-without-md5.txt";
+        $handle = fopen(__FILE__, 'rb');
+    	try {
+    		$this->ossClient->uploadStream($this->bucket, $object, $handle);
+    	} catch (OssException $e) {
+    		$this->assertFalse(true);
+    	}
+    	
+    	/**
+    	 * Check if the replication is the same
+    	 */
+    	try {
+    		$content = $this->ossClient->getObject($this->bucket, $object);
+    		$this->assertEquals($content, file_get_contents(__FILE__));
+    	} catch (OssException $e) {
+    		$this->assertFalse(true);
+    	}
+
+    }
+    
     public function setUp()
     {
         parent::setUp();
