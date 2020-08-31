@@ -1,5 +1,0 @@
-* text=auto
-
-/samples     export-ignore
-/tests       export-ignore
-/phpunit.xml export-ignore
