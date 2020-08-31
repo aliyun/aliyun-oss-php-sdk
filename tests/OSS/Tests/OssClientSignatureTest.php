@@ -75,6 +75,25 @@ class OssClientSignatureTest extends TestOssClientBase
 
     }
 
+    public function testSignedUrlWithException()
+    {
+        $file = __FILE__;
+        $object = "a.file";
+        $timeout = 3600;
+        $options = array('Content-Type' => 'txt');
+        try {
+            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "POST", $options);
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+            if (strpos($e, "method is invalid") == false)
+            {
+                $this->assertTrue(false);
+            }
+        }
+    }
+
+
     public function tearDown()
     {
         $this->ossClient->deleteObject($this->bucket, "a.file");
