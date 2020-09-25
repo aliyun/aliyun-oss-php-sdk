@@ -1132,7 +1132,8 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'policy';
         $response = $this->auth($options);
-        return $response->body;
+        $result = new BodyResult($response);
+        return $result->getData();
     }
 
     /**
