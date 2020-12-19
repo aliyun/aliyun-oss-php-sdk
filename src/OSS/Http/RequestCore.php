@@ -777,7 +777,7 @@ class RequestCore
      * data stored in the `curl_handle` and `response` properties unless replacement data is passed in via
      * parameters.
      *
-     * @param resource $curl_handle (Optional) The reference to the already executed cURL request.
+     * @param resource|object $curl_handle (Optional) The reference to the already executed cURL request.
      * @param string $response (Optional) The actual response content itself that needs to be parsed.
      * @return ResponseCore A <ResponseCore> object containing a parsed HTTP response.
      */
@@ -789,7 +789,7 @@ class RequestCore
         }
 
         // As long as this came back as a valid resource...
-        if ($curl_handle !== false) {
+        if (is_resource($curl_handle) || is_object($curl_handle)) {
             // Determine what's what.
             $header_size = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
             $this->response_headers = substr($this->response, 0, $header_size);
