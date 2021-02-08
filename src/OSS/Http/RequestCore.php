@@ -778,7 +778,7 @@ class RequestCore
      * parameters.
      *
      * @param resource $curl_handle (Optional) The reference to the already executed cURL request.
-     * @param string $response (Optional) The actual response content itself that needs to be parsed.
+     * @param resource|\CurlHandle|null|false $curl_handle (Optional) The reference to the already executed cURL request. Receive CurlHandle instance from PHP8.0
      * @return ResponseCore A <ResponseCore> object containing a parsed HTTP response.
      */
     public function process_response($curl_handle = null, $response = null)
@@ -788,8 +788,8 @@ class RequestCore
             $this->response = $response;
         }
 
-        // As long as this came back as a valid resource...
-        if (is_resource($curl_handle)) {
+        // As long as this came back as a valid resource or CurlHandle instance...
+        if (is_resource($curl_handle) || (is_object($curl_handle) && get_class($curl_handle) === 'CurlHandle')) {
             // Determine what's what.
             $header_size = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
             $this->response_headers = substr($this->response, 0, $header_size);
