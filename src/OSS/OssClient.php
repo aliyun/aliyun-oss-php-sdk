@@ -1729,7 +1729,7 @@ class OssClient
     public function uploadStream($bucket, $object, $handle, $options = NULL)
     {
         $this->precheckCommon($bucket, $object, $options);
-        if (!is_resource($handle)) {
+        if (empty($handle)) {
             throw new OssException("The handle must be an opened stream");
         }
         $options[self::OSS_FILE_UPLOAD] = $handle;
@@ -2850,7 +2850,7 @@ class OssClient
         $request->set_useragent($this->generateUserAgent());
         // Streaming uploads
         if (isset($options[self::OSS_FILE_UPLOAD])) {
-            if (is_resource($options[self::OSS_FILE_UPLOAD])) {
+            if (!empty($options[self::OSS_FILE_UPLOAD])) {
                 $length = null;
 
                 if (isset($options[self::OSS_CONTENT_LENGTH])) {
@@ -2877,7 +2877,7 @@ class OssClient
             $request->set_seek_position((integer)$options[self::OSS_SEEK_TO]);
         }
         if (isset($options[self::OSS_FILE_DOWNLOAD])) {
-            if (is_resource($options[self::OSS_FILE_DOWNLOAD])) {
+            if (!empty($options[self::OSS_FILE_DOWNLOAD])) {
                 $request->set_write_stream($options[self::OSS_FILE_DOWNLOAD]);
             } else {
                 $request->set_write_file($options[self::OSS_FILE_DOWNLOAD]);
