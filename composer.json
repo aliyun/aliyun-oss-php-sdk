@@ -1,5 +1,5 @@
 {
-    "name": "mimic/oss-sdk-php",
+    "name": "aliyuncs/oss-sdk-php",
     "description": "Aliyun OSS SDK for PHP",
     "homepage": "http://www.aliyun.com/product/oss/",
     "type": "library",
