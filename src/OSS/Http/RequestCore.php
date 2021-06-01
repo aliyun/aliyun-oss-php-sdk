@@ -850,6 +850,7 @@ class RequestCore
         $parsed_response = $this->process_response($curl_handle, $this->response);
 
         curl_close($curl_handle);
+        unset($curl_handle);
 
         if ($parse) {
             return $parsed_response;
