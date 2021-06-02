@@ -3257,7 +3257,12 @@ class OssClient
 
         $queryStringSorted = substr($queryStringSorted, 0, -1);
 
-        return $explodeResult[0] . '?' . $queryStringSorted;
+        $result = '';
+        for ($i = 0; $i < $index -1; $i++)
+        {
+            $result .= $explodeResult[$i] . '?';
+        }
+        return $result . $queryStringSorted;
     }
 
     /**
