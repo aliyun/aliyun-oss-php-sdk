@@ -773,7 +773,7 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->ossClient->putObject($this->bucket, 'oss-php-sdk-test/upload-test-object-name.txt', file_get_contents(__FILE__));
