@@ -3248,7 +3248,7 @@ class OssClient
             return $string_to_sign;
 
         $queryStringParams = explode('&', $explodeResult[$index - 1]);
-        sort($queryStringParams);
+        sort($queryStringParams, SORT_NUMERIC);
 
         foreach($queryStringParams as $params)
         {
