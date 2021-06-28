@@ -1698,6 +1698,7 @@ class OssClient
             throw new OssException($file . " file does not exist");
         }
         $options[self::OSS_FILE_UPLOAD] = $file;
+        clearstatcache();
         $file_size = filesize($options[self::OSS_FILE_UPLOAD]);
         $is_check_md5 = $this->isCheckMD5($options);
         if ($is_check_md5) {
