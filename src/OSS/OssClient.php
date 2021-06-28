@@ -3075,6 +3075,11 @@ class OssClient
             } elseif (OssUtil::checkChar($options[self::OSS_OBJECT], true)) {
                 $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
             }
+        } catch (\Throwable $e) {
+            try {
+                $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
+            } catch (\Throwable $e) {
+            }
         } catch (\Exception $e) {
             try {
                 $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
