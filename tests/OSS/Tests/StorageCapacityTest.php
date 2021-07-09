@@ -61,3 +61,6 @@ BBBB;
         $this->assertEquals($content, $xml);
     }
 }
+
+
+https://example-walker.oss-cn-chengdu.aliyuncs.com/user-dir-prefix/ljjemllljcmogpfapbkkighbhhppjdbg.zip?Expires=1625740937&OSSAccessKeyId=TMP.3KgLbqTFtGEDNmHPiWHp3PnuC1sgXUMyk1rcLfySaA8nb26k2USJtH3F23wMhbNCDcVzCiNFW77zzcqw1Zs9Lo5svv2fFP&Signature=NUQhonUH0mTGuf76vN16VBEn40I%3D&versionId=CAEQURiBgICW0f2V1BciIDE2MmI3MWRiYzkxNTQyN2M5MjVjYjI2MmRiOWQ3MGZk&response-content-type=application%2Foctet-stream

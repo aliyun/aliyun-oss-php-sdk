@@ -24,7 +24,7 @@ class OssClientBucketPolicyTest extends TestOssClientBase
               }
             ]
         }
-        BBBB;
+BBBB;
 
         try {
             $this->ossClient->deleteBucketPolicy($this->bucket);
