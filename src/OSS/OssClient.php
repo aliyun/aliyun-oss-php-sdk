@@ -8,13 +8,17 @@ use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\InventoryConfig;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\StorageCapacityConfig;
+use OSS\Model\TransferAccelerationConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketInventoryResult;
+use OSS\Result\GetBucketTransferAccelerationResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -1492,6 +1496,131 @@ class OssClient
         $result = new GetBucketWormResult($response);
         return $result->getData();
     }
+
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param $enabled boolean
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+
+    public function putBucketTransferAcceleration($bucket,$enabled,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new TransferAccelerationConfig($enabled);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param null $options
+     * @return enabled boolean
+     * @throws OssException
+     */
+    public function getBucketTransferAcceleration($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketTransferAccelerationResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * @param $bucket
+     * @param $inventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function putBucketInventory($bucket, $inventoryConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig['Id'];
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new InventoryConfig($inventoryConfig);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * @param $bucket
+     * @param $inventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function getBucketInventory($bucket, $inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketInventoryResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * @param $bucket
+     * @param $inventoryConfigId
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function listBucketInventory($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory';
+        $options[self::OSS_CONTENT_TYPE] = 'text/plain';
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
+        return $result->getData();
+    }
+
+
+    public function deleteBucketInventory($bucket,$inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+
 
     /**
      * Lists the bucket's object list (in ObjectListInfo)

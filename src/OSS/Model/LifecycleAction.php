@@ -77,8 +77,34 @@ class LifecycleAction
      */
     public function appendToXml(&$xmlRule)
     {
-        $xmlAction = $xmlRule->addChild($this->action);
-        $xmlAction->addChild($this->timeSpec, $this->timeValue);
+        switch ($this->action) {
+            case 'Tag':
+                $xmlAction = $xmlRule->addChild($this->action);
+                $xmlAction->addChild('Key', $this->timeSpec);
+                $xmlAction->addChild('Value', $this->timeValue);
+                # code...
+                break;
+            case 'Transition':
+                if ($xmlRule->Transition) {
+                    $xmlRule->Transition->addChild($this->timeSpec, $this->timeValue);
+                } else {
+                    $xmlAction = $xmlRule->addChild($this->action);
+                    $xmlAction->addChild($this->timeSpec, $this->timeValue);
+                }
+                # code...
+                break;
+            case 'NoncurrentVersionTransition':
+                if ($xmlRule->NoncurrentVersionTransition) {
+                    $xmlRule->NoncurrentVersionTransition->addChild($this->timeSpec, $this->timeValue);
+                } else {
+                    $xmlAction = $xmlRule->addChild($this->action);
+                    $xmlAction->addChild($this->timeSpec, $this->timeValue);
+                }
+                break;
+            default:
+                $xmlAction = $xmlRule->addChild($this->action);
+                $xmlAction->addChild($this->timeSpec, $this->timeValue);
+        }
     }
 
     private $action;

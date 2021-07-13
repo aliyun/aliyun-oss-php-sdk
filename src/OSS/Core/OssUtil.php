@@ -527,4 +527,45 @@ BBB;
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
     }
+
+
+    /**
+     * array turn to xml
+     * @param $arr
+     * @param  $dom
+     * @param \DOMDocument $dom
+     * @param \DOMElement $item
+     * @return string
+     */
+    public static function arrToXml($arr,$dom,$item,$rootNode="Configuration")
+    {
+        if (!$dom) {
+            $dom = new \DOMDocument("1.0",'utf-8');
+        }
+        if (!$item) {
+            $item = $dom->createElement($rootNode);
+            $dom->appendChild($item);
+        }
+        foreach ($arr as $key => $val) {
+            $node = $dom->createElement(is_string($key) ? $key : "item");
+            $item->appendChild($node);
+            if (!is_array($val)) {
+                if(is_bool($val)){
+                    if($val == true){
+                        $text = $dom->createTextNode('true');
+                    }else{
+                        $text = $dom->createTextNode('false');
+                    }
+
+                }else{
+                    $text = $dom->createTextNode($val);
+                }
+
+                $node->appendChild($text);
+            } else {
+                self::arrToXml($val, $dom, $node);
+            }
+        }
+        return $dom->saveXML();
+    }
 }
