@@ -14,10 +14,15 @@ class InventoryConfig implements XmlConfig
 {
 
     private $configs = array();
-    public function __construct($configs=null)
+
+    /**
+     * @param $configs array
+     */
+    public function setConfigs($configs)
     {
         $this->configs = $configs;
     }
+
     /**
      * Parse the xml into this object.
      *
@@ -27,7 +32,10 @@ class InventoryConfig implements XmlConfig
      */
     public function parseFromXml($strXml)
     {
-
+        $this->configs = array();
+        $xml = simplexml_load_string($strXml);
+        $xmlJson= json_encode($xml);//将对象转换个JSON
+        $this->configs =json_decode($xmlJson,true);
     }
 
 
@@ -98,6 +106,10 @@ class InventoryConfig implements XmlConfig
     public function __toString()
     {
         return $this->serializeToXml();
+    }
+
+    public function getConfigs(){
+        return $this->configs;
     }
 
 

@@ -17,6 +17,7 @@ class GetBucketTransferAccelerationResult extends Result
         $content = $this->rawResponse->body;
         $config = new TransferAccelerationConfig();
         $config->parseFromXml($content);
-        return $config->getEnabled();
+        $enabled = $config->getEnabled();
+        return $enabled;
     }
 }

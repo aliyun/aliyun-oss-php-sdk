@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: yangpeng
- * Date: 2021/7/13
- * Time: 10:37
- */
 
 namespace OSS\Result;
 
@@ -21,7 +15,6 @@ class CommonResult extends Result
      */
     protected function parseDataFromResponse()
     {
-        $body = array('body' => $this->rawResponse->body);
-        return array_merge($this->rawResponse->header, $body);
+        return array_merge($this->rawResponse->header, $this->rawResponse->body);
     }
 }

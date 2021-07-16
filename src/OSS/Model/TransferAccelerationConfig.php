@@ -13,15 +13,6 @@ class TransferAccelerationConfig implements XmlConfig
 {
 
     /**
-     * TransferAccelerationConfig constructor.
-     * @param bool $enabled true
-     */
-    public function __construct($enabled=true)
-    {
-        $this->enabled = $enabled;
-    }
-
-    /**
      * Parse TransferAccelerationConfig from the xml.
      * @param string $strXml
      * @throws OssException
@@ -30,27 +21,20 @@ class TransferAccelerationConfig implements XmlConfig
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
-        if (isset($xml->enabled)) {
-            $this->enabled = $xml->enabled;
-        }
+        if (!isset($xml->Enabled)) return;
+        $this->enabled = strval($xml->Enabled);
     }
 
     /**
      * Serialize the object into xml string.
-     *
+     *sss
      * @return string
      */
     public function serializeToXml()
     {
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><TransferAccelerationConfiguration></TransferAccelerationConfiguration>');
         if (isset($this->enabled)) {
-            if($this->enabled === true){
-                $xml->addChild('Enabled','true');
-            }
-            if($this->enabled === false){
-                $xml->addChild('Enabled','false');
-            }
-
+            $xml->addChild('Enabled',$this->enabled);
         }
         return $xml->asXML();
     }
@@ -60,9 +44,18 @@ class TransferAccelerationConfig implements XmlConfig
         return $this->serializeToXml();
     }
 
+    /**
+     * set enabled
+     * @param $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = strval($enabled);
+    }
+
 
     /**
-     * @return bool
+     * @return string 'true' 'false'
      */
     public function getEnabled()
     {
@@ -70,7 +63,7 @@ class TransferAccelerationConfig implements XmlConfig
     }
 
     /**
-     * @var $enabled boolean
+     * @var $enabled string 'true' 'false'
      */
     private $enabled;
 }

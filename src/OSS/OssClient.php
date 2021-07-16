@@ -29,6 +29,7 @@ use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
+use OSS\Result\ListBucketInventoryResult;
 use OSS\Result\ListBucketsResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
@@ -1515,7 +1516,8 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
-        $config = new TransferAccelerationConfig($enabled);
+        $config = new TransferAccelerationConfig();
+        $config->setEnabled($enabled);
         $options[self::OSS_CONTENT] = $config->serializeToXml();
         $response = $this->auth($options);
         $result = new HeaderResult($response);
@@ -1558,7 +1560,8 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig['Id'];
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
-        $config = new InventoryConfig($inventoryConfig);
+        $config = new InventoryConfig();
+        $config->setConfigs($inventoryConfig);
         $options[self::OSS_CONTENT] = $config->serializeToXml();
         $response = $this->auth($options);
         $result = new HeaderResult($response);
@@ -1567,6 +1570,7 @@ class OssClient
 
 
     /**
+     * get Inventory by InventoryId
      * @param $bucket
      * @param $inventoryConfig
      * @param null $options
@@ -1588,8 +1592,8 @@ class OssClient
 
 
     /**
+     * list Inventory
      * @param $bucket
-     * @param $inventoryConfigId
      * @param null $options
      * @return null
      * @throws OssException
@@ -1608,6 +1612,14 @@ class OssClient
     }
 
 
+    /**
+     * delete Inventory by InventoryId
+     * @param $bucket
+     * @param $inventoryConfigId string
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
     public function deleteBucketInventory($bucket,$inventoryConfigId, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
@@ -1744,6 +1756,7 @@ class OssClient
         }
 
         $is_check_md5 = $this->isCheckMD5($options);
+
         if ($is_check_md5) {
         	$content_md5 = base64_encode(md5($content, true));
         	$options[self::OSS_CONTENT_MD5] = $content_md5;
@@ -1962,8 +1975,18 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'append';
         $options[self::OSS_POSITION] = strval($position);
 
+        if(isset($options[self::OSS_CHECK_CRC64])){
+            $crc64 = $options[self::OSS_CHECK_CRC64];
+            unset($options[self::OSS_CHECK_CRC64]);
+        }
+
         $response = $this->auth($options);
-        $result = new AppendResult($response);
+        if(isset($crc64) && $crc64 == true){
+            $result = new HeaderResult($response);
+        }else{
+            $result = new AppendResult($response);
+        }
+
         return $result->getData();
     }
 
@@ -2157,6 +2180,7 @@ class OssClient
             unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
+        var_dump($response);die;
         $result = new BodyResult($response);
         return $result->getData();
     }
@@ -2388,8 +2412,18 @@ class OssClient
         if (isset($options[self::OSS_LENGTH])) {
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
+
+        if(isset($options[self::OSS_CHECK_CRC64])){
+            $crc64 = $options[self::OSS_CHECK_CRC64];
+            unset($options[self::OSS_CHECK_CRC64]);
+        }
+
         $response = $this->auth($options);
-        $result = new UploadPartResult($response);
+        if(isset($crc64) && $crc64 == true){
+            $result = new HeaderResult($response);
+        }else{
+            $result = new UploadPartResult($response);
+        }
         return $result->getData();
     }
 
@@ -3085,7 +3119,7 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
+//var_dump($request);die;
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -3573,6 +3607,7 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const OSS_CHECK_CRC64 = 'checkmcrc64';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
     const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const OSS_SYMLINK = 'symlink';

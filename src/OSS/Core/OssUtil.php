@@ -320,6 +320,57 @@ BBB;
         return $content_md5;
     }
 
+
+    /**
+     * Get crc64 of the file.
+     *
+     * @param $filename
+     * @param $from_pos
+     * @param $to_pos
+     * @return string
+     */
+    public static function getCrc64SumForFile($filename, $from_pos, $to_pos)
+    {
+        $content_crc64 = 0;
+        if (($to_pos - $from_pos) > self::OSS_MAX_PART_SIZE) {
+            return $content_crc64;
+        }
+        $filesize = sprintf('%u',filesize($filename));
+        if ($from_pos >= $filesize || $to_pos >= $filesize || $from_pos < 0 || $to_pos < 0) {
+            return $content_crc64;
+        }
+
+        $total_length = $to_pos - $from_pos + 1;
+        $buffer = 8192;
+        $left_length = $total_length;
+        if (!file_exists($filename)) {
+            return $content_crc64;
+        }
+
+        if (false === $fh = fopen($filename, 'rb')) {
+            return $content_crc64;
+        }
+
+        fseek($fh, $from_pos);
+        $data = '';
+        while (!feof($fh)) {
+            if ($left_length >= $buffer) {
+                $read_length = $buffer;
+            } else {
+                $read_length = $left_length;
+            }
+            if ($read_length <= 0) {
+                break;
+            } else {
+                $data .= fread($fh, $read_length);
+                $left_length = $left_length - $read_length;
+            }
+        }
+        fclose($fh);
+        $content_crc64 = self::crc64($data,'%u');
+        return $content_crc64;
+    }
+
     /**
      * Check if the OS is Windows. The default encoding in Windows is GBK.
      *
@@ -567,5 +618,56 @@ BBB;
             }
         }
         return $dom->saveXML();
+    }
+
+    /**
+     * @return array
+     */
+    public static function crc64Table(){
+        $crc64tab = array();
+        // ECMA polynomial
+        $poly64rev = (0xC96C5795 << 32) | 0xD7870F42;
+        // ISO polynomial
+        // $poly64rev = (0xD8 << 56);
+        for ($i = 0; $i < 256; $i++)
+        {
+            for ($part = $i, $bit = 0; $bit < 8; $bit++) {
+                if ($part & 1) {
+                    $part = (($part >> 1) & ~(0x8 << 60)) ^ $poly64rev;
+                } else {
+                    $part = ($part >> 1) & ~(0x8 << 60);
+                }
+            }
+            $crc64tab[$i] = $part;
+        }
+        return $crc64tab;
+    }
+
+    /**
+     * get crc64 function
+     * @param string $string
+     * @param string $format
+     * @return mixed
+     *
+     * Formats:
+     *  crc64('php'); // afe4e823e7cef190
+     *  crc64('php', '0x%x'); // 0xafe4e823e7cef190
+     *  crc64('php', '0x%X'); // 0xAFE4E823E7CEF190
+     *  crc64('php', '%d'); // -5772233581471534704 signed int
+     *  crc64('php', '%u'); // 12674510492238016912 unsigned int
+     */
+    public static function crc64($string, $format = '%x'){
+        static $crc64tab;
+        if ($crc64tab === null) {
+            $crc64tab = self::crc64Table();
+        }
+
+        $crc = 0;
+        for ($i = 0; $i < strlen($string); $i++) {
+            $crc = ~$crc;
+            $crc = $crc64tab[($crc ^ ord($string[$i])) & 0xff] ^ (($crc >> 8) & ~(0xff << 56));
+            $crc = ~$crc;
+        }
+        return sprintf($format, $crc);
     }
 }

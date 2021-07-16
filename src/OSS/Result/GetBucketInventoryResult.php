@@ -14,7 +14,9 @@ class GetBucketInventoryResult extends Result
      */
     protected function parseDataFromResponse()
     {
-        return $content = $this->rawResponse->body;
-
+        $content = $this->rawResponse->body;
+        $config = new InventoryConfig();
+        $config->parseFromXml($content);
+        return $config->getConfigs();
     }
 }
