@@ -8,13 +8,17 @@ use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\InventoryConfig;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\StorageCapacityConfig;
+use OSS\Model\TransferAccelerationConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketInventoryResult;
+use OSS\Result\GetBucketTransferAccelerationResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -25,6 +29,7 @@ use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
+use OSS\Result\ListBucketInventoryResult;
 use OSS\Result\ListBucketsResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
@@ -1493,6 +1498,142 @@ class OssClient
         return $result->getData();
     }
 
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param $enabled boolean
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+
+    public function putBucketTransferAcceleration($bucket,$enabled,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new TransferAccelerationConfig();
+        $config->setEnabled($enabled);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param null $options
+     * @return enabled boolean
+     * @throws OssException
+     */
+    public function getBucketTransferAcceleration($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketTransferAccelerationResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * @param $bucket
+     * @param $inventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function putBucketInventory($bucket, $inventoryConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig['Id'];
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new InventoryConfig();
+        $config->setConfigs($inventoryConfig);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * get Inventory by InventoryId
+     * @param $bucket
+     * @param $inventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function getBucketInventory($bucket, $inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketInventoryResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * list Inventory
+     * @param $bucket
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function listBucketInventory($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory';
+        $options[self::OSS_CONTENT_TYPE] = 'text/plain';
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * delete Inventory by InventoryId
+     * @param $bucket
+     * @param $inventoryConfigId string
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function deleteBucketInventory($bucket,$inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+
+
     /**
      * Lists the bucket's object list (in ObjectListInfo)
      *
@@ -1615,6 +1756,7 @@ class OssClient
         }
 
         $is_check_md5 = $this->isCheckMD5($options);
+
         if ($is_check_md5) {
         	$content_md5 = base64_encode(md5($content, true));
         	$options[self::OSS_CONTENT_MD5] = $content_md5;
@@ -1698,7 +1840,7 @@ class OssClient
             throw new OssException($file . " file does not exist");
         }
         $options[self::OSS_FILE_UPLOAD] = $file;
-        $file_size = filesize($options[self::OSS_FILE_UPLOAD]);
+        $file_size = sprintf('%u',filesize($options[self::OSS_FILE_UPLOAD]));
         $is_check_md5 = $this->isCheckMD5($options);
         if ($is_check_md5) {
             $content_md5 = base64_encode(md5_file($options[self::OSS_FILE_UPLOAD], true));
@@ -1816,7 +1958,7 @@ class OssClient
             throw new OssException($file . " file does not exist");
         }
         $options[self::OSS_FILE_UPLOAD] = $file;
-        $file_size = filesize($options[self::OSS_FILE_UPLOAD]);
+        $file_size =  sprintf('%u',filesize($options[self::OSS_FILE_UPLOAD]));;
         $is_check_md5 = $this->isCheckMD5($options);
         if ($is_check_md5) {
             $content_md5 = base64_encode(md5_file($options[self::OSS_FILE_UPLOAD], true));
@@ -1833,8 +1975,18 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'append';
         $options[self::OSS_POSITION] = strval($position);
 
+        if(isset($options[self::OSS_CHECK_CRC64])){
+            $crc64 = $options[self::OSS_CHECK_CRC64];
+            unset($options[self::OSS_CHECK_CRC64]);
+        }
+
         $response = $this->auth($options);
-        $result = new AppendResult($response);
+        if(isset($crc64) && $crc64 == true){
+            $result = new HeaderResult($response);
+        }else{
+            $result = new AppendResult($response);
+        }
+
         return $result->getData();
     }
 
@@ -2028,6 +2180,7 @@ class OssClient
             unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
+        var_dump($response);die;
         $result = new BodyResult($response);
         return $result->getData();
     }
@@ -2259,8 +2412,18 @@ class OssClient
         if (isset($options[self::OSS_LENGTH])) {
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
+
+        if(isset($options[self::OSS_CHECK_CRC64])){
+            $crc64 = $options[self::OSS_CHECK_CRC64];
+            unset($options[self::OSS_CHECK_CRC64]);
+        }
+
         $response = $this->auth($options);
-        $result = new UploadPartResult($response);
+        if(isset($crc64) && $crc64 == true){
+            $result = new HeaderResult($response);
+        }else{
+            $result = new UploadPartResult($response);
+        }
         return $result->getData();
     }
 
@@ -2460,7 +2623,8 @@ class OssClient
         if (isset($options[self::OSS_CONTENT_LENGTH])) {
             $upload_file_size = (integer)$options[self::OSS_CONTENT_LENGTH];
         } else {
-            $upload_file_size = filesize($uploadFile);
+            $upload_file_size = sprintf('%u',filesize($uploadFile));
+
             if ($upload_file_size !== false) {
                 $upload_file_size -= $upload_position;  
             }
@@ -2955,7 +3119,7 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
+//var_dump($request);die;
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -3443,6 +3607,7 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const OSS_CHECK_CRC64 = 'checkmcrc64';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
     const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const OSS_SYMLINK = 'symlink';
