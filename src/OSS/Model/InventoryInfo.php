@@ -13,8 +13,8 @@ class InventoryInfo
     private $isEnabled = "";
     private $destination = array();
     private $schedule = array();
-    private $filter = '';
-    private $includedObjectVersions = array();
+    private $filter = "";
+    private $includedObjectVersions = "";
     private $optionalFields = array();
     /**
      * PartInfo constructor.
@@ -34,4 +34,64 @@ class InventoryInfo
         $this->includedObjectVersions = $includedObjectVersions;
         $this->optionalFields = $optionalFields;
     }
+    
+    
+    /**
+     * @return mixed
+     */
+    public function getId(){
+        return $this->id;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getIsEnabled(){
+        return $this->isEnabled;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getDestination(){
+        return $this->destination;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getOssBucketDestination(){
+        return $this->destination['OSSBucketDestination'];
+    }
+    
+    /**
+     * @return array
+     */
+    public function getSchedule(){
+        return $this->schedule;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getFilter(){
+        return $this->filter;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getIncludedObjectVersions(){
+        return $this->includedObjectVersions;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getOptionalFields(){
+        return $this->optionalFields;
+    }
+    
+    
+    
 }

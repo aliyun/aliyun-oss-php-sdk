@@ -3,6 +3,7 @@
 namespace OSS\Result;
 
 use OSS\Model\InventoryInfo;
+use OSS\Model\InventoryListInfo;
 
 /**
  * Class ListObjectsResult
@@ -13,15 +14,19 @@ class ListBucketInventoryResult extends Result
     /**
      * Parse the xml data returned by the ListObjects interface
      *
-     * return ObjectListInfo
+     * return InventoryListInfo
      */
     protected function parseDataFromResponse()
     {
         $xml = new \SimpleXMLElement($this->rawResponse->body);
-        return $inventoryList = $this->parseInventoryList($xml);
+        $encodingType = isset($xml->EncodingType) ? strval($xml->EncodingType) : "";
+        $inventoryList = $this->parseInventoryList($xml,$encodingType);
+        $isTruncated = isset($xml->IsTruncated) ? strval($xml->IsTruncated) : "";
+        $nextContinuationToken = isset($xml->NextContinuationToken) ? strval($xml->NextContinuationToken) : "";
+        return new InventoryListInfo($isTruncated,$nextContinuationToken,$inventoryList);
     }
 
-    private function parseInventoryList($xml)
+    private function parseInventoryList($xml,$encodingType)
     {
         $invList = array();
         if (isset($xml->InventoryConfiguration)) {
@@ -38,5 +43,4 @@ class ListBucketInventoryResult extends Result
         }
         return $invList;
     }
-
 }

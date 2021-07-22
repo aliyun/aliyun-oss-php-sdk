@@ -6,22 +6,117 @@ use OSS\Core\OssException;
 
 
 /**
- * Class BucketInventoryConfig
+ * Class InventoryConfig
  * @package OSS\Model
  * @link https://help.aliyun.com/document_detail/177800.htm
  */
 class InventoryConfig implements XmlConfig
 {
+    const OBJECT_VERSION_CURRENT = 'Current';
+    const OBJECT_VERSION_ALL = 'All';
 
-    private $configs = array();
+    const FREQUENCY_WEEKLY = 'Weekly';
+    const FREQUENCY_DAILY = 'Daily';
+    
+    const IS_ENABIED_TRUE = 'true';
+    const IS_ENABIED_FALSE = 'false';
+    
+    const FIELD_SIZE = 'Size';
+    const FIELD_LAST_MODIFIED_DATE = 'LastModifiedDate';
+    const FIELD_IS_MULTIPART_UPLOADED = 'IsMultipartUploaded';
+    const FIELD_ETAG = 'ETag';
+    const FIELD_STORAGECLASS = 'StorageClass';
+    const FIELD_ENCRYPTIONSTATUS = 'EncryptionStatus';
+
+    const DEST_FORMAT = 'CSV';
+    
+    private $config = array();
+    /**
+     * InventoryConfig constructor.
+     * array(
+        'Id'=>'report2',
+        'IsEnabled'=>true,
+        'Filter'=>array(
+            'Prefix'=>'filterPrefix',
+        ),
+        'Destination'=> array(
+            'OSSBucketDestination'=>array(
+                'Format'=>'CSV',
+                'AccountId'=>'1000000000000000',
+                'RoleArn'=>'acs:ram::1000000000000000:role/AliyunOSSRole',
+                'Bucket'=>'acs:oss:::<bucket_name>',
+                'Prefix'=>'prefix1',
+                'Encryption'=>array(
+                    'SSE-KMS'=>array(
+                        'KeyId'=>'key1'
+                    )
+                )
+            ),
+        ),
+        'Schedule'=>array(
+            'Frequency'=>'Daily',
+        ),
+        'IncludedObjectVersions'=>'All',
+        'OptionalFields'=>array(
+            'Field'=>array('Size','LastModifiedDate')
+        )
+    );
+     */
+    public function __construct()
+    {
+        $this->config = array();
+    }
 
     /**
      * @param $configs array
      */
-    public function setConfigs($configs)
+    public function setConfig($config)
     {
-        $this->configs = $configs;
+        $this->config = $config;
     }
+
+    public function addId($id)
+    {
+        $this->config['Id'] = $id;
+    }
+
+    public function addIsEnabled($isEnabled)
+    {
+        $this->config['IsEnabled'] = $isEnabled;
+    }
+
+    public function addDestination($destination)
+    {
+        $temp['OSSBucketDestination'] = $destination->oSSBucketDestination;
+        $this->config['Destination'] = $temp;
+    }
+
+    public function addSchedule($schedule)
+    {
+        $this->config['Schedule']['Frequency'] = $schedule;
+    }
+    
+    public function addPrefix($prefix)
+    {
+        $this->config['Filter']['Prefix'] = $prefix;
+    }
+
+    public function addIncludedObjectVersions($includedObjectVersions)
+    {
+        $this->config['IncludedObjectVersions'] = $includedObjectVersions;
+    }
+
+
+    /**
+     * @param $fields array
+     */
+    public function addOptionalFields($fields)
+    {
+        $temp['Field'] = $fields;
+        $this->config['OptionalFields'] = $temp;
+    }
+
+
 
     /**
      * Parse the xml into this object.
@@ -46,7 +141,7 @@ class InventoryConfig implements XmlConfig
      */
     public function serializeToXml()
     {
-        return $xml = $this->arrToXml($this->configs,null,null,'InventoryConfiguration');
+        return $xml = $this->arrToXml($this->config,null,null,'InventoryConfiguration');
     }
 
     /**
@@ -107,11 +202,18 @@ class InventoryConfig implements XmlConfig
     {
         return $this->serializeToXml();
     }
-
-    public function getConfigs(){
-        return $this->configs;
+    
+    /**
+     * @return array
+     */
+    public function getConfig(){
+        return $this->config;
     }
 
+    public function getId(){
+        return $this->config['Id'];
+    }
+    
 
 }
 

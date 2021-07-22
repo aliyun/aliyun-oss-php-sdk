@@ -12,70 +12,22 @@ namespace OSS\Model;
  */
 class InventoryListInfo
 {
+
+    private $isTruncated = null;
+    private $nextContinuationToken = "";
+    private $inventoryList = array();
+
     /**
-     * ObjectListInfo constructor.
-     *
-     * @param string $bucketName
-     * @param string $prefix
-     * @param string $marker
-     * @param string $nextMarker
-     * @param string $maxKeys
-     * @param string $delimiter
-     * @param null $isTruncated
-     * @param array $objectList
-     * @param array $prefixList
+     * InventoryListInfo constructor.
+     * @param $isTruncated boolean
+     * @param $nextContinuationToken string
+     * @param array $inventoryList
      */
-    public function __construct($bucketName, $prefix, $marker, $nextMarker, $maxKeys, $delimiter, $isTruncated, array $objectList, array $prefixList)
+    public function __construct($isTruncated,$nextContinuationToken,array $inventoryList)
     {
-        $this->bucketName = $bucketName;
-        $this->prefix = $prefix;
-        $this->marker = $marker;
-        $this->nextMarker = $nextMarker;
-        $this->maxKeys = $maxKeys;
-        $this->delimiter = $delimiter;
         $this->isTruncated = $isTruncated;
-        $this->objectList = $objectList;
-        $this->prefixList = $prefixList;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBucketName()
-    {
-        return $this->bucketName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMarker()
-    {
-        return $this->marker;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMaxKeys()
-    {
-        return $this->maxKeys;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDelimiter()
-    {
-        return $this->delimiter;
+        $this->nextContinuationToken = $nextContinuationToken;
+        $this->inventoryList = $inventoryList;
     }
 
     /**
@@ -87,40 +39,23 @@ class InventoryListInfo
     }
 
     /**
-     * Get the ObjectInfo list.
-     *
-     * @return ObjectInfo[]
-     */
-    public function getObjectList()
-    {
-        return $this->objectList;
-    }
-
-    /**
-     * Get the PrefixInfo list
-     *
-     * @return PrefixInfo[]
-     */
-    public function getPrefixList()
-    {
-        return $this->prefixList;
-    }
-
-    /**
+     * get nextContinuationToken
      * @return string
      */
-    public function getNextMarker()
+    public function getNextContinuationToken()
     {
-        return $this->nextMarker;
+        return $this->nextContinuationToken;
     }
 
-    private $bucketName = "";
-    private $prefix = "";
-    private $marker = "";
-    private $nextMarker = "";
-    private $maxKeys = 0;
-    private $delimiter = "";
-    private $isTruncated = null;
-    private $objectList = array();
-    private $prefixList = array();
+
+    /**
+     * get the inventoryInfo list
+     * @return InventoryInfo[]
+     */
+    public function getInventoryList()
+    {
+        return $this->inventoryList;
+    }
+
+
 }

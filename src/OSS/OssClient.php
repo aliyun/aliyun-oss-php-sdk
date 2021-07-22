@@ -1547,7 +1547,7 @@ class OssClient
 
     /**
      * @param $bucket
-     * @param $inventoryConfig
+     * @param $inventoryConfig InventoryConfig
      * @param null $options
      * @return null
      * @throws OssException
@@ -1558,11 +1558,9 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig['Id'];
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig->getId();
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
-        $config = new InventoryConfig();
-        $config->setConfigs($inventoryConfig);
-        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $options[self::OSS_CONTENT] = $inventoryConfig->serializeToXml();
         $response = $this->auth($options);
         $result = new HeaderResult($response);
         return $result->getData();
@@ -1607,7 +1605,7 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'inventory';
         $options[self::OSS_CONTENT_TYPE] = 'text/plain';
         $response = $this->auth($options);
-        $result = new BodyResult($response);
+        $result = new ListBucketInventoryResult($response);
         return $result->getData();
     }
 
@@ -1703,6 +1701,7 @@ class OssClient
                   self::OSS_KEY_MARKER => isset($options[self::OSS_KEY_MARKER]) ? $options[self::OSS_KEY_MARKER] : '',
                   self::OSS_VERSION_ID_MARKER => isset($options[self::OSS_VERSION_ID_MARKER]) ? $options[self::OSS_VERSION_ID_MARKER] : '')
         );
+
 
         $response = $this->auth($options);
         $result = new ListObjectVersionsResult($response);
@@ -3627,6 +3626,7 @@ class OssClient
     const OSS_VERSION_ID_MARKER = 'version-id-marker';
     const OSS_VERSION_ID = 'versionId';
     const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
+    const OSS_CONTINUATION_TOKEN = 'continuation-token';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
