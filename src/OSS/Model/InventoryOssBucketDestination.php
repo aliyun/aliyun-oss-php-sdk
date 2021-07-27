@@ -81,7 +81,7 @@ class InventoryOssBucketDestination
      */
     public function addEncryptionKms($keyId)
     {
-        $this->oSSBucketDestination['Encryption']['SSE-KMS'] = $keyId;
+        $this->oSSBucketDestination['Encryption']['SSE-KMS']['KeyId'] = $keyId;
     }
 
 

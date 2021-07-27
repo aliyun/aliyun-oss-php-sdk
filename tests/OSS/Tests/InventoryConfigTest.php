@@ -3,6 +3,7 @@
 namespace OSS\Tests;
 
 use OSS\Model\InventoryConfig;
+use OSS\Model\InventoryOssBucketDestination;
 
 class InventoryConfigTest extends \PHPUnit\Framework\TestCase
 {
@@ -48,10 +49,31 @@ BBBB;
 <InventoryConfiguration></InventoryConfiguration>
 BBBB;
 
-    public function testValidXmlXml()
+    public function testValidXml()
     {
-        $inventoryConfig = new InventoryConfig();
-        $inventoryConfig->parseFromXml($this->validXml);
+		$inventoryConfig = new InventoryConfig();
+		$inventoryConfig->addId('report1');
+		$inventoryConfig->addIsEnabled(InventoryConfig::IS_ENABIED_TRUE);
+		$inventoryConfig->addPrefix('filterPrefix/');
+		$ossBucketDestination = new InventoryOssBucketDestination();
+		$ossBucketDestination->addFormat(InventoryOssBucketDestination::DEST_FORMAT);
+		$ossBucketDestination->addAccountId('1000000000000000');
+		$ossBucketDestination->addRoleArn('AliyunOSSRole');
+		$ossBucketDestination->addBucketName('destination-bucket');
+		$ossBucketDestination->addPrefix('prefix1');
+		$ossBucketDestination->addEncryptionKms('keyId');
+		$inventoryConfig->addDestination($ossBucketDestination);
+		$inventoryConfig->addSchedule(InventoryConfig::FREQUENCY_DAILY);
+		$inventoryConfig->addIncludedObjectVersions(InventoryConfig::OBJECT_VERSION_ALL);
+		$fields = array(
+			InventoryConfig::FIELD_SIZE,
+			InventoryConfig::FIELD_LAST_MODIFIED_DATE,
+			InventoryConfig::FIELD_ETAG,
+			InventoryConfig::FIELD_STORAGECLASS,
+			InventoryConfig::FIELD_IS_MULTIPART_UPLOADED,
+			InventoryConfig::FIELD_ENCRYPTIONSTATUS,
+		);
+		$inventoryConfig->addOptionalFields($fields);
         $this->assertEquals($this->cleanXml($inventoryConfig->serializeToXml()), $this->cleanXml($this->validXml));
     }
 
@@ -59,7 +81,7 @@ BBBB;
     {
         $inventoryConfig = new InventoryConfig();
         $inventoryConfig->parseFromXml($this->cleanXml($this->invalidXml));
-        $this->assertEquals(array(), $inventoryConfig->getConfigs());
+        $this->assertEquals($this->cleanXml($this->invalidXml), $this->cleanXml($inventoryConfig->serializeToXml()));
     }
 
     private function cleanXml($xml)

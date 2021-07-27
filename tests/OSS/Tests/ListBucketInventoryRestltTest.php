@@ -5,6 +5,9 @@ namespace OSS\Tests;
 use OSS\Model\InventoryConfig;
 use OSS\Result\ListBucketInventoryResult;
 use OSS\Http\ResponseCore;
+use OSS\Result\Result;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+
 class ListBucketInventoryRestltTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -102,7 +105,7 @@ BBBB;
 <InventoryConfiguration></InventoryConfiguration>
 BBBB;
 
-    public function testValidXmlXml()
+    public function testValidXml()
     {
         $response = new ResponseCore(array(), $this->validXml, 200);
         $result = new ListBucketInventoryResult($response);
@@ -110,7 +113,43 @@ BBBB;
         $this->assertNotNull($result->getData());
         $this->assertNotNull($result->getRawResponse());
         $this->assertNotNull($result->getRawResponse()->body);
+		$lists = $result->getData()->getInventoryList();
+		$this->assertEquals("report1", $lists[0]->getId());
+		$this->assertEquals("true", $lists[0]->getIsEnabled());
+		$this->assertEquals("All", $lists[0]->getIncludedObjectVersions());
+		$this->assertEquals("Daily", $lists[0]->getSchedule()['Frequency']);
+		if ($lists[0]->getFilter()['Prefix']) {
+			$this->assertEquals("prefix/One", $lists[0]->getFilter()['Prefix']);
+		}
+		if ($lists[0]->getOptionalFields()['Field']) {
+			$this->assertEquals("Size", $lists[0]->getOptionalFields()['Field'][0]);
+			$this->assertEquals("EncryptionStatus", $lists[0]->getOptionalFields()['Field'][5]);
+		}
+	
+		if ($lists[0]->getOptionalFields()['Field']) {
+			$this->assertEquals("Size", $lists[0]->getOptionalFields()['Field'][0]);
+			$this->assertEquals("EncryptionStatus", $lists[0]->getOptionalFields()['Field'][5]);
+		}
+	
+		$destination = $lists[0]->getOssBucketDestination();
+		$this->assertEquals("CSV", $destination['Format']);
+		$this->assertEquals("1000000000000000", $destination['AccountId']);
+		$this->assertEquals("acs:ram::1000000000000000:role/AliyunOSSRole", $destination['RoleArn']);
+		$this->assertEquals("acs:oss:::destination-bucket", $destination['Bucket']);
+		$this->assertEquals("prefix1", $destination['Prefix']);
     }
+	
+	public function testInvalidXml()
+	{
+		$response = new ResponseCore(array(), $this->invalidXml, 200);
+		$result = new ListBucketInventoryResult($response);
+		$this->assertTrue($result->isOK());
+		$this->assertNotNull($result->getData());
+		$this->assertNotNull($result->getRawResponse());
+		$this->assertNotNull($result->getRawResponse()->body);
+		$lists = $result->getData()->getInventoryList();
+		$this->assertEquals(array(),$lists);
+	}
 
     private function cleanXml($xml)
     {

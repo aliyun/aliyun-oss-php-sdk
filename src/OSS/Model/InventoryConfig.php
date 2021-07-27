@@ -127,10 +127,10 @@ class InventoryConfig implements XmlConfig
      */
     public function parseFromXml($strXml)
     {
-        $this->configs = array();
+        $this->config = array();
         $xml = simplexml_load_string($strXml);
         $xmlJson= json_encode($xml);//将对象转换个JSON
-        $this->configs =json_decode($xmlJson,true);
+        $this->config =json_decode($xmlJson,true);
     }
 
 
@@ -190,7 +190,7 @@ class InventoryConfig implements XmlConfig
                 $this->arrToXml($val, $dom, $node);
             }
         }
-        return $dom->saveXML();
+        return $dom->saveXML(null,LIBXML_NOEMPTYTAG);
     }
 
     /**

@@ -89,55 +89,56 @@ if($destination['Encryption']){
 
 
 // list inventory configuration
+
 $option = array(
-    OssClient::OSS_CONTINUATION_TOKEN => null
+	OssClient::OSS_CONTINUATION_TOKEN => null
 );
 $bool = true;
-while ($bool){
-    $result = $ossClient->listBucketInventory($bucket,$option);
-    Common::println("=======List bucket inventory configuration=======");
-    Common::println("istruncated: {$result->getIsTruncated()}");
-    Common::println("nextContinuationToken: {$result->getNextContinuationToken()}");
-    ## 查看列举Object的版本信息。
-    foreach ($result->getInventoryList() as $key => $info){
-        Common::println("===Inventory configuration===");
-        Common::println("inventoryId: {$info->getId()}");
-        Common::println("isenabled: {$info->getIsEnabled()}");
-        Common::println("includedVersions: {$info->getIncludedObjectVersions()}");
-        Common::println("schdule: {$info->getSchedule()['Frequency']}");
-        if ($info->getFilter()['Prefix']) {
-            Common::println("filter, prefix: {$info->getFilter()['Prefix']}");
-        }
-
-        if($info->getOptionalFields()['Field']){
-            foreach ($info->getOptionalFields()['Field'] as $field){
-                Common::println("field: {$field}");
-            }
-        }
-        Common::println("===bucket destination config===");
-        $destination = $info->getOssBucketDestination();
-        Common::println("format: {$destination['Format']}");
-        Common::println("bucket: {$destination['Bucket']}");
-        Common::println("prefix: {$destination['Prefix']}");
-        Common::println("accountId: {$destination['AccountId']}");
-        Common::println("roleArn: {$destination['RoleArn']}");
-        if($destination['Encryption']){
-            if(isset($destination['Encryption']['SSE-KMS'])){
-                Common::println("server-side kms encryption key id: {$destination['Encryption']['SSE-KMS']['KeyId']}");
-            }
-
-            if(isset($destination['Encryption']['SSE-OSS'])){
-                Common::println("server-side oss encryption.");
-            }
-
-        }
-    }
-
-    if($result->getIsTruncated() === 'true'){
-        $option[OssClient::OSS_CONTINUATION_TOKEN] = $result->getNextContinuationToken();
-    }else{
-        $bool = false;
-    }
+while ($bool) {
+	$result = $ossClient->listBucketInventory($bucket, $option);
+	Common::println("=======List bucket inventory configuration=======");
+	Common::println("istruncated: " . $result->getIsTruncated());
+	Common::println("nextContinuationToken: " . $result->getNextContinuationToken());
+	## 查看列举Object的版本信息。
+	foreach ($result->getInventoryList() as $key => $info) {
+		Common::println("===Inventory configuration===");
+		Common::println("inventoryId: " . $info->getId());
+		Common::println("isenabled: " . $info->getIsEnabled());
+		Common::println("includedVersions: " . $info->getIncludedObjectVersions());
+		Common::println("schdule: " . $info->getSchedule()['Frequency']);
+		if ($info->getFilter()['Prefix']) {
+			Common::println("filter, prefix: " . $info->getFilter()['Prefix']);
+		}
+		
+		if ($info->getOptionalFields()['Field']) {
+			foreach ($info->getOptionalFields()['Field'] as $field) {
+				Common::println("field: " . $field);
+			}
+		}
+		Common::println("===bucket destination config===");
+		$destination = $info->getOssBucketDestination();
+		Common::println("format: " . $destination['Format']);
+		Common::println("bucket: " . $destination['Bucket']);
+		Common::println("prefix: " . $destination['Prefix']);
+		Common::println("accountId: " . $destination['AccountId']);
+		Common::println("roleArn: " . $destination['RoleArn']);
+		if ($destination['Encryption']) {
+			if (isset($destination['Encryption']['SSE-KMS'])) {
+				Common::println("server-side kms encryption key id: " . $destination['Encryption']['SSE-KMS']['KeyId']);
+			}
+			
+			if (isset($destination['Encryption']['SSE-OSS'])) {
+				Common::println("server-side oss encryption.");
+			}
+			
+		}
+	}
+	
+	if ($result->getIsTruncated() === 'true') {
+		$option[OssClient::OSS_CONTINUATION_TOKEN] = $result->getNextContinuationToken();
+	} else {
+		$bool = false;
+	}
 }
 
 // delete inventory configuration
