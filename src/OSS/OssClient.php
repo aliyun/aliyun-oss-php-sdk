@@ -72,6 +72,8 @@ use OSS\Result\ListObjectVersionsResult;
 use OSS\Model\DeleteObjectInfo;
 use OSS\Model\DeletedObjectInfo;
 use OSS\Result\DeleteObjectVersionsResult;
+use OSS\Model\TransferAccelerationConfig;
+use OSS\Result\GetBucketTransferAccelerationResult;
 
 /**
  * Class OssClient
@@ -1490,6 +1492,52 @@ class OssClient
         $options[self::OSS_SUB_RESOURCE] = 'worm';
         $response = $this->auth($options);
         $result = new GetBucketWormResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param $enabled boolean
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+
+    public function putBucketTransferAcceleration($bucket,$enabled,$options = NULL)
+	{
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new TransferAccelerationConfig();
+        $config->setEnabled($enabled);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+	}
+
+    /**
+     * Put Bucket TransferAcceleration
+     * @param $bucket
+     * @param null $options
+     * @return enabled boolean
+     * @throws OssException
+     */
+    public function getBucketTransferAcceleration($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketTransferAccelerationResult($response);
         return $result->getData();
     }
 
