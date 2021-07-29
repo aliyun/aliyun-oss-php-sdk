@@ -15,6 +15,7 @@ use OSS\Model\LiveChannelListInfo;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketInventoryResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -25,6 +26,7 @@ use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
+use OSS\Result\ListBucketInventoryResult;
 use OSS\Result\ListBucketsResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
@@ -1493,6 +1495,92 @@ class OssClient
         return $result->getData();
     }
 
+
+    /**
+     * @param $bucket
+     * @param $inventoryConfig InventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function putBucketInventory($bucket, $inventoryConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfig->getId();
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $inventoryConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * get Inventory by InventoryId
+     * @param $bucket
+     * @param $inventoryConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function getBucketInventory($bucket, $inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketInventoryResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * list Inventory
+     * @param $bucket
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function listBucketInventory($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory';
+        $options[self::OSS_CONTENT_TYPE] = 'text/plain';
+        $response = $this->auth($options);
+        $result = new ListBucketInventoryResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * delete Inventory by InventoryId
+     * @param $bucket
+     * @param $inventoryConfigId string
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function deleteBucketInventory($bucket,$inventoryConfigId, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'inventory&inventoryId='.$inventoryConfigId;
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+    
     /**
      * Lists the bucket's object list (in ObjectListInfo)
      *
@@ -1562,6 +1650,7 @@ class OssClient
                   self::OSS_KEY_MARKER => isset($options[self::OSS_KEY_MARKER]) ? $options[self::OSS_KEY_MARKER] : '',
                   self::OSS_VERSION_ID_MARKER => isset($options[self::OSS_VERSION_ID_MARKER]) ? $options[self::OSS_VERSION_ID_MARKER] : '')
         );
+
 
         $response = $this->auth($options);
         $result = new ListObjectVersionsResult($response);
@@ -3462,6 +3551,7 @@ class OssClient
     const OSS_VERSION_ID_MARKER = 'version-id-marker';
     const OSS_VERSION_ID = 'versionId';
     const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
+    const OSS_CONTINUATION_TOKEN = 'continuation-token';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
