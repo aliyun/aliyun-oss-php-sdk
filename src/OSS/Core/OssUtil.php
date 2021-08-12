@@ -522,7 +522,12 @@ BBB;
         }
 
         if ($encoding == "url") {
-            return rawurldecode($key);
+        	if(PHP_VERSION >= 7.1){
+				return rawurldecode($key);
+			}else{
+				$str = rawurldecode($key);
+				return mb_convert_encoding($str, "gb2312", "UTF-8");
+			}
         } else {
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
