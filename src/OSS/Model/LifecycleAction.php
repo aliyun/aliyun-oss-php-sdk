@@ -77,8 +77,54 @@ class LifecycleAction
      */
     public function appendToXml(&$xmlRule)
     {
-        $xmlAction = $xmlRule->addChild($this->action);
-        $xmlAction->addChild($this->timeSpec, $this->timeValue);
+		switch ($this->action) {
+			case 'Tag':
+				$tag = $xmlRule->Tag;
+				if($tag){
+					$number = count($tag);
+					$currentTag = $xmlRule->Tag[$number-1];
+					if($currentTag->Key && $currentTag->Value){
+						$xmlAction = $xmlRule->addChild($this->action);
+						$xmlAction->addChild($this->timeSpec, $this->timeValue);
+					}else{
+						$currentTag->addChild($this->timeSpec, $this->timeValue);
+					}
+				}else{
+					$xmlAction = $xmlRule->addChild($this->action);
+					$xmlAction->addChild($this->timeSpec, $this->timeValue);
+				}
+				# code...
+				break;
+			case 'Transition':
+				$transition = $xmlRule->Transition;
+				if($transition){
+					$number = count($transition);
+					$currentTransition = $xmlRule->Transition[$number-1];
+					if($currentTransition->Days && $currentTransition->StorageClass){
+						$xmlAction = $xmlRule->addChild($this->action);
+						$xmlAction->addChild($this->timeSpec, $this->timeValue);
+					}else{
+						$currentTransition->addChild($this->timeSpec, $this->timeValue);
+					}
+				}else{
+					$xmlAction = $xmlRule->addChild($this->action);
+					$xmlAction->addChild($this->timeSpec, $this->timeValue);
+				}
+				# code...
+				break;
+			case 'NoncurrentVersionTransition':
+				if ($xmlRule->NoncurrentVersionTransition) {
+					$xmlRule->NoncurrentVersionTransition->addChild($this->timeSpec, $this->timeValue);
+				} else {
+					$xmlAction = $xmlRule->addChild($this->action);
+					$xmlAction->addChild($this->timeSpec, $this->timeValue);
+				}
+				break;
+			default:
+				$xmlAction = $xmlRule->addChild($this->action);
+				$xmlAction->addChild($this->timeSpec, $this->timeValue);
+		
+		}
     }
 
     private $action;

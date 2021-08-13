@@ -40,6 +40,78 @@ BBBB;
 </Rule>
 </LifecycleConfiguration>
 BBBB;
+    private $validLifecycle3 = <<<BBBB
+<?xml version="1.0" encoding="utf-8"?>
+<LifecycleConfiguration>
+<Rule>
+<ID>delete objects and parts after one day</ID>
+<Prefix>logs/</Prefix>
+<Status>Enabled</Status>
+<Expiration>
+<Days>1</Days>
+</Expiration>
+<AbortMultipartUpload>
+<Days>1</Days>
+</AbortMultipartUpload>
+</Rule>
+<Rule>
+<ID>transit objects to IA after 30, to Archive 60, expire after 10 years</ID>
+<Prefix>data/</Prefix>
+<Status>Enabled</Status>
+<Transition>
+<Days>30</Days>
+<StorageClass>IA</StorageClass>
+</Transition>
+<Transition>
+<Days>60</Days>
+<StorageClass>Archive</StorageClass>
+</Transition>
+<Expiration>
+<Days>3600</Days>
+</Expiration>
+</Rule>
+<Rule>
+<ID>transit objects to Archive after 60 days</ID>
+<Prefix>important/</Prefix>
+<Status>Enabled</Status>
+<Transition>
+<Days>6</Days>
+<StorageClass>Archive</StorageClass>
+</Transition>
+</Rule>
+<Rule>
+<ID>delete created before date</ID>
+<Prefix>backup/</Prefix>
+<Status>Enabled</Status>
+<Expiration>
+<CreatedBeforeDate>2017-01-01T00:00:00.000Z</CreatedBeforeDate>
+</Expiration>
+<AbortMultipartUpload>
+<CreatedBeforeDate>2017-01-01T00:00:00.000Z</CreatedBeforeDate>
+</AbortMultipartUpload>
+</Rule>
+<Rule>
+<ID>r1</ID>
+<Prefix>rule1</Prefix>
+<Status>Enabled</Status>
+<Tag><Key>xx</Key><Value>1</Value></Tag>
+<Tag><Key>yy</Key><Value>2</Value></Tag>
+<Expiration>
+<Days>30</Days>
+</Expiration>
+</Rule>
+<Rule>
+<ID>r2</ID>
+<Prefix>rule2</Prefix>
+<Status>Enabled</Status>
+<Tag><Key>xx</Key><Value>1</Value></Tag>
+<Transition>
+<Days>60</Days>
+<StorageClass>Archive</StorageClass>
+</Transition>
+</Rule>
+</LifecycleConfiguration>
+BBBB;
 
     private $nullLifecycle = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
@@ -85,6 +157,16 @@ BBBB;
         $this->assertEquals(1, count($lifecycleConfig->getRules()));
         $rules = $lifecycleConfig->getRules();
         $this->assertEquals('delete temporary files', $rules[0]->getId());
+    }
+
+    public function testParseValidXml3()
+    {
+        $lifecycleConfig = new LifecycleConfig();
+        $lifecycleConfig->parseFromXml($this->validLifecycle3);
+        $this->assertEquals($this->cleanXml($lifecycleConfig->serializeToXml()), $this->cleanXml($this->validLifecycle3));
+        $this->assertEquals(6, count($lifecycleConfig->getRules()));
+        $rules = $lifecycleConfig->getRules();
+        $this->assertEquals('r2', $rules[5]->getId());
     }
 
     public function testParseNullXml()
