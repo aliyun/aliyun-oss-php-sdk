@@ -38,8 +38,8 @@ class LifecycleConfig implements XmlConfig
                 foreach ($value as $timeSpecKey => $timeValueValue) {
                     $timeSpec = $timeSpecKey;
                     $timeValue = strval($timeValueValue);
+					$actions[] = new LifecycleAction($action, $timeSpec, $timeValue);
                 }
-                $actions[] = new LifecycleAction($action, $timeSpec, $timeValue);
             }
             $this->rules[] = new LifecycleRule($id, $prefix, $status, $actions);
         }
