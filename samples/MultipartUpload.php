@@ -35,6 +35,22 @@ multiuploadFile($ossClient, $bucket);
 putObjectByRawApis($ossClient, $bucket);
 uploadDir($ossClient, $bucket);
 listMultipartUploads($ossClient, $bucket);
+$checkpointFile = "<uploadFile>.ucp";
+/**
+ *  the content of checkpointFile
+* {
+	"uploadId":"F1B0FF9986B6487884906EEF89BC78AF",
+    "object":"<objectName>",
+    "uploadFile":"\/mnt\/d\/www\/nextcloud-22.1.1.zip",
+    "partSize":31457280,
+    "parts":[
+		"\"EFDB0F4AB77D19CEAC64F6A25009B965\"",
+		"\"969AAFA5AC9CE01F55B68D5AF51319E6\"",
+		"\"172E8F884C09FE71DE518E872F9C680E\""
+	]
+}
+*/
+resumeUpload($ossClient,$bucket,$checkpointFile);
 
 /**
  * Upload files using multipart upload
@@ -179,4 +195,78 @@ function listMultipartUploads($ossClient, $bucket)
     printf(__FUNCTION__ . ": listMultipartUploads OK\n");
     $listUploadInfo = $listMultipartUploadInfo->getUploads();
     var_dump($listUploadInfo);
+}
+
+/**
+ * resume file
+ * @param $ossClient OSS\OssClient
+ * @param $bucket string
+ */
+function resumeUpload($ossClient, $bucket,$file)
+{
+	/**
+	 * step 1. read parts info
+	 */
+	$str = file_get_contents($file);
+	$uploadInfo = json_decode($str,true);
+	$uploadId = $uploadInfo['uploadId'];
+	$parts = $uploadInfo['parts'];
+	$object = $uploadInfo['object'];
+	/**
+	 * step 2. Upload parts
+	 */
+	$partSize = $uploadInfo['partSize'];
+	$uploadFile = $uploadInfo['uploadFile'];
+	$uploadFileSize = filesize($uploadFile);
+	$pieces = $ossClient->generateMultiuploadParts($uploadFileSize, $partSize);
+	$responseUploadPart = array();
+	$uploadPosition = 0;
+	$isCheckMd5 = true;
+	$num = count($parts);
+	foreach ($pieces as $i => $piece) {
+		if($i < $num){
+			continue;
+		}
+		$fromPos = $uploadPosition + (integer)$piece[$ossClient::OSS_SEEK_TO];
+		$toPos = (integer)$piece[$ossClient::OSS_LENGTH] + $fromPos - 1;
+		$upOptions = array(
+			$ossClient::OSS_FILE_UPLOAD => $uploadFile,
+			$ossClient::OSS_PART_NUM => ($i + 1),
+			$ossClient::OSS_SEEK_TO => $fromPos,
+			$ossClient::OSS_LENGTH => $toPos - $fromPos + 1,
+			$ossClient::OSS_CHECK_MD5 => $isCheckMd5,
+		);
+		if ($isCheckMd5) {
+			$contentMd5 = OssUtil::getMd5SumForFile($uploadFile, $fromPos, $toPos);
+			$upOptions[$ossClient::OSS_CONTENT_MD5] = $contentMd5;
+		}
+		//2. Upload each part to OSS
+		try {
+			$responseUploadPart[] = $ossClient->uploadPart($bucket, $object, $uploadId, $upOptions);
+		} catch (OssException $e) {
+			printf(__FUNCTION__ . ": initiateMultipartUpload, uploadPart - part#{$i} FAILED\n");
+			printf($e->getMessage() . "\n");
+			return;
+		}
+		printf(__FUNCTION__ . ": initiateMultipartUpload, uploadPart - part#{$i} OK\n");
+	}
+	$responseUploadPart = array_merge($parts,$responseUploadPart);
+	$uploadParts = array();
+	foreach ($responseUploadPart as $i => $eTag) {
+		$uploadParts[] = array(
+			'PartNumber' => ($i + 1),
+			'ETag' => $eTag,
+		);
+	}
+	/**
+	 * step 3. Complete the upload
+	 */
+	try {
+		$ossClient->completeMultipartUpload($bucket, $object, $uploadId, $uploadParts);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": completeMultipartUpload FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	printf(__FUNCTION__ . ": completeMultipartUpload OK\n");
 }
