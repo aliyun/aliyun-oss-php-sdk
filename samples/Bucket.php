@@ -18,6 +18,10 @@ Common::println("bucket $bucket created");
 $doesExist = $ossClient->doesBucketExist($bucket);
 Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 
+// Get the region of bucket
+$regions = $ossClient->getBucketLocation($bucket);
+Common::println("bucket $bucket region: " .print_r($regions,true));
+
 // Get the bucket list
 $bucketListInfo = $ossClient->listBuckets();
 
@@ -33,6 +37,7 @@ Common::println("bucket $bucket acl get: " . $acl);
 
 createBucket($ossClient, $bucket);
 doesBucketExist($ossClient, $bucket);
+getBucketLocation($ossClient, $bucket);
 deleteBucket($ossClient, $bucket);
 putBucketAcl($ossClient, $bucket);
 getBucketAcl($ossClient, $bucket);
@@ -80,6 +85,27 @@ function doesBucketExist($ossClient, $bucket)
     } else {
         print(__FUNCTION__ . ": FAILED" . "\n");
     }
+}
+
+
+/**
+ * Get the region of bucket
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ */
+function getBucketLocation($ossClient, $bucket)
+{
+	try {
+		$regions = $ossClient->getBucketLocation($bucket);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	
+	print("bucket $bucket region: " .print_r($regions,true));
+	
 }
 
 /**
