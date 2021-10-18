@@ -22,6 +22,10 @@ Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 $regions = $ossClient->getBucketLocation($bucket);
 Common::println("bucket $bucket region: " .print_r($regions,true));
 
+// Get the meta of a bucket
+$metas  = $ossClient->getBucketMeta($bucket);
+Common::println("bucket $bucket meta: " .print_r($metas,true));
+
 // Get the bucket list
 $bucketListInfo = $ossClient->listBuckets();
 
@@ -38,6 +42,7 @@ Common::println("bucket $bucket acl get: " . $acl);
 createBucket($ossClient, $bucket);
 doesBucketExist($ossClient, $bucket);
 getBucketLocation($ossClient, $bucket);
+getBucketMeta($ossClient,$bucket);
 deleteBucket($ossClient, $bucket);
 putBucketAcl($ossClient, $bucket);
 getBucketAcl($ossClient, $bucket);
@@ -89,7 +94,7 @@ function doesBucketExist($ossClient, $bucket)
 
 
 /**
- * Get the region of bucket
+ * Get the meta of a bucket
  *
  * @param OssClient $ossClient OssClient instance
  * @param string $bucket bucket name
@@ -106,6 +111,26 @@ function getBucketLocation($ossClient, $bucket)
 	
 	print("bucket $bucket region: " .print_r($regions,true));
 	
+}
+
+
+/**
+ *  Get the bucket's meta
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ */
+function getBucketMeta($ossClient, $bucket)
+{
+	try {
+		$metas = $ossClient->getBucketMeta($bucket);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+	print("bucket $bucket meta: " .print_r($metas,true));
 }
 
 /**
