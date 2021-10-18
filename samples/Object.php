@@ -75,6 +75,33 @@ foreach($result as $object)
 sleep(2);
 unlink("c.file.localcopy");
 
+// Normal upload and download speed limit
+$object= "b.file";
+$content = "hello world";
+
+// The speed limit is 100 KB/s, which is 819200 bit/s.
+$options = array(
+	OssClient::OSS_HEADERS => array(
+		OssClient::OSS_TRAFFIC_LIMIT => 819200,
+	));
+// Speed limit upload.
+$ossClient->putObject($bucket, $object, $content, $options);
+
+// Speed limit download.
+$ossClient->getObject($bucket, $object, $options);
+
+// Signed URL upload and download speed limit
+
+// Create a URL for uploading with a limited rate, and the validity period is 60s.
+$timeout = 60;
+$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+Common::println("b.file speed limit upload url:".$signedUrl.PHP_EOL);
+
+// Create a URL for speed-limited downloads, with a validity period of 120s.
+$timeout = 120;
+$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "GET", $options);
+Common::println("b.file speed limit download url:".$signedUrl.PHP_EOL);
+
 //******************************* For complete usage, see the following functions ****************************************************
 
 listObjects($ossClient, $bucket);
@@ -92,6 +119,10 @@ deleteObjects($ossClient, $bucket);
 doesObjectExist($ossClient, $bucket);
 getSymlink($ossClient, $bucket);
 putSymlink($ossClient, $bucket);
+putObjectSpeed($ossClient, $bucket);
+getObjectSpeed($ossClient, $bucket);
+signUrlSpeedUpload($ossClient, $bucket);
+signUrlSpeedDownload($ossClient, $bucket);
 /**
  * Create a 'virtual' folder
  *
@@ -514,5 +545,93 @@ function doesObjectExist($ossClient, $bucket)
     }
     print(__FUNCTION__ . ": OK" . "\n");
     var_dump($exist);
+}
+
+/**
+ * Speed limit upload.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function putObjectSpeed($ossClient, $bucket)
+{
+	$object = "upload-test-object-name.txt";
+	$content = file_get_contents(__FILE__);
+	$options = array(
+		OssClient::OSS_HEADERS => array(
+			OssClient::OSS_TRAFFIC_LIMIT => 819200,
+		));
+	try {
+		$ossClient->putObject($bucket, $object, $content, $options);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * Speed limit download.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function getObjectSpeed($ossClient, $bucket)
+{
+	$object = "upload-test-object-name.txt";
+	$options = array(
+		OssClient::OSS_HEADERS => array(
+			OssClient::OSS_TRAFFIC_LIMIT => 819200,
+		));
+	try {
+		$ossClient->getObject($bucket, $object, $options);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * Speed limit download.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function signUrlSpeedUpload($ossClient, $bucket)
+{
+	$object = "upload-test-object-name.txt";
+	$timeout = 120;
+	$options = array(
+		OssClient::OSS_TRAFFIC_LIMIT => 819200,
+	);
+	$timeout = 60;
+	$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+	print($signedUrl);
+}
+
+
+/**
+ * Speed limit download.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function signUrlSpeedDownload($ossClient, $bucket)
+{
+	$object = "upload-test-object-name.txt";
+	$timeout = 120;
+	$options = array(
+		OssClient::OSS_TRAFFIC_LIMIT => 819200,
+	);
+	$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "GET", $options);
+	print($signedUrl);
+	print(__FUNCTION__ . ": OK" . "\n");
 }
 
