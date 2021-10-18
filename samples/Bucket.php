@@ -18,6 +18,16 @@ Common::println("bucket $bucket created");
 $doesExist = $ossClient->doesBucketExist($bucket);
 Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
 
+// Get the info of bucket
+$info = $ossClient->getBucketInfo($bucket);
+Common::println("bucket name:".$info->getName()."\n");
+Common::println("bucket location:". $info->getLocation()."\n");
+Common::println("bucket creation time:".$info->getCreateDate()."\n");
+Common::println("bucket storage class:".$info->getStorageClass()."\n");
+Common::println("bucket extranet endpoint:".$info->getExtranetEndpoint()."\n");
+Common::println("bucket intranet endpoint:".$info->getIntranetEndpoint()."\n");
+
+
 // Get the bucket list
 $bucketListInfo = $ossClient->listBuckets();
 
@@ -33,6 +43,7 @@ Common::println("bucket $bucket acl get: " . $acl);
 
 createBucket($ossClient, $bucket);
 doesBucketExist($ossClient, $bucket);
+getBucketInfo($ossClient, $bucket);
 deleteBucket($ossClient, $bucket);
 putBucketAcl($ossClient, $bucket);
 getBucketAcl($ossClient, $bucket);
@@ -80,6 +91,31 @@ function doesBucketExist($ossClient, $bucket)
     } else {
         print(__FUNCTION__ . ": FAILED" . "\n");
     }
+}
+
+/**
+ * Get the info of bucket
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ */
+function getBucketInfo($ossClient, $bucket)
+{
+	try {
+		// 获取存储空间的信息，包括存储空间名称（Name）、所在地域（Location）、创建日期（CreateDate）、存储类型（StorageClass）、外网访问域名（ExtranetEndpoint）以及内网访问域名（IntranetEndpoint）等。
+		$info = $ossClient->getBucketInfo($bucket);
+		printf("bucket name:%s\n", $info->getName());
+		printf("bucket location:%s\n", $info->getLocation());
+		printf("bucket creation time:%s\n", $info->getCreateDate());
+		printf("bucket storage class:%s\n", $info->getStorageClass());
+		printf("bucket extranet endpoint:%s\n", $info->getExtranetEndpoint());
+		printf("bucket intranet endpoint:%s\n", $info->getIntranetEndpoint());
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
