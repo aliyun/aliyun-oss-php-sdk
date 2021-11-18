@@ -1528,6 +1528,45 @@ class OssClient
         $result = new ListObjectsResult($response);
         return $result->getData();
     }
+	
+	
+	/**
+	 * Lists the bucket's object list v2 (in ObjectListInfo)
+	 *
+	 * @param string $bucket
+	 * @param array $options are defined below:
+	 * $options = array(
+	 *      'max-keys'  => specifies max object count to return. By default is 100 and max value could be 1000.
+	 *      'prefix'    => specifies the key prefix the returned objects must have. Note that the returned keys still contain the prefix.
+	 *      'delimiter' => The delimiter of object name for grouping object. When it's specified, listObjects will differeniate the object and folder. And it will return subfolder's objects.
+	 *      'marker'    => The key of returned object must be greater than the 'marker'.
+	 *)
+	 * Prefix and marker are for filtering and paging. Their length must be less than 256 bytes
+	 * @throws OssException
+	 * @return ObjectListInfo
+	 */
+	public function listObjectsV2($bucket, $options = NULL)
+	{
+		$this->precheckCommon($bucket, NULL, $options, false);
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+		$options[self::OSS_OBJECT] = '/';
+		$query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
+		$options[self::OSS_QUERY_STRING] = array_merge(
+			$query,
+			array(
+				self::OSS_LIST_TYPE=>2,
+				self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL,
+				self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
+				self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
+				self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
+				self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '')
+		);
+		
+		$response = $this->auth($options);
+		$result = new ListObjectsResult($response);
+		return $result->getData();
+	}
 
     /**
      * Lists the bucket's object with version information (in ObjectListInfo)
@@ -3495,6 +3534,8 @@ class OssClient
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
     const OSS_ENCODING_TYPE = "encoding-type";
     const OSS_ENCODING_TYPE_URL = "url";
+    
+    const OSS_LIST_TYPE = "list-type";
 
     // Domain Types
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object
