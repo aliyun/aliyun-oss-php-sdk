@@ -24,8 +24,10 @@ class ObjectListInfo
      * @param null $isTruncated
      * @param array $objectList
      * @param array $prefixList
+	 * @param string $nextContinuationToken
+	 * @param string $startAfter
      */
-    public function __construct($bucketName, $prefix, $marker, $nextMarker, $maxKeys, $delimiter, $isTruncated, array $objectList, array $prefixList)
+    public function __construct($bucketName, $prefix, $marker, $nextMarker, $maxKeys, $delimiter, $isTruncated, array $objectList, array $prefixList,$nextContinuationToken,$startAfter)
     {
         $this->bucketName = $bucketName;
         $this->prefix = $prefix;
@@ -36,6 +38,8 @@ class ObjectListInfo
         $this->isTruncated = $isTruncated;
         $this->objectList = $objectList;
         $this->prefixList = $prefixList;
+		$this->nextContinuationToken = $nextContinuationToken;
+		$this->startAfter = $startAfter;
     }
 
     /**
@@ -113,6 +117,22 @@ class ObjectListInfo
     {
         return $this->nextMarker;
     }
+	
+	/**
+	 * @return string
+	 */
+	public function getNextContinuationToken()
+	{
+		return $this->nextContinuationToken;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getStartAfter()
+	{
+		return $this->startAfter;
+	}
 
     private $bucketName = "";
     private $prefix = "";
@@ -123,4 +143,6 @@ class ObjectListInfo
     private $isTruncated = null;
     private $objectList = array();
     private $prefixList = array();
+	private $nextContinuationToken = "";
+	private $startAfter = "";
 }

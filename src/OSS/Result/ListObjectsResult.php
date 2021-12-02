@@ -5,7 +5,9 @@ namespace OSS\Result;
 use OSS\Core\OssUtil;
 use OSS\Model\ObjectInfo;
 use OSS\Model\ObjectListInfo;
+use OSS\Model\OwnerInfo;
 use OSS\Model\PrefixInfo;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 /**
  * Class ListObjectsResult
@@ -35,7 +37,10 @@ class ListObjectsResult extends Result
         $isTruncated = isset($xml->IsTruncated) ? strval($xml->IsTruncated) : "";
         $nextMarker = isset($xml->NextMarker) ? strval($xml->NextMarker) : "";
         $nextMarker = OssUtil::decodeKey($nextMarker, $encodingType);
-        return new ObjectListInfo($bucketName, $prefix, $marker, $nextMarker, $maxKeys, $delimiter, $isTruncated, $objectList, $prefixList);
+		$nextContinuationToken = isset($xml->NextContinuationToken) ? strval($xml->NextContinuationToken) : "";
+		$startAfter = isset($xml->StartAfter) ? strval($xml->StartAfter) : "";
+		$startAfter =  OssUtil::decodeKey($startAfter, $encodingType);
+        return new ObjectListInfo($bucketName, $prefix, $marker, $nextMarker, $maxKeys, $delimiter, $isTruncated, $objectList, $prefixList,$nextContinuationToken,$startAfter);
     }
 
     private function parseObjectList($xml, $encodingType)
@@ -50,7 +55,12 @@ class ListObjectsResult extends Result
                 $type = isset($content->Type) ? strval($content->Type) : "";
                 $size = isset($content->Size) ? strval($content->Size) : "0";
                 $storageClass = isset($content->StorageClass) ? strval($content->StorageClass) : "";
-                $retList[] = new ObjectInfo($key, $lastModified, $eTag, $type, $size, $storageClass);
+                if(isset($content->Owner)){
+					$owner = new OwnerInfo(strval($content->Owner->ID),strval($content->Owner->DisplayName));
+				}else{
+					$owner = null;
+				}
+                $retList[] = new ObjectInfo($key, $lastModified, $eTag, $type, $size, $storageClass,$owner);
             }
         }
         return $retList;
