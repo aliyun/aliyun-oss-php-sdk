@@ -3,6 +3,7 @@ require_once __DIR__ . '/Common.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
+use OSS\Model\RestoreConfig;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
@@ -47,6 +48,17 @@ $options = array(
 $ossClient->getObject($bucket, "c.file", $options);
 Common::println("b.file is fetched to the local file: c.file.localcopy");
 Common::println("b.file is created");
+
+
+// Restore Object
+$day = 3;
+$tier = 'Expedited';
+$config = new RestoreConfig($day,$tier);
+$options = array(
+	OssClient::OSS_RESTORE_CONFIG => $config
+);
+$ossClient->restoreObject($bucket, 'b.file',$options);
+
 
 // Copy an object
 $result = $ossClient->copyObject($bucket, "c.file", $bucket, "c.file.copy");
@@ -123,6 +135,7 @@ putObjectSpeed($ossClient, $bucket);
 getObjectSpeed($ossClient, $bucket);
 signUrlSpeedUpload($ossClient, $bucket);
 signUrlSpeedDownload($ossClient, $bucket);
+restoreObject($ossClient,$bucket);
 /**
  * Create a 'virtual' folder
  *
@@ -635,3 +648,28 @@ function signUrlSpeedDownload($ossClient, $bucket)
 	print(__FUNCTION__ . ": OK" . "\n");
 }
 
+/**
+ * Restore object
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function restoreObject($ossClient, $bucket)
+{
+	$object = "oss-php-sdk-test/upload-test-object-name.txt";
+	$day = 3;
+	$tier = 'Expedited';
+	$config = new RestoreConfig($day,$tier);
+	$options = array(
+		OssClient::OSS_RESTORE_CONFIG => $config
+	);
+	try {
+		$ossClient->restoreObject($bucket, $object,$options);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+}
