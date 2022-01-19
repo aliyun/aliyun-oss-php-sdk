@@ -45,10 +45,24 @@ class CorsConfig implements XmlConfig
         }
         $this->rules[] = $rule;
     }
+    /**
+     * @param $value boolean  true | false
+     */
+    public function setResponseVary($value)
+    {
+        $this->responseVary = $value === true ? "true" : "false";
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getResponseVary(){
+        return $this->responseVary === "true" ? true : false;
+    }
 
     /**
      * Parse CorsConfig from the xml.
-     *
      * @param string $strXml
      * @throws OssException
      * @return null
@@ -56,6 +70,9 @@ class CorsConfig implements XmlConfig
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
+        if(isset($xml->ResponseVary)){
+            $this->setResponseVary(strval($xml->ResponseVary) === 'true' ? true : false);
+        }
         if (!isset($xml->CORSRule)) return;
         foreach ($xml->CORSRule as $rule) {
             $corsRule = new CorsRule();
@@ -74,7 +91,6 @@ class CorsConfig implements XmlConfig
             }
             $this->addRule($corsRule);
         }
-        return;
     }
 
     /**
@@ -89,6 +105,10 @@ class CorsConfig implements XmlConfig
             $xmlRule = $xml->addChild('CORSRule');
             $rule->appendToXml($xmlRule);
         }
+		if(!empty($this->responseVary)){
+			$xml->addChild('ResponseVary',$this->responseVary);
+		
+		}
         return $xml->asXML();
     }
 
@@ -110,4 +130,5 @@ class CorsConfig implements XmlConfig
      * @var CorsRule[]
      */
     private $rules = array();
+    private $responseVary = 'false';
 }
