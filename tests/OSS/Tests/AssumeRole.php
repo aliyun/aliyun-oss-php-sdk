@@ -12,7 +12,7 @@ class AssumeRole extends StsBase
 
     private  $Policy;
 
-    private  $DurationSeconds;
+    private  $DurationSeconds = "3600";
 
     public function getAttributes()
     {

@@ -3,9 +3,12 @@
 namespace OSS\Tests;
 
 
+use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CorsRule;
 use OSS\Core\OssException;
+use OSS\Result\GetCorsResult;
+use OSS\Result\Result;
 
 class CorsConfigTest extends \PHPUnit\Framework\TestCase
 {
@@ -35,6 +38,7 @@ class CorsConfigTest extends \PHPUnit\Framework\TestCase
 <ExposeHeader>x-oss-test1</ExposeHeader>
 <MaxAgeSeconds>110</MaxAgeSeconds>
 </CORSRule>
+<ResponseVary>false</ResponseVary>
 </CORSConfiguration>
 BBBB;
 
@@ -60,6 +64,23 @@ BBBB;
 </CORSConfiguration>
 BBBB;
 
+    private $validXml3 = <<<BBBB
+<?xml version="1.0" encoding="utf-8"?>
+<CORSConfiguration>
+<CORSRule>
+<AllowedOrigin>http://www.b.com</AllowedOrigin>
+<AllowedOrigin>http://www.a.com</AllowedOrigin>
+<AllowedOrigin>http://www.a.com</AllowedOrigin>
+<AllowedMethod>GET</AllowedMethod>
+<AllowedMethod>PUT</AllowedMethod>
+<AllowedMethod>POST</AllowedMethod>
+<AllowedHeader>x-oss-test</AllowedHeader>
+<MaxAgeSeconds>10</MaxAgeSeconds>
+</CORSRule>
+<ResponseVary>true</ResponseVary>
+</CORSConfiguration>
+BBBB;
+
     public function testParseValidXml()
     {
         $corsConfig = new CorsConfig();
@@ -79,6 +100,56 @@ BBBB;
         $corsConfig = new CorsConfig();
         $corsConfig->parseFromXml($this->validXml2);
         $this->assertEquals($this->cleanXml($this->validXml2), $this->cleanXml($corsConfig->serializeToXml()));
+    }
+
+    public function testParseValidXml3()
+    {
+        $corsConfig = new CorsConfig();
+        $corsConfig->parseFromXml($this->validXml3);
+        $this->assertEquals($this->cleanXml($this->validXml3), $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertTrue($corsConfig->getResponseVary());
+    }
+
+    public function testResponseValidXml3()
+    {
+        $response = new ResponseCore(array(), $this->validXml, 200);
+        $result = new GetCorsResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertNotNull($result->getData());
+        $this->assertNotNull($result->getRawResponse());
+        $this->assertNotNull($result->getRawResponse()->body);
+        $corsConfig = $result->getData();
+        $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertNotNull($corsConfig->getRules());
+        $rules = $corsConfig->getRules();
+        $this->assertNotNull($rules[0]->getAllowedHeaders());
+        $this->assertNotNull($rules[0]->getAllowedMethods());
+        $this->assertNotNull($rules[0]->getAllowedOrigins());
+        $this->assertNotNull($rules[0]->getExposeHeaders());
+        $this->assertNotNull($rules[0]->getMaxAgeSeconds());
+        $this->assertFalse($corsConfig->getResponseVary());
+
+    }
+
+    public function testResponseValidXml4()
+    {
+        $response = new ResponseCore(array(), $this->validXml3, 200);
+        $result = new GetCorsResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertNotNull($result->getData());
+        $this->assertNotNull($result->getRawResponse());
+        $this->assertNotNull($result->getRawResponse()->body);
+        $corsConfig = $result->getData();
+        $this->assertEquals($this->cleanXml($this->validXml3), $this->cleanXml($corsConfig->serializeToXml()));
+        $this->assertNotNull($corsConfig->getRules());
+        $rules = $corsConfig->getRules();
+        $this->assertNotNull($rules[0]->getAllowedHeaders());
+        $this->assertNotNull($rules[0]->getAllowedMethods());
+        $this->assertNotNull($rules[0]->getAllowedOrigins());
+        $this->assertNotNull($rules[0]->getExposeHeaders());
+        $this->assertNotNull($rules[0]->getMaxAgeSeconds());
+        $this->assertTrue($corsConfig->getResponseVary());
+
     }
 
     public function testCreateCorsConfigFromMoreThan10Rules()

@@ -27,7 +27,7 @@ class StsBase
 
     public function __construct()
     {
-        $this->Timestamp = date("Y-m-d")."T".date("h:i:s")."Z";
+        $this->Timestamp = gmdate('Y-m-d\TH:i:s\Z');
         $this->SignatureNonce = time().rand(10000,99999);
     }
 }
