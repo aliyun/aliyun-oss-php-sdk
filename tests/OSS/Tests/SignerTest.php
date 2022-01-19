@@ -500,7 +500,7 @@ class SignerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('ak/20231217/cn-hangzhou/oss/aliyun_v4_request', $query['x-oss-credential']);
         $this->assertEquals('3817ac9d206cd6dfc90f1c09c00be45005602e55898f26f5ddb06d7892e1f8b5', $query['x-oss-signature']);
         $this->assertFalse(isset($query['x-oss-additional-headers']));
-        print($request->request_url);
+        //print($request->request_url);
     }
 
     public function testSignerV4PresignWithAdditionalHeaders()

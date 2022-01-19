@@ -7,6 +7,7 @@ use OSS\Model\CorsConfig;
 use OSS\Model\CorsRule;
 use OSS\OssClient;
 
+
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 
@@ -38,6 +39,7 @@ class OssClientBucketCorsTest extends TestOssClientBase
         $rule->addExposeHeader("x-oss-test1");
         $rule->setMaxAgeSeconds(110);
         $corsConfig->addRule($rule);
+        $corsConfig->setResponseVary(true);
 
         try {
             $this->ossClient->putBucketCors($this->bucket, $corsConfig);
@@ -80,5 +82,44 @@ class OssClientBucketCorsTest extends TestOssClientBase
             $this->assertFalse(True);
         }
 
+
+        try {
+            Common::waitMetaSync();
+            $this->ossClient->deleteBucketCors($this->bucket);
+        } catch (OssException $e) {
+            $this->assertFalse(True);
+        }
+
+        $corsConfig = new CorsConfig();
+        $rule = new CorsRule();
+        $rule->addAllowedHeader("x-oss-test");
+        $rule->addAllowedOrigin("http://www.b.com");
+        $rule->addAllowedMethod("GET");
+        $rule->addExposeHeader("x-oss-test1");
+        $rule->setMaxAgeSeconds(10);
+        $corsConfig->addRule($rule);
+        $rule = new CorsRule();
+        $rule->addAllowedHeader("x-oss-test");
+        $rule->addAllowedMethod("GET");
+        $rule->addAllowedOrigin("http://www.b.com");
+        $rule->addExposeHeader("x-oss-test1");
+        $rule->setMaxAgeSeconds(110);
+        $corsConfig->addRule($rule);
+        $corsConfig->setResponseVary(false);
+
+        try {
+            $this->ossClient->putBucketCors($this->bucket, $corsConfig);
+        } catch (OssException $e) {
+            $this->assertFalse(True);
+        }
+
+        try {
+            Common::waitMetaSync();
+            $corsConfig4 = $this->ossClient->getBucketCors($this->bucket);
+            $this->assertNotNull($corsConfig4);
+            $this->assertEquals($corsConfig->serializeToXml(), $corsConfig4->serializeToXml());
+        } catch (OssException $e) {
+            $this->assertFalse(True);
+        }
     }
 }

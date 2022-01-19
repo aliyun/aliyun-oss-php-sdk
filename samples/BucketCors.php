@@ -26,7 +26,39 @@ Common::println("bucket $bucket corsConfig created:" . $corsConfig->serializeToX
 
 // Get cors configuration
 $corsConfig = $ossClient->getBucketCors($bucket);
-Common::println("bucket $bucket corsConfig fetched:" . $corsConfig->serializeToXml());
+
+if ($corsConfig->getResponseVary()){
+    printf("Response Vary : true" .PHP_EOL);
+}else{
+    printf("Response Vary : false" .PHP_EOL);
+}
+
+foreach ($corsConfig->getRules() as $key => $rule){
+    if($rule->getAllowedHeaders()){
+        foreach($rule->getAllowedHeaders() as $header){
+            printf("Allowed Headers :" .$header .PHP_EOL);
+        }
+    }
+    if ($rule->getAllowedMethods()){
+        foreach($rule->getAllowedMethods() as $method){
+            printf("Allowed Methods :" .$method . PHP_EOL);
+        }
+
+    }
+    if($rule->getAllowedOrigins()){
+        foreach($rule->getAllowedOrigins() as $origin){
+            printf("Allowed Origins :" .$origin , PHP_EOL);
+        }
+
+    }
+    if($rule->getExposeHeaders()){
+        foreach($rule->getExposeHeaders() as $exposeHeader){
+            printf("Expose Headers :" .$exposeHeader . PHP_EOL);
+        }
+    }
+    printf("Max Age Seconds :" .$rule->getMaxAgeSeconds() .PHP_EOL);
+
+}
 
 // Delete cors configuration
 $ossClient->deleteBucketCors($bucket);
@@ -78,13 +110,44 @@ function getBucketCors($ossClient, $bucket)
     $corsConfig = null;
     try {
         $corsConfig = $ossClient->getBucketCors($bucket);
+
+        if ($corsConfig->getResponseVary()){
+            printf("Response Vary : true" .PHP_EOL);
+        }else{
+            printf("Response Vary : false" .PHP_EOL);
+        }
+        foreach ($corsConfig->getRules() as $key => $rule){
+            if($rule->getAllowedHeaders()){
+                foreach($rule->getAllowedHeaders() as $header){
+                    printf("Allowed Headers :" .$header .PHP_EOL);
+                }
+            }
+            if ($rule->getAllowedMethods()){
+                foreach($rule->getAllowedMethods() as $method){
+                    printf("Allowed Methods :" .$method . PHP_EOL);
+                }
+
+            }
+            if($rule->getAllowedOrigins()){
+                foreach($rule->getAllowedOrigins() as $origin){
+                    printf("Allowed Origins :" .$origin , PHP_EOL);
+                }
+
+            }
+            if($rule->getExposeHeaders()){
+                foreach($rule->getExposeHeaders() as $exposeHeader){
+                    printf("Expose Headers :" .$exposeHeader . PHP_EOL);
+                }
+            }
+            printf("Max Age Seconds :" .$rule->getMaxAgeSeconds() .PHP_EOL);
+
+        }
     } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    print($corsConfig->serializeToXml() . "\n");
 }
 
 /**
