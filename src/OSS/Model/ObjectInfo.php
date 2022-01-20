@@ -1,7 +1,6 @@
 <?php
 
 namespace OSS\Model;
-
 /**
  *
  * Class ObjectInfo
@@ -67,25 +66,25 @@ class ObjectInfo
     {
         return $this->type;
     }
-	
-	/**
-	 * php7 && 64bit can use it
-	 * @return int
-	 */
-	public function getSize()
-	{
-		return (int)$this->size;
-	}
-	
-	
-	/**
-	 * php5.x or 32bit must use it
-	 * @return string
-	 */
-	public function getSizeStr()
-	{
-		return $this->size;
-	}
+    
+    /**
+     * php7 && 64bit can use it
+     * @return int
+     */
+    public function getSize()
+    {
+        return (int)$this->size;
+    }
+    
+    
+    /**
+     * php5.x or 32bit must use it
+     * @return string
+     */
+    public function getSizeStr()
+    {
+        return $this->size;
+    }
     
     /**
      * @return string
