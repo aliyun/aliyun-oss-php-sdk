@@ -117,6 +117,7 @@ Common::println("b.file speed limit download url:".$signedUrl.PHP_EOL);
 //******************************* For complete usage, see the following functions ****************************************************
 
 listObjects($ossClient, $bucket);
+listObjectsV2($ossClient, $bucket);
 listAllObjects($ossClient, $bucket);
 createObjectDir($ossClient, $bucket);
 putObject($ossClient, $bucket);
@@ -238,6 +239,10 @@ function listObjects($ossClient, $bucket)
         print("objectList:\n");
         foreach ($objectList as $objectInfo) {
             print($objectInfo->getKey() . "\n");
+            if($objectInfo->getOwner() != null){
+                printf("owner id:".$objectInfo->getOwner()->getId() . "\n");
+                printf("owner name:".$objectInfo->getOwner()->getDisplayName() . "\n");
+            }
         }
     }
     if (!empty($prefixList)) {
@@ -246,6 +251,55 @@ function listObjects($ossClient, $bucket)
             print($prefixInfo->getPrefix() . "\n");
         }
     }
+}
+
+/**
+ * Lists all files and folders in the bucket.
+ * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
+ * Loop through all the items returned from ListObjects.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function listObjectsV2($ossClient, $bucket)
+{
+	$prefix = 'oss-php-sdk-test/';
+	$delimiter = '/';
+	$maxkeys = 1000;
+	$options = array(
+		'delimiter' => $delimiter,
+		'prefix' => $prefix,
+		'max-keys' => $maxkeys,
+		'start-after' =>'test-object',
+		'fetch-owner' =>'true',
+	);
+	try {
+		$listObjectInfo = $ossClient->listObjectsV2($bucket, $options);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+	$objectList = $listObjectInfo->getObjectList(); // object list
+	$prefixList = $listObjectInfo->getPrefixList(); // directory list
+	if (!empty($objectList)) {
+		print("objectList:\n");
+		foreach ($objectList as $objectInfo) {
+			print($objectInfo->getKey() . "\n");
+			if($objectInfo->getOwner() != null){
+				printf("owner id:".$objectInfo->getOwner()->getId() . "\n");
+				printf("owner name:".$objectInfo->getOwner()->getDisplayName() . "\n");
+			}
+		}
+	}
+	if (!empty($prefixList)) {
+		print("prefixList: \n");
+		foreach ($prefixList as $prefixInfo) {
+			print($prefixInfo->getPrefix() . "\n");
+		}
+	}
 }
 
 /**
