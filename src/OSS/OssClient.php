@@ -12,6 +12,7 @@ use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
@@ -29,6 +30,7 @@ use OSS\Result\ListBucketsResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
 use OSS\Result\ListObjectsResult;
+use OSS\Result\ListObjectsResultV2;
 use OSS\Result\ListPartsResult;
 use OSS\Result\PutSetDeleteResult;
 use OSS\Result\DeleteObjectsResult;
@@ -1521,13 +1523,61 @@ class OssClient
                   self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
                   self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
                   self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
-                  self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '')
+                  self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '',
+                )
         );
 
         $response = $this->auth($options);
         $result = new ListObjectsResult($response);
         return $result->getData();
     }
+	
+	
+	/**
+	 * Lists the bucket's object list v2 (in ObjectListInfo)
+	 *
+	 * @param string $bucket
+	 * @param array $options are defined below:
+	 * $options = array(
+	 *      'max-keys'  => specifies max object count to return. By default is 100 and max value could be 1000.
+	 *      'prefix'    => specifies the key prefix the returned objects must have. Note that the returned keys still contain the prefix.
+	 *      'delimiter' => The delimiter of object name for grouping object. When it's specified, listObjects will differeniate the object and folder. And it will return subfolder's objects.
+	 *      'marker'    => The key of returned object must be greater than the 'marker'.
+	 *)
+	 * Prefix and marker are for filtering and paging. Their length must be less than 256 bytes
+	 * @throws OssException
+	 * @return ObjectListInfoV2
+	 */
+	public function listObjectsV2($bucket, $options = NULL)
+	{
+		$this->precheckCommon($bucket, NULL, $options, false);
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+		$options[self::OSS_OBJECT] = '/';
+		$query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
+		$temp = array(
+			self::OSS_LIST_TYPE=>2,
+			self::OSS_ENCODING_TYPE => self::OSS_ENCODING_TYPE_URL,
+			self::OSS_DELIMITER => isset($options[self::OSS_DELIMITER]) ? $options[self::OSS_DELIMITER] : '/',
+			self::OSS_PREFIX => isset($options[self::OSS_PREFIX]) ? $options[self::OSS_PREFIX] : '',
+			self::OSS_MAX_KEYS => isset($options[self::OSS_MAX_KEYS]) ? $options[self::OSS_MAX_KEYS] : self::OSS_MAX_KEYS_VALUE,
+			self::OSS_MARKER => isset($options[self::OSS_MARKER]) ? $options[self::OSS_MARKER] : '',
+			self::OSS_FETCH_OWNER => isset($options[self::OSS_FETCH_OWNER]) ? $options[self::OSS_FETCH_OWNER] : 'false',
+			self::OSS_START_AFTER => isset($options[self::OSS_START_AFTER]) ? $options[self::OSS_START_AFTER] : '',
+		);
+		if(isset($options[self::OSS_CONTINUATION_TOKEN])){
+			$temp[self::OSS_CONTINUATION_TOKEN] = $options[self::OSS_CONTINUATION_TOKEN];
+		}
+		$options[self::OSS_QUERY_STRING] = array_merge(
+			$query,$temp
+		);
+		$response = $this->auth($options);
+		$result = new ListObjectsResultV2($response);
+		return $result->getData();
+	}
+    
+    
+    
 
     /**
      * Lists the bucket's object with version information (in ObjectListInfo)
@@ -2891,6 +2941,7 @@ class OssClient
             $request->set_method($options[self::OSS_METHOD]);
             $string_to_sign .= $options[self::OSS_METHOD] . "\n";
         }
+        
 
         if (isset($options[self::OSS_CONTENT])) {
             $request->set_body($options[self::OSS_CONTENT]);
@@ -2925,7 +2976,7 @@ class OssClient
                 strtolower($header_key) === 'content-md5' ||
                 strtolower($header_key) === 'content-type' ||
                 strtolower($header_key) === 'date' ||
-                (isset($options['self::OSS_PREAUTH']) && (integer)$options['self::OSS_PREAUTH'] > 0)
+                (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0)
             ) {
                 $string_to_sign .= $header_value . "\n";
             } elseif (substr(strtolower($header_key), 0, 6) === self::OSS_DEFAULT_PREFIX) {
@@ -2937,15 +2988,11 @@ class OssClient
         $signable_resource = rawurldecode($signable_resource) . urldecode($signable_query_string);
         $string_to_sign_ordered = $string_to_sign;
         $string_to_sign .= $signable_resource;
-
         // Sort the strings to be signed.
         $string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
-
-
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
         $request->add_header('Authorization', 'OSS ' . $this->accessKeyId . ':' . $signature);
-
-        if (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0) {
+        if (isset($options['self::OSS_PREAUTH']) && (integer)$options['self::OSS_PREAUTH'] > 0) {
             $signed_url = $requestUrl . $conjunction . self::OSS_URL_ACCESS_KEY_ID . '=' . rawurlencode($this->accessKeyId) . '&' . self::OSS_URL_EXPIRES . '=' . $options[self::OSS_PREAUTH] . '&' . self::OSS_URL_SIGNATURE . '=' . rawurlencode($signature);
             return $signed_url;
         } elseif (isset($options[self::OSS_PREAUTH])) {
@@ -2958,7 +3005,6 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -3223,6 +3269,12 @@ class OssClient
         if (isset($options[self::OSS_SUB_RESOURCE])) {
             $signableResource .= '?' . $options[self::OSS_SUB_RESOURCE];
         }
+		if (isset($options[self::OSS_CONTINUATION_TOKEN])) {
+			$signableResource .= '?' .self::OSS_CONTINUATION_TOKEN;
+			if(!empty($options[self::OSS_CONTINUATION_TOKEN])){
+				$signableResource .= "=".$options[self::OSS_CONTINUATION_TOKEN];
+			}
+		}
         return $signableResource;
     }
 
@@ -3413,6 +3465,9 @@ class OssClient
     const OSS_PREFIX = 'prefix';
     const OSS_DELIMITER = 'delimiter';
     const OSS_MARKER = 'marker';
+	const OSS_FETCH_OWNER = 'fetch-owner';
+	const OSS_START_AFTER = 'start-after';
+	const OSS_CONTINUATION_TOKEN = 'continuation-token';
     const OSS_ACCEPT_ENCODING = 'Accept-Encoding';
     const OSS_CONTENT_MD5 = 'Content-Md5';
     const OSS_SELF_CONTENT_MD5 = 'x-oss-meta-md5';
@@ -3497,6 +3552,8 @@ class OssClient
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
     const OSS_ENCODING_TYPE = "encoding-type";
     const OSS_ENCODING_TYPE_URL = "url";
+    
+    const OSS_LIST_TYPE = "list-type";
 
     // Domain Types
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object
