@@ -2382,10 +2382,12 @@ class OssClient
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_UPLOAD_ID] = $uploadId;
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
-        if (!is_array($listParts)) {
-            throw new OssException("listParts must be array type");
+        if (is_array($listParts)) {
+            $options[self::OSS_CONTENT] = OssUtil::createCompleteMultipartUploadXmlBody($listParts);
+        }  else {
+            $options[self::OSS_CONTENT] = "";
         }
-        $options[self::OSS_CONTENT] = OssUtil::createCompleteMultipartUploadXmlBody($listParts);
+
         $response = $this->auth($options);
         if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
             $result = new CallbackResult($response);
