@@ -390,11 +390,7 @@ class OssClientMultipartUploadTest extends TestOssClientBase
             $listMultipartUploadInfo = $this->ossClient->completeMultipartUpload($this->bucket, $object, $uploadId, null);
             $this->assertTrue(false);
         } catch (OssException $e) {
-            $this->assertTrue(true);
-            if (strpos($e, "listParts must be array type") == false)
-            {
-                $this->assertTrue(false);
-            }   
+            $this->assertEquals('NoSuchUpload', $e->getErrorCode());
         }
     }
 

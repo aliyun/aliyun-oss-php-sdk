@@ -33,7 +33,7 @@ BBBB;
         $this->assertNotNull($result->getData());
         $this->assertNotNull($result->getRawResponse());
         $enabled = $result->getData();
-        $this->assertEquals("true", $enabled);
+        $this->assertEquals(true, $enabled);
     }
 
     public function testParseValidXml1()
@@ -44,7 +44,7 @@ BBBB;
         $this->assertNotNull($result->getData());
         $this->assertNotNull($result->getRawResponse());
         $enabled = $result->getData();
-        $this->assertEquals("false", $enabled);
+        $this->assertEquals(false, $enabled);
     }
 
     public function testParseInvalidXml2()
@@ -52,10 +52,10 @@ BBBB;
         $response = new ResponseCore(array(), $this->invalidXml2, 200);
         $result = new GetBucketTransferAccelerationResult($response);
         $this->assertTrue($result->isOK());
-        $this->assertNull($result->getData());
+        $this->assertNotNull($result->getData());
         $this->assertNotNull($result->getRawResponse());
         $this->assertNotNull($result->getRawResponse()->body);
         $enabled = $result->getData();
-        $this->assertNull($enabled);
+        $this->assertEquals(false, $enabled);
     }
 }
