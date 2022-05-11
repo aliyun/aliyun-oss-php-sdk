@@ -76,6 +76,9 @@ use OSS\Model\DeletedObjectInfo;
 use OSS\Result\DeleteObjectVersionsResult;
 use OSS\Model\TransferAccelerationConfig;
 use OSS\Result\GetBucketTransferAccelerationResult;
+use OSS\Model\CnameTokenInfo;
+use OSS\Result\CreateBucketCnameTokenResult;
+use OSS\Result\GetBucketCnameTokenResult;
 
 /**
  * Class OssClient
@@ -546,12 +549,12 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_SUB_RESOURCE] = 'cname';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
         $options[self::OSS_COMP] = 'add';
+        $options[self::OSS_CNAME] = '';
 
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -572,7 +575,7 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_SUB_RESOURCE] = 'cname';
+        $options[self::OSS_CNAME] = '';
         $response = $this->auth($options);
         $result = new GetCnameResult($response);
         return $result->getData();
@@ -593,15 +596,61 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_SUB_RESOURCE] = 'cname';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
         $options[self::OSS_COMP] = 'delete';
+        $options[self::OSS_CNAME] = '';
 
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * create a cname token for a bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return CnameToken
+     */
+    public function createBucketCnameToken($bucket, $cname, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $cnameConfig = new CnameConfig();
+        $cnameConfig->addCname($cname);
+        $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $options[self::OSS_COMP] = 'token';
+        $options[self::OSS_CNAME] = '';
+        $response = $this->auth($options);
+        $result = new CreateBucketCnameTokenResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * get a cname token for a bucket
+     *
+     * @param string $bucket bucket name
+     * @param array $options
+     * @throws OssException
+     * @return CnameToken
+     */
+    public function getBucketCnameToken($bucket, $cname, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_COMP] = 'token';
+        $options[self::OSS_CNAME] = $cname;
+        $response = $this->auth($options);
+        $result = new GetBucketCnameTokenResult($response);
         return $result->getData();
     }
 
@@ -3279,6 +3328,7 @@ class OssClient
             self::OSS_TRAFFIC_LIMIT,
             self::OSS_VERSION_ID,
             self::OSS_CONTINUATION_TOKEN,
+            self::OSS_CNAME,
         );
 
         foreach ($signableList as $item) {
@@ -3565,6 +3615,7 @@ class OssClient
     const OSS_VERSION_ID_MARKER = 'version-id-marker';
     const OSS_VERSION_ID = 'versionId';
     const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
+    const OSS_CNAME = 'cname';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';

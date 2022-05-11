@@ -31,7 +31,11 @@ class OssUtil
         uksort($options, 'strnatcasecmp');
         foreach ($options as $key => $value) {
             if (is_string($key) && !is_array($value)) {
-                $temp[] = rawurlencode($key) . '=' . rawurlencode($value);
+                if (strlen($value) > 0) {
+                    $temp[] = rawurlencode($key) . '=' . rawurlencode($value);
+                } else {
+                    $temp[] = rawurlencode($key);
+                }
             }
         }
         return implode('&', $temp);
