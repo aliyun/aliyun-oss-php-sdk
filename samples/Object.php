@@ -114,6 +114,21 @@ $timeout = 120;
 $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "GET", $options);
 Common::println("b.file speed limit download url:".$signedUrl.PHP_EOL);
 
+// Show a progress bar of get a object
+$options = array(
+    OssClient::OSS_REGISTERED_PROGRESS_CALLBACK=>'process_callback',
+    OssClient::OSS_CALLBACK_CONTEXT=> time().rand(1111,9999)
+);
+$ossClient->getObject($bucket,$object,$options);
+
+// Show a progress bar of upload a object
+$options = array(
+    OssClient::OSS_REGISTERED_PROGRESS_CALLBACK=>'process_callback',
+    OssClient::OSS_CALLBACK_CONTEXT=> time().rand(1111,9999)
+);
+$ossClient->putObject($bucket,$object,$content,$options);
+
+
 //******************************* For complete usage, see the following functions ****************************************************
 
 listObjects($ossClient, $bucket);
@@ -137,6 +152,8 @@ getObjectSpeed($ossClient, $bucket);
 signUrlSpeedUpload($ossClient, $bucket);
 signUrlSpeedDownload($ossClient, $bucket);
 restoreObject($ossClient,$bucket);
+getObjectProgress($ossClient,$bucket);
+putObjectProgress($ossClient,$bucket);
 /**
  * Create a 'virtual' folder
  *
@@ -726,4 +743,71 @@ function restoreObject($ossClient, $bucket)
 		return;
 	}
 	print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * Show progress of upload in-memory data to oss
+ *
+ * Simple upload---upload specified in-memory data to an OSS object
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function putObjectProgress($ossClient, $bucket)
+{
+    $object = "oss-php-sdk-test/upload-test-object-name.txt";
+    $content = file_get_contents(__FILE__);
+    $options = array(
+        OssClient::OSS_REGISTERED_PROGRESS_CALLBACK=>'process_callback',
+        OssClient::OSS_CALLBACK_CONTEXT=> time().rand(1111,9999)
+    );
+    try {
+        $ossClient->putObject($bucket, $object, $content, $options);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
+}
+/**
+ * Show progress bar of get the content of an object .
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function getObjectProgress($ossClient, $bucket)
+{
+    $object = "oss-php-sdk-test/upload-test-object-name.txt";
+    $options = array(
+        OssClient::OSS_REGISTERED_PROGRESS_CALLBACK=>'process_callback',
+        OssClient::OSS_CALLBACK_CONTEXT=> time().rand(1111,9999)
+    );
+    try {
+        $ossClient->getObject($bucket, $object, $options);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * A funtion to to show progress bar
+ * @param $context callback context Unique identification
+ * @param int $download_size download object size
+ * @param int $downloaded has downloaded size
+ * @param int $upload_size upload object size
+ * @param int $uploaded has uploaded size
+ */
+function progressCallback($context, $download_size, $downloaded,$upload_size,$uploaded){
+    if($download_size > 0){
+        echo "Task:".$context." Downloaded : total length:".$download_size.'B,downloaded:'.$downloaded.'B,percent:'.$downloaded*100/$download_size.'%'.PHP_EOL;
+    }
+    if($upload_size > 0){
+        echo  "Task:".$context." Upload : total length：".$upload_size.'B,uploaded：'.$uploaded.'B,percent:'.$uploaded*100/$upload_size.'%'.PHP_EOL;
+    }
 }
