@@ -17,7 +17,7 @@ class StaticCredentialsProvider implements CredentialsProvider
      * access key and OSS secret key
      *
      * @param string $key     OSS access key ID
-     * @param string $secret  OSS secret access key
+     * @param string $secret  OSS access key secret
      * @param string $token   Security token to use
      */
     public function __construct($key, $secret, $token = null)

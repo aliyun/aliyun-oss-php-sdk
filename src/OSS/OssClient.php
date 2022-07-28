@@ -913,10 +913,9 @@ class OssClient
 
         $string_to_sign = $expires . "\n" . $cano_params . $resource;
         $cred = $this->provider->getCredentials();
-        if(empty($cred)){
-            throw new OssException("Credentials is empty");
-        }
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $cred->getSecretKey(), true));
+        $this->checkCredentials($cred);
+
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $cred->getAccessKeySecret(), true));
 
         $query_items[] = 'OSSAccessKeyId=' . rawurlencode($cred->getAccessKeyId());
         $query_items[] = 'Expires=' . rawurlencode($expires);
@@ -952,10 +951,9 @@ class OssClient
 
         $string_to_sign = $expiration . "\n" . $cano_params . $resource;
         $cred = $this->provider->getCredentials();
-        if(empty($cred)){
-            throw new OssException("Credentials is empty");
-        }
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $cred->getSecretKey(), true));
+        $this->checkCredentials($cred);
+
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $cred->getAccessKeySecret(), true));
 
         $query_items[] = 'OSSAccessKeyId=' . rawurlencode($cred->getAccessKeyId());
         $query_items[] = 'Expires=' . rawurlencode($expiration);
@@ -3011,9 +3009,8 @@ class OssClient
         //Validates ACL
         $this->authPrecheckAcl($options);
         $cred = $this->provider->getCredentials();
-        if(empty($cred)){
-            throw new OssException("Credentials is empty");
-        }
+        $this->checkCredentials($cred);
+
         // Should https or http be used?
         $scheme = $this->useSSL ? 'https://' : 'http://';
         // gets the host name. If the host name is public domain or private domain, form a third level domain by prefixing the bucket name on the domain name.
@@ -3133,10 +3130,8 @@ class OssClient
         // Sort the strings to be signed.
         $string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
 
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered,$cred->getSecretKey(), true));
-        if(!empty($cred->getSecretKey()) && !empty($cred->getSecretKey()) ){
-            $request->add_header('Authorization', 'OSS ' . $cred->getAccessKeyId() . ':' . $signature);
-        }
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered,$cred->getAccessKeySecret(), true));
+        $request->add_header('Authorization', 'OSS ' . $cred->getAccessKeyId() . ':' . $signature);
 
         if (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0) {
             $signed_url = $requestUrl . $conjunction . self::OSS_URL_ACCESS_KEY_ID . '=' . rawurlencode($cred->getAccessKeyId()) . '&' . self::OSS_URL_EXPIRES . '=' . $options[self::OSS_PREAUTH] . '&' . self::OSS_URL_SIGNATURE . '=' . rawurlencode($signature);
@@ -3535,6 +3530,23 @@ class OssClient
             $this->hostType = self::OSS_HOST_TYPE_NORMAL;
         }
         return $ret_endpoint;
+    }
+
+    /**
+     * @param Credentials $credential
+     * @return OssException
+     */
+    private function checkCredentials($credential)
+    {
+        if (empty($credential)) {
+            throw new OssException("credentials is empty.");
+        }
+        if (empty($credential->getAccessKeyId())) {
+            throw new OssException("access key id is empty");
+        }
+        if (empty($credential->getAccessKeySecret())) {
+            throw new OssException("access key secret is empty");
+        }
     }
 
     /**

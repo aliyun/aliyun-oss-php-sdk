@@ -48,7 +48,7 @@ class Credentials
     /**
      * @return string
      */
-    public function getSecretKey()
+    public function getAccessKeySecret()
     {
         return $this->secret;
     }
