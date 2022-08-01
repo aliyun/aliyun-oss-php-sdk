@@ -3442,6 +3442,9 @@ class OssClient
         if (isset($options[self::OSS_HEADERS])) {
             $headers = array_merge($headers, $options[self::OSS_HEADERS]);
         }
+        if (isset($options[self::OSS_CONTENT_LENGTH])) {
+            $headers[self::OSS_CONTENT_LENGTH] = $options[self::OSS_CONTENT_LENGTH];
+        }
         return $headers;
     }
 
