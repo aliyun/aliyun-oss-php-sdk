@@ -3256,14 +3256,15 @@ class OssClient
      */
     private function generateHostname($bucket)
     {
-        if ($this->hostType === self::OSS_HOST_TYPE_IP) {
-            $hostname = $this->hostname;
-        } elseif ($this->hostType === self::OSS_HOST_TYPE_CNAME) {
-            $hostname = $this->hostname;
-        } else {
-            // Private domain or public domain
-            $hostname = ($bucket == '') ? $this->hostname : ($bucket . '.') . $this->hostname;
-        }
+         $hostname = ($bucket == '') ? $this->hostname : ($bucket . '.') . $this->hostname;
+//         if ($this->hostType === self::OSS_HOST_TYPE_IP) {
+//             $hostname = $this->hostname;
+//         } elseif ($this->hostType === self::OSS_HOST_TYPE_CNAME) {
+//             $hostname = $this->hostname;
+//         } else {
+//             // Private domain or public domain
+//             $hostname = ($bucket == '') ? $this->hostname : ($bucket . '.') . $this->hostname;
+//         }
         return $hostname;
     }
 
