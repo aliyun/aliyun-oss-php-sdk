@@ -1934,7 +1934,8 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_OBJECT] = $object;
         if (!isset($options[self::OSS_CONTENT_LENGTH])) {
-            $options[self::OSS_CONTENT_LENGTH] = fstat($handle)[self::OSS_SIZE];
+            $temp = fstat($handle);
+            $options[self::OSS_CONTENT_LENGTH] = $temp[self::OSS_SIZE];
         }
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -3380,8 +3381,8 @@ class OssClient
                 $signableQueryStringParams[$item] = $options[$item];
             }
         }
-
-        if ($this->enableStsInUrl && (!empty($cred->getSecurityToken()))) {
+        $securityToken = $cred->getSecurityToken();
+        if ($this->enableStsInUrl && !empty($securityToken)) {
             $signableQueryStringParams["security-token"] = $cred->getSecurityToken();
         }
 
@@ -3480,7 +3481,8 @@ class OssClient
         }
 
         //Add stsSecurityToken
-        if ((!empty($cred->getSecurityToken())) && (!$this->enableStsInUrl)) {
+        $securityToken = $cred->getSecurityToken();
+        if (!empty($securityToken) && (!$this->enableStsInUrl)) {
             $headers[self::OSS_SECURITY_TOKEN] = $cred->getSecurityToken();
         }
         //Merge HTTP headers
@@ -3541,10 +3543,12 @@ class OssClient
         if (empty($credential)) {
             throw new OssException("credentials is empty.");
         }
-        if (empty($credential->getAccessKeyId())) {
+        $accessKeyId = $credential->getAccessKeyId();
+        if (empty($accessKeyId)) {
             throw new OssException("access key id is empty");
         }
-        if (empty($credential->getAccessKeySecret())) {
+        $accessKeySecret = $credential->getAccessKeySecret();
+        if (empty($accessKeySecret)) {
             throw new OssException("access key secret is empty");
         }
     }
