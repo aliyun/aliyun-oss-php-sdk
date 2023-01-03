@@ -16,9 +16,11 @@ use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\ObjectListInfoV2;
+use OSS\Model\ResourceGroupConfig;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketResourceGroupResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -2828,6 +2830,49 @@ class OssClient
         $options[self::OSS_DATE] = $expiration;
         $this->setSignStsInUrl(true);
         return $this->auth($options);
+    }
+
+    /**
+     * Put Bucket Resource Group
+     * @param string $bucket bucket name
+     * @param string $resourceGroupId resource group id
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function putBucketResourceGroup($bucket,$resourceGroupId,$options = NULL){
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'resourceGroup';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new ResourceGroupConfig();
+        $config->setResourceGroupId($resourceGroupId);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Bucket AccessMonitor
+     * @param string $bucket
+     * @param array|null $options
+     * @return GetBucketResourceGroupResult
+     * @throws OssException
+     */
+    public function getBucketResourceGroup($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'resourceGroup';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketResourceGroupResult($response);
+        return $result->getData();
     }
 
     /**
