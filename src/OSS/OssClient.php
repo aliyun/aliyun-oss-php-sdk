@@ -11,14 +11,17 @@ use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\ListStyleConfig;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
+use OSS\Model\StyleConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketStyleResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -30,6 +33,7 @@ use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
 use OSS\Result\ListBucketsResult;
+use OSS\Result\ListBucketStyleResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
 use OSS\Result\ListObjectsResult;
@@ -2828,6 +2832,89 @@ class OssClient
         $options[self::OSS_DATE] = $expiration;
         $this->setSignStsInUrl(true);
         return $this->auth($options);
+    }
+
+    /**
+     * Put Bucket Style
+     * @param string $bucket bucket name
+     * @param StyleConfig $styleConfig
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function putBucketStyle($bucket,$styleConfig,$options = NULL){
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'style&styleName='.$styleConfig->getName();
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $styleConfig->setName(null);
+        $options[self::OSS_CONTENT] = $styleConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Bucket Style
+     * @param string $bucket bucket name
+     * @param string $styleName style name
+     * @param array|null $options
+     * @return StyleConfig
+     * @throws OssException
+     */
+    public function getBucketStyle($bucket,$styleName,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'style&styleName='.$styleName;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketStyleResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * list style
+     * @param string $bucket bucket name
+     * @param null $options
+     * @return ListStyleConfig
+     * @throws OssException
+     */
+    public function listBucketStyle($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'style';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new ListBucketStyleResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * delete style by style name
+     * @param string $bucket bucket name
+     * @param string $styleName style name
+     * @param null $options
+     * @return null
+     * @throws OssException
+     */
+    public function deleteBucketStyle($bucket,$styleName, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'style&styleName='.$styleName;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
     }
 
     /**
