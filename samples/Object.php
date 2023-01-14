@@ -30,6 +30,19 @@ Common::println($result['body']);
 $content = $ossClient->getObject($bucket, "b.file");
 Common::println("b.file is fetched, the content is: " . $content);
 
+
+// Upload an oss object as a stream
+$stream = fopen(__FILE__,'r');
+$result = $ossClient->putStream($bucket, "b.file",$stream);
+if (is_resource($stream)){
+    @fclose($stream);
+}
+// Download an oss object as a stream
+$result = $ossClient->getStream($bucket, "b.file");
+while(!$result->eof()) {
+	echo $result->read(1024);
+}
+
 // Add a symlink to an object
 $content = $ossClient->putSymlink($bucket, "test-symlink", "b.file");
 Common::println("test-symlink is created");
@@ -81,8 +94,10 @@ listObjects($ossClient, $bucket);
 listAllObjects($ossClient, $bucket);
 createObjectDir($ossClient, $bucket);
 putObject($ossClient, $bucket);
+putStream($ossClient,$bucket);
 uploadFile($ossClient, $bucket);
 getObject($ossClient, $bucket);
+getStream($ossClient, $bucket);
 getObjectToLocalFile($ossClient, $bucket);
 copyObject($ossClient, $bucket);
 modifyMetaForObject($ossClient, $bucket);
@@ -133,6 +148,33 @@ function putObject($ossClient, $bucket)
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * Upload in-memory data to oss
+ *
+ * Simple upload---upload specified in-memory data to an OSS object
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function putStream($ossClient, $bucket)
+{
+	$object = "oss-php-sdk-test/upload-test-object-name.txt";
+	$stream = fopen(__FILE__);
+	$options = array();
+	try {
+		$ossClient->putStream($bucket, $object, $stream, $options);
+        if (is_resource($stream)){
+            @fclose($stream);
+        }
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
 }
 
 
@@ -275,6 +317,31 @@ function getObject($ossClient, $bucket)
     } else {
         print(__FUNCTION__ . ": FileContent checked FAILED" . "\n");
     }
+}
+
+
+/**
+ * Get the stream of an object.
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function getStream($ossClient, $bucket)
+{
+	$object = "oss-php-sdk-test/upload-test-object-name.txt";
+	$options = array();
+	try {
+		$result = $ossClient->getStream($bucket, $object, $options);
+	} catch (OssException $e) {
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+	while(!$result->eof()) {
+		echo $result->read(108);
+	}
 }
 
 /**

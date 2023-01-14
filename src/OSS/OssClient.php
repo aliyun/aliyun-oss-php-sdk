@@ -1,6 +1,8 @@
 <?php
 namespace OSS;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use OSS\Core\MimeTypes;
 use OSS\Core\OssException;
 use OSS\Http\RequestCore;
@@ -72,6 +74,7 @@ use OSS\Result\ListObjectVersionsResult;
 use OSS\Model\DeleteObjectInfo;
 use OSS\Model\DeletedObjectInfo;
 use OSS\Result\DeleteObjectVersionsResult;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class OssClient
@@ -1633,6 +1636,38 @@ class OssClient
             
         return $result->getData();
     }
+	
+	
+	/**
+	 * Uploads the stream of object to OSS.
+	 *
+	 * @param string $bucket bucket name
+	 * @param string $object objcet name
+	 * @param $stream stream
+	 * @param array $options
+	 * @return null
+	 */
+	public function putStream($bucket, $object, $stream, $options = NULL)
+	{
+		$this->precheckCommon($bucket, $object, $options);
+		$options[self::OSS_CONTENT] = $stream;
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+		$options[self::OSS_OBJECT] = $object;
+		
+		if (!isset($options[self::OSS_CONTENT_TYPE])) {
+			$options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
+		}
+		$response = $this->guzzleAuth($options);
+		
+		if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
+			$result = new CallbackResult($response);
+		} else {
+			$result = new PutSetDeleteResult($response);
+		}
+		
+		return $result->getData();
+	}
 
 
     /**
@@ -2031,6 +2066,40 @@ class OssClient
         $result = new BodyResult($response);
         return $result->getData();
     }
+	
+	
+	/**
+	 * Gets Object stream
+	 *
+	 * @param string $bucket bucket name
+	 * @param string $object object name
+	 * @param array $options It must contain ALIOSS::OSS_FILE_DOWNLOAD. And ALIOSS::OSS_RANGE is optional and empty means to download the whole file.
+	 * @return StreamInterface
+	 */
+	public function getStream($bucket, $object, $options = NULL)
+	{
+		$this->precheckCommon($bucket, $object, $options);
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+		$options[self::OSS_OBJECT] = $object;
+		$options['stream'] = true;
+		if (isset($options[self::OSS_LAST_MODIFIED])) {
+			$options[self::OSS_HEADERS][self::OSS_IF_MODIFIED_SINCE] = $options[self::OSS_LAST_MODIFIED];
+			unset($options[self::OSS_LAST_MODIFIED]);
+		}
+		if (isset($options[self::OSS_ETAG])) {
+			$options[self::OSS_HEADERS][self::OSS_IF_NONE_MATCH] = $options[self::OSS_ETAG];
+			unset($options[self::OSS_ETAG]);
+		}
+		if (isset($options[self::OSS_RANGE])) {
+			$range = $options[self::OSS_RANGE];
+			$options[self::OSS_HEADERS][self::OSS_RANGE] = "bytes=$range";
+			unset($options[self::OSS_RANGE]);
+		}
+		$response = $this->guzzleAuth($options);
+		$result = new BodyResult($response);
+		return $result->getData();
+	}
 
     /**
      * Checks if the object exists
@@ -2910,7 +2979,6 @@ class OssClient
         if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
             $headers[self::OSS_ACCEPT_ENCODING] = '';
         }
-
         uksort($headers, 'strnatcasecmp');
 
         foreach ($headers as $header_key => $header_value) {
@@ -2935,10 +3003,8 @@ class OssClient
         $signable_resource = rawurldecode($signable_resource) . urldecode($signable_query_string);
         $string_to_sign_ordered = $string_to_sign;
         $string_to_sign .= $signable_resource;
-
         // Sort the strings to be signed.
         $string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
-
 
         $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
         $request->add_header('Authorization', 'OSS ' . $this->accessKeyId . ':' . $signature);
@@ -2956,7 +3022,6 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -2983,6 +3048,173 @@ class OssClient
         $this->redirects = 0;
         return $data;
     }
+	
+	
+	/**
+	 * Validates and executes the request according to OSS API protocol.
+	 *
+	 * @param array $options
+	 * @return ResponseCore
+	 * @throws OssException
+	 * @throws RequestCore_Exception
+	 */
+	private function guzzleAuth($options)
+	{
+		OssUtil::validateOptions($options);
+		//Validates bucket, not required for list_bucket
+		$this->authPrecheckBucket($options);
+		//Validates object
+		$this->authPrecheckObject($options);
+		//object name encoding must be UTF-8
+		$this->authPrecheckObjectEncoding($options);
+		//Validates ACL
+		$this->authPrecheckAcl($options);
+		// Should https or http be used?
+		$scheme = $this->useSSL ? 'https://' : 'http://';
+		// gets the host name. If the host name is public domain or private domain, form a third level domain by prefixing the bucket name on the domain name.
+		$hostname = $this->generateHostname($options[self::OSS_BUCKET]);
+		$string_to_sign = '';
+		$headers = $this->generateHeaders($options, $hostname);
+		$signable_query_string_params = $this->generateSignableQueryStringParam($options);
+		$signable_query_string = OssUtil::toQueryString($signable_query_string_params);
+		$resource_uri = $this->generateResourceUri($options);
+		//Generates the URL (add query parameters)
+		$conjunction = '?';
+		$non_signable_resource = '';
+		if (isset($options[self::OSS_SUB_RESOURCE])) {
+			$conjunction = '&';
+		}
+		if ($signable_query_string !== '') {
+			$signable_query_string = $conjunction . $signable_query_string;
+			$conjunction = '&';
+		}
+		$query_string = $this->generateQueryString($options);
+		if ($query_string !== '') {
+			$non_signable_resource .= $conjunction . $query_string;
+			$conjunction = '&';
+		}
+		
+		$requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
+		// Streaming uploads
+		if (isset($options[self::OSS_FILE_UPLOAD])) {
+			$sink = $options[self::OSS_FILE_UPLOAD];
+		}
+		
+		if (isset($options[self::OSS_METHOD])) {
+			$string_to_sign .= $options[self::OSS_METHOD] . "\n";
+		}
+		
+		if (isset($options[self::OSS_CONTENT])) {
+			if ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
+				$headers[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
+			}
+			if(get_resource_type($options[self::OSS_CONTENT]) == 'stream'){
+				$body = $options[self::OSS_CONTENT];
+			}else{
+				$headers[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
+				$headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
+			}
+			
+		}
+		
+		if (isset($options[self::OSS_CALLBACK])) {
+			$headers[self::OSS_CALLBACK] = base64_encode($options[self::OSS_CALLBACK]);
+		}
+		if (isset($options[self::OSS_CALLBACK_VAR])) {
+			$headers[self::OSS_CALLBACK_VAR] = base64_encode($options[self::OSS_CALLBACK_VAR]);
+		}
+		
+		if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
+			$headers[self::OSS_ACCEPT_ENCODING] = '';
+		}
+		uksort($headers, 'strnatcasecmp');
+
+		$requestHeaders = array();
+		
+		foreach ($headers as $header_key => $header_value) {
+			$header_value = str_replace(array("\r", "\n"), '', $header_value);
+			if ($header_value !== '' || $header_key === self::OSS_ACCEPT_ENCODING) {
+				$requestHeaders[$header_key] = $header_value;
+			}
+			
+			if (
+				strtolower($header_key) === 'content-md5' ||
+				strtolower($header_key) === 'content-type' ||
+				strtolower($header_key) === 'date' ||
+				(isset($options['self::OSS_PREAUTH']) && (integer)$options['self::OSS_PREAUTH'] > 0)
+			) {
+				$string_to_sign .= $header_value . "\n";
+			} elseif (substr(strtolower($header_key), 0, 6) === self::OSS_DEFAULT_PREFIX) {
+				$string_to_sign .= strtolower($header_key) . ':' . $header_value . "\n";
+			}
+		}
+		// Generates the signable_resource
+		$signable_resource = $this->generateSignableResource($options);
+		$signable_resource = rawurldecode($signable_resource) . urldecode($signable_query_string);
+		$string_to_sign_ordered = $string_to_sign;
+		$string_to_sign .= $signable_resource;
+		
+		// Sort the strings to be signed.
+		$string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
+		
+		$signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered, $this->accessKeySecret, true));
+		$requestHeaders['Authorization'] = 'OSS ' . $this->accessKeyId . ':' . $signature;
+		if (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0) {
+			$signed_url = $requestUrl . $conjunction . self::OSS_URL_ACCESS_KEY_ID . '=' . rawurlencode($this->accessKeyId) . '&' . self::OSS_URL_EXPIRES . '=' . $options[self::OSS_PREAUTH] . '&' . self::OSS_URL_SIGNATURE . '=' . rawurlencode($signature);
+			return $signed_url;
+		} elseif (isset($options[self::OSS_PREAUTH])) {
+			return $requestUrl;
+		}
+		
+		//Creates the request
+		$baseUrl = $scheme . $hostname;
+		$uri = $resource_uri . $signable_query_string . $non_signable_resource;
+		$client = new Client(['base_uri'=>$baseUrl,'time_out'=>$this->timeout]);
+		$requestOptions = array();
+		$requestOptions['headers'] = $requestHeaders;
+		if (isset($link)){
+			$requestOptions['sink'] = $sink;
+		}
+		if (!empty($this->requestProxy)) {
+			$requestOptions['proxy'] = $this->requestProxy;
+		}
+		if (isset($options['stream'])) {
+			$requestOptions['stream'] = true;
+		}
+		
+		if(isset($body)){
+			$requestOptions['body'] = $body;
+		}
+		
+		try {
+			$response = $client->request($options[self::OSS_METHOD],$uri,$requestOptions);
+		}catch (GuzzleException $e){
+			throw(new OssException('GuzzleException: ' . $e->getMessage()));
+		}
+		
+		$response_header = $response->getHeaders();
+		$responseHeaders = array();
+		foreach ($response_header as $key => $val){
+			$responseHeaders[strtolower($key)] = $val[0];
+		}
+		
+		$responseHeaders['oss-request-url'] = $requestUrl;
+		$responseHeaders['oss-redirects'] = $this->redirects;
+		$responseHeaders['oss-stringtosign'] = $string_to_sign;
+		$responseHeaders['oss-requestheaders'] = $requestHeaders;
+		$data = new ResponseCore($responseHeaders, $response->getBody(), $response->getStatusCode());
+		if ((integer)$response->getStatusCode() === 500) {
+			if ($this->redirects <= $this->maxRetries) {
+				//Sets the sleep time betwen each retry.
+				$delay = (integer)(pow(4, $this->redirects) * 100000);
+				usleep($delay);
+				$this->redirects++;
+				$data = $this->guzzleAuth($options);
+			}
+		}
+		$this->redirects = 0;
+		return $data;
+	}
 
     /**
      * Sets the max retry count
