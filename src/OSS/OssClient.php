@@ -12,6 +12,7 @@ use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\SelectObjectConfig;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
@@ -1633,6 +1634,28 @@ class OssClient
             
         return $result->getData();
     }
+	
+	/**
+	 * Select object from csv or json
+	 * @param string $bucket bucket name
+	 * @param string $object
+	 * @param SelectObjectConfig $selectObjectConfig
+	 * @param array $options
+	 * @return null
+	 * @throws OssException
+	 * @throws RequestCore_Exception
+	 */
+	public function selectObject($bucket, $object, $selectObjectConfig, $options = NULL)
+	{
+		$this->precheckCommon($bucket, NULL, $options, false);
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+		$options[self::OSS_OBJECT] = $object;
+		$options[self::OSS_CONTENT] = $selectObjectConfig->serializeToXml();
+		$response = $this->auth($options);
+		$result = new BodyResult($response);
+		return $result->getData();
+	}
 
 
     /**
@@ -2956,7 +2979,6 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -3495,6 +3517,7 @@ class OssClient
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
     const OSS_ENCODING_TYPE = "encoding-type";
     const OSS_ENCODING_TYPE_URL = "url";
+    
 
     // Domain Types
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object

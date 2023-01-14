@@ -3,6 +3,10 @@ require_once __DIR__ . '/Common.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
+use OSS\Model\SelectObjectConfig;
+use OSS\Model\SelectObjectInputSerialization;
+use OSS\Model\SelectObjectOutputSerialization;
+use OSS\Model\SelectObjectOptions;
 
 $bucket = Common::getBucketName();
 $ossClient = Common::getOssClient();
@@ -72,6 +76,67 @@ $result = $ossClient->deleteObjects($bucket, array("b.file", "c.file"));
 foreach($result as $object)
     Common::println($object);
 
+// select Object from json
+$object = "php_select.json";
+$option = array(
+	OssClient::OSS_PROCESS=>'json/select',
+);
+$selectObjectConfig = new SelectObjectConfig();
+$selectObjectConfig->addExpression("select s.key2 from ossobject.contacts[*] s");
+$selectObjectInputSerialization = new SelectObjectInputSerialization('json');
+$selectObjectInputSerialization->addCompressionType('None');
+$selectObjectInputSerialization->addRecordDelimiter("");
+$selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+$selectObjectInputSerialization->addJsonType('LINES');
+$selectObjectInputSerialization->addParseJsonNumberAsString(true);
+$selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+$selectObjectOutputSerialization = new SelectObjectOutputSerialization('json');
+$selectObjectOutputSerialization->addEnablePayloadCrc(false);
+$selectObjectOutputSerialization->addOutputRawData(true);
+$selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+
+$selectObjectOptions = new SelectObjectOptions();
+$selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+$selectObjectOptions->addSkipPartialDataRecord(true);
+$selectObjectConfig->addOptions($selectObjectOptions);
+$result = $ossClient->selectObject($bucket,$object,$selectObjectConfig,$option);
+printf("result is:". $result . "\n");
+
+// select Object from csv
+
+//$content  = 'fralychen,China,30'.PHP_EOL.'Tom,USA,20'.PHP_EOL.'Walker,China,32'.PHP_EOL.'Peter,German,45';
+//$ossClient->putObject($bucket, 'php_select.csv', $content);
+$object = "php_select.csv";
+$option = array(
+	OssClient::OSS_PROCESS => 'csv/select',
+);
+$selectObjectConfig = new SelectObjectConfig();
+$selectObjectConfig->addExpression("select s.key2 from ossobject.contacts[*] s");
+$selectObjectInputSerialization = new SelectObjectInputSerialization('csv');
+$selectObjectInputSerialization->addCompressionType('None');
+$selectObjectInputSerialization->addFileHeaderInfo('None');
+$selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+$selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+
+$selectObjectOutputSerialization = new SelectObjectOutputSerialization('csv');
+$selectObjectOutputSerialization->addRecordDelimiter('');
+$selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+
+$selectObjectOptions = new SelectObjectOptions();
+$selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+$selectObjectOptions->addSkipPartialDataRecord(true);
+$selectObjectConfig->addOptions($selectObjectOptions);
+$result = $ossClient->selectObject($bucket, $object, $selectObjectConfig, $option);
+printf("result is:" . $result . "\n");
+
+/**
+ * result is:fralychen,China,30
+ * Tom,USA,20
+ * Walker,China,32
+ * Peter,German,45
+ **/
+
+
 sleep(2);
 unlink("c.file.localcopy");
 
@@ -92,6 +157,8 @@ deleteObjects($ossClient, $bucket);
 doesObjectExist($ossClient, $bucket);
 getSymlink($ossClient, $bucket);
 putSymlink($ossClient, $bucket);
+selectObjectFromCsv($ossClient, $bucket);
+selectObjectFromJson($ossClient, $bucket);
 /**
  * Create a 'virtual' folder
  *
@@ -514,5 +581,84 @@ function doesObjectExist($ossClient, $bucket)
     }
     print(__FUNCTION__ . ": OK" . "\n");
     var_dump($exist);
+}
+
+/**
+ * select Object from json file
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function selectObjectFromJson($ossClient, $bucket){
+	try {
+		$object = "php_select.json";
+		$option = array(
+			OssClient::OSS_PROCESS=>'json/select',
+		);
+		$selectObjectConfig = new SelectObjectConfig();
+		$selectObjectConfig->addExpression("select s.key2 from ossobject.contacts[*] s");
+		$selectObjectInputSerialization = new SelectObjectInputSerialization('json');
+		$selectObjectInputSerialization->addCompressionType('None');
+		$selectObjectInputSerialization->addRecordDelimiter("");
+		$selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+		$selectObjectInputSerialization->addJsonType('LINES');
+		$selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+
+		$selectObjectOutputSerialization = new SelectObjectOutputSerialization('json');
+		$selectObjectOutputSerialization->addRecordDelimiter('');
+		$selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+
+		$selectObjectOptions = new SelectObjectOptions();
+		$selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+		$selectObjectOptions->addSkipPartialDataRecord(true);
+		$selectObjectConfig->addOptions($selectObjectOptions);
+		$result = $ossClient->selectObject($bucket,$object,$selectObjectConfig,$option);
+		printf("result is:". $result . "\n");
+	}catch (OssException $e){
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
+}
+
+/**
+ * select Object from csv file
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function selectObjectFromCsv($ossClient, $bucket){
+	try {
+		$object = "php_select.csv";
+		$option = array(
+			OssClient::OSS_PROCESS => 'csv/select',
+		);
+		$selectObjectConfig = new SelectObjectConfig();
+		$selectObjectConfig->addExpression("select s.key2 from ossobject.contacts[*] s");
+		$selectObjectInputSerialization = new SelectObjectInputSerialization('csv');
+		$selectObjectInputSerialization->addCompressionType('None');
+		$selectObjectInputSerialization->addFileHeaderInfo('None');
+		$selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+		$selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+		
+		$selectObjectOutputSerialization = new SelectObjectOutputSerialization('csv');
+		$selectObjectOutputSerialization->addRecordDelimiter('');
+		$selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+		
+		$selectObjectOptions = new SelectObjectOptions();
+		$selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+		$selectObjectOptions->addSkipPartialDataRecord(true);
+		$selectObjectConfig->addOptions($selectObjectOptions);
+		$result = $ossClient->selectObject($bucket, $object, $selectObjectConfig, $option);
+		printf("result is:" . $result . "\n");
+	}catch (OssException $e){
+		printf(__FUNCTION__ . ": FAILED\n");
+		printf($e->getMessage() . "\n");
+		return;
+	}
+	print(__FUNCTION__ . ": OK" . "\n");
 }
 

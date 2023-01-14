@@ -3,6 +3,10 @@
 namespace OSS\Tests;
 
 use OSS\Core\OssException;
+use OSS\Model\SelectObjectConfig;
+use OSS\Model\SelectObjectInputSerialization;
+use OSS\Model\SelectObjectOptions;
+use OSS\Model\SelectObjectOutputSerialization;
 use OSS\OssClient;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
@@ -770,6 +774,86 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertFalse($this->ossClient->doesObjectExist($this->bucket, $object));
         } catch (OssException $e) {
             $this->assertFalse(true);
+        }
+    }
+
+    public function testSelectObjectFromJson(){
+
+        $content = "{\"contacts\":[{\"key1\":1,\"key2\":\"love China\"},{\"key1\":2,\"key2\":\"fralychen\"}]}";
+        $object = "php_select.json";
+        try {
+            $result = $this->ossClient->putObject($this->bucket,$object,$content);
+            var_dump($result);
+        }catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $option = array(
+                OssClient::OSS_PROCESS=>'json/select',
+            );
+            $selectObjectConfig = new SelectObjectConfig();
+            $selectObjectConfig->addExpression("select s.key2 from ossobject.contacts[*] s");
+            $selectObjectInputSerialization = new SelectObjectInputSerialization('json');
+            $selectObjectInputSerialization->addCompressionType('None');
+            $selectObjectInputSerialization->addRecordDelimiter("");
+            $selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+            $selectObjectInputSerialization->addJsonType('LINES');
+            $selectObjectInputSerialization->addParseJsonNumberAsString(true);
+            $selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+            $selectObjectOutputSerialization = new SelectObjectOutputSerialization('json');
+            $selectObjectOutputSerialization->addEnablePayloadCrc(false);
+            $selectObjectOutputSerialization->addOutputRawData(true);
+            $selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+
+            $selectObjectOptions = new SelectObjectOptions();
+            $selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+            $selectObjectOptions->addSkipPartialDataRecord(true);
+            $selectObjectConfig->addOptions($selectObjectOptions);
+            $result = $this->ossClient->selectObject($this->bucket,$object,$selectObjectConfig,$option);
+            var_dump($result);
+        }catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+    }
+
+    public function testSelectObjectFromCSV()
+    {
+
+        $object = "php_select.csv";
+        $content = 'fralychen,China,30' . PHP_EOL . 'Tom,USA,20' . PHP_EOL . 'Walker,China,32' . PHP_EOL . 'Peter,German,45';
+        try {
+            $this->ossClient->putObject($this->bucket, $object, $content);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $option = array(
+                OssClient::OSS_PROCESS => 'csv/select',
+            );
+            $selectObjectConfig = new SelectObjectConfig();
+            $selectObjectConfig->addExpression("select * from ossobject");
+            $selectObjectInputSerialization = new SelectObjectInputSerialization('csv');
+            $selectObjectInputSerialization->addCompressionType('None');
+            $selectObjectInputSerialization->addFileHeaderInfo('None');
+            $selectObjectInputSerialization->addAllowQuotedRecordDelimiter(true);
+            $selectObjectConfig->addInputSerialization($selectObjectInputSerialization);
+
+            $selectObjectOutputSerialization = new SelectObjectOutputSerialization('csv');
+            $selectObjectOutputSerialization->addRecordDelimiter('');
+            $selectObjectConfig->addOutputSerialization($selectObjectOutputSerialization);
+
+            $selectObjectOptions = new SelectObjectOptions();
+            $selectObjectOptions->addMaxSkippedRecordsAllowed(2);
+            $selectObjectOptions->addSkipPartialDataRecord(true);
+            $selectObjectConfig->addOptions($selectObjectOptions);
+            $result = $this->ossClient->selectObject($this->bucket, $object, $selectObjectConfig, $option);
+            var_dump($result);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+
         }
     }
 
