@@ -3329,7 +3329,7 @@ class OssClient
 
         // resource_uri + object
         if (isset($options[self::OSS_OBJECT]) && '/' !== $options[self::OSS_OBJECT]) {
-            $resource_uri .= '/' . str_replace(array('%2F', '%25'), array('/', '%'), rawurlencode($options[self::OSS_OBJECT]));
+            $resource_uri .= '/' . str_replace(array('%2F'), array('/'), rawurlencode($options[self::OSS_OBJECT]));
         }
 
         // resource_uri + sub_resource
