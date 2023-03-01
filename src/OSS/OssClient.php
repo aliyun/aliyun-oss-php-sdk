@@ -9,16 +9,21 @@ use OSS\Credentials\StaticCredentialsProvider;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\BucketMetaQueryStatus;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\DoMetaQuery;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\MetaQuery;
 use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\DoMetaQueryResult;
+use OSS\Result\GetBucketMetaQueryStatusResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -2058,12 +2063,94 @@ class OssClient
     }
 
     /**
-     * Gets Object metadata
+     * Open Meta Query
+     * @param string $bucket the bucket name
+     * @param array|null $options Checks out the SDK document for the detail
+     * @return array|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function openMetaQuery($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options,false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = "/";
+        $options[self::OSS_SUB_RESOURCE] = "metaQuery&comp=add";
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets Object meta query status
      *
+     * @param string $bucket bucket name
+     * @param string $options Checks out the SDK document for the detail
+     * @return BucketMetaQueryStatus|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getMetaQueryStatus($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options,false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = "/";
+        $options[self::OSS_SUB_RESOURCE] = "metaQuery";
+        $response = $this->auth($options);
+        $result = new GetBucketMetaQueryStatusResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Do Meta query
+     * @param string $bucket bucket name
+     * @param MetaQuery $metaQuery
+     * @param array|null $options
+     * @return DoMetaQuery|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function doMetaQuery($bucket,$metaQuery,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options,false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = "/";
+        $options[self::OSS_SUB_RESOURCE] = "metaQuery&comp=query";
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $metaQuery->serializeToXml();
+        $response = $this->auth($options);
+        $result = new DoMetaQueryResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Close Meta Query
+     * @param string $bucket the bucket name
+     * @param array|null $options Checks out the SDK document for the detail
+     * @return array|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function closeMetaQuery($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options,false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = "/";
+        $options[self::OSS_SUB_RESOURCE] = "metaQuery&comp=delete";
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Gets Object metadata
      * @param string $bucket bucket name
      * @param string $object object name
      * @param string $options Checks out the SDK document for the detail
-     * @return array
+     * @return array|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getObjectMeta($bucket, $object, $options = NULL)
     {
