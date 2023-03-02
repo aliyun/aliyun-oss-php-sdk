@@ -8,6 +8,7 @@ require_once __DIR__ . '/BucketLifecycle.php';
 require_once __DIR__ . '/BucketReferer.php';
 require_once __DIR__ . '/BucketLogging.php';
 require_once __DIR__ . '/BucketWebsite.php';
+require_once __DIR__ . '/BucketReplication.php';
 require_once __DIR__ . '/Signature.php';
 require_once __DIR__ . '/Object1.php';
 require_once __DIR__ . '/MultipartUpload.php';

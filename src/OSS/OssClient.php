@@ -6,15 +6,22 @@ use OSS\Core\OssException;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\BucketReplicationLocation;
+use OSS\Model\ReplicationProgress;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
+use OSS\Model\ReplicationConfig;
+use OSS\Model\ReplicationLocation;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketReplicationLocationResult;
+use OSS\Result\GetBucketReplicationProgressResult;
+use OSS\Result\GetBucketReplicationResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -2577,6 +2584,146 @@ class OssClient
             }
         }
         return $retArray;
+    }
+
+
+
+    /**
+     * Sets the bucket replication rule
+     *
+     * @param string $bucket bucket name
+     * @param $replicationConfig ReplicationConfig
+     * @param array $options Key-Value array
+     * @return null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function putBucketReplication($bucket,$replicationConfig,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'replication&comp=add';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $replicationConfig->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Turn the bucket replication on or off
+     *
+     * @param string $bucket bucket name
+     * @param string $ruleId the replication rule id
+     * @param string $status enabled|disabled
+     * @param null|array $options Key-Value array
+     * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function putBucketRtc($bucket,$ruleId,$status,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'rtc';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = '<?xml version="1.0" encoding="UTF-8"?><ReplicationRule><RTC><Status>'.$status.'</Status></RTC><ID>'.$ruleId.'</ID></ReplicationRule>';
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the bucket Replication rule
+     *
+     * @param string $bucket bucket name
+     * @param array $options Key-Value array
+     * @return ReplicationConfig|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getBucketReplication($bucket,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'replication';
+        $response = $this->auth($options);
+        $result = new GetBucketReplicationResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Get the bucket Replication location
+     *
+     * @param string $bucket bucket name
+     * @param array $options Key-Value array
+     * @return ReplicationLocation
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getBucketReplicationLocation($bucket,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'replicationLocation';
+        $response = $this->auth($options);
+        $result = new GetBucketReplicationLocationResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get the bucket Replication Progress
+     *
+     * @param string $bucket bucket name
+     * @param string $ruleId rule id
+     * @param array $options Key-Value array
+     * @return ReplicationProgress|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function getBucketReplicationProgress($bucket,$ruleId,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'replicationProgress';
+        $options[self::OSS_QUERY_STRING] = array(
+            'rule-id=' => $ruleId,
+        );
+        $response = $this->auth($options);
+        $result = new GetBucketReplicationProgressResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Delete the bucket Replication rule
+     *
+     * @param string $bucket bucket name
+     * @param string $replicationId replication id string
+     * @param array $options Key-Value array
+     * @return null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function deleteBucketReplication($bucket,$replicationId,$options=null)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'replication&comp=delete';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = '<?xml version="1.0" encoding="utf-8"?><ReplicationRules><ID>'.$replicationId.'</ID></ReplicationRules>';
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
     }
 
     /**
