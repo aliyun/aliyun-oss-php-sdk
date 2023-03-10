@@ -5,7 +5,6 @@ namespace OSS\Result;
 use OSS\Core\OssException;
 use OSS\Http\ResponseCore;
 
-
 /**
  * Class Result, The result class of The operation of the base class, different requests in dealing with the return of data have different logic,
  * The specific parsing logic postponed to subclass implementation
@@ -85,6 +84,14 @@ abstract class Result
             $requestId = strval($this->getRequestId());
             $code = $this->retrieveErrorCode($this->rawResponse->body);
             $message = $this->retrieveErrorMessage($this->rawResponse->body);
+            $ec = $this->getHeaderEc();
+            if (empty($code)){
+                $code = $this->retrieveErrorFromHeader($this->rawResponse->header,'code');
+            }
+            if (empty($message)){
+                $message = $this->retrieveErrorFromHeader($this->rawResponse->header,'msg');
+            }
+
             $body = $this->rawResponse->body;
 
             $details = array(
@@ -92,7 +99,8 @@ abstract class Result
                 'request-id' => $requestId,
                 'code' => $code,
                 'message' => $message,
-                'body' => $body
+                'body' => $body,
+                'ec' => $ec,
             );
             throw new OssException($details);
         }
@@ -116,6 +124,28 @@ abstract class Result
         return '';
     }
 
+
+    /**
+     * Get some msg from header
+     * @param $header array
+     * @param $type string code|msg|ec
+     * @return string
+     */
+    private function retrieveErrorFromHeader($header,$type){
+        if (isset($header['x-oss-err'])){
+            $content = base64_decode($header['x-oss-err'],true);
+            switch ($type){
+                case "code":
+                    return $this->retrieveErrorCode($content);
+                case "msg":
+                    return $this->retrieveErrorMessage($content);
+            }
+        }else{
+            return '';
+        }
+
+    }
+
     /**
      * Try to get the error Code from body
      *
@@ -132,6 +162,23 @@ abstract class Result
             return strval($xml->Code);
         }
         return '';
+    }
+
+    /**
+     * Try to get the ec Code from header
+     * @return mixed|string
+     */
+    private function getHeaderEc()
+    {
+
+        if (isset($this->rawResponse) &&
+            isset($this->rawResponse->header) &&
+            isset($this->rawResponse->header['x-oss-ec'])
+        ) {
+            return $this->rawResponse->header['x-oss-ec'];
+        } else {
+            return '';
+        }
     }
 
     /**
