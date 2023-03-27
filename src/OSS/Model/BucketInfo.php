@@ -94,6 +94,14 @@ class BucketInfo
     {
         return $this->region;
     }
+
+    /**
+     * @return string
+     */
+    public function getReservedCapacityInstanceId()
+    {
+        return $this->reservedCapacityInstanceId;
+    }
     
 
     /**
@@ -129,6 +137,10 @@ class BucketInfo
         if (isset($xml->Region)) {
             $this->region = strval($xml->Region);
         }
+        if (isset($xml->ReservedCapacityInstanceId)) {
+            $this->reservedCapacityInstanceId = strval($xml->ReservedCapacityInstanceId);
+        }
+
     }
     
     /**
@@ -178,4 +190,9 @@ class BucketInfo
      * @var string
      */
     private $region;
+
+    /**
+     * @var string
+     */
+    private $reservedCapacityInstanceId;
 }
