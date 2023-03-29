@@ -15,14 +15,13 @@ class GetBucketInfoResult extends Result
 {
     /**
      * Parse data from response
-     * 
-     * @return string
+     * @return BucketInfo
      * @throws OssException
      */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;
-        if (empty($content)) {
+        if (!isset($content) || $content === "") {
             throw new OssException("body is null");
         }
         $xml = simplexml_load_string($content);
