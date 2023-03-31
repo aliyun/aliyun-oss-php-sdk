@@ -4,74 +4,64 @@ namespace OSS\Tests;
 
 
 use OSS\Model\CnameConfig;
-use OSS\Core\OssException;
+use OSS\Model\CnameConfigCertificate;
+use OSS\Model\CnameInfo;
+
 
 class CnameConfigTest extends \PHPUnit\Framework\TestCase
 {
-    private $xml1 = <<<BBBB
+    private $validXml = <<<BBBB
+<?xml version="1.0" encoding="utf-8"?>
+<BucketCnameConfiguration><Cname><Domain>example.com</Domain></Cname></BucketCnameConfiguration>
+BBBB;
+
+
+    private $validXml1 = <<<BBBB
 <?xml version="1.0" encoding="utf-8"?>
 <BucketCnameConfiguration>
-  <Cname>
-    <Domain>www.foo.com</Domain>
-    <Status>enabled</Status>
-    <LastModified>20150101</LastModified>
-  </Cname>
-  <Cname>
-    <Domain>bar.com</Domain>
-    <Status>disabled</Status>
-    <LastModified>20160101</LastModified>
-  </Cname>
+<Cname>
+<Domain>example.com</Domain>
+<CertificateConfiguration>
+<CertId>493****-cn-hangzhou</CertId>
+<Certificate>-----BEGIN CERTIFICATE----- MIIDhDCCAmwCCQCFs8ixARsyrDANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMC **** -----END CERTIFICATE-----</Certificate>
+<PrivateKey>-----BEGIN CERTIFICATE----- MIIDhDCCAmwCCQCFs8ixARsyrDANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMC **** -----END CERTIFICATE-----</PrivateKey>
+<PreviousCertId>493****-cn-hangzhou</PreviousCertId>
+<Force>true</Force>
+<DeleteCertificate>false</DeleteCertificate>
+</CertificateConfiguration>
+</Cname>
 </BucketCnameConfiguration>
 BBBB;
 
-    public function testFromXml()
+    public function testValidXml()
     {
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->parseFromXml($this->xml1);
+        $config = new CnameConfig();
+        $config->setCname("example.com");
 
-        $cnames = $cnameConfig->getCnames();
-        $this->assertEquals(2, count($cnames));
-        $this->assertEquals('www.foo.com', $cnames[0]['Domain']);
-        $this->assertEquals('enabled', $cnames[0]['Status']);
-        $this->assertEquals('20150101', $cnames[0]['LastModified']);
-
-        $this->assertEquals('bar.com', $cnames[1]['Domain']);
-        $this->assertEquals('disabled', $cnames[1]['Status']);
-        $this->assertEquals('20160101', $cnames[1]['LastModified']);
+        $this->assertEquals($this->cleanXml($this->validXml), $this->cleanXml($config->serializeToXml()));
     }
 
-    public function testToXml()
+    public function testValidXml1()
     {
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname('www.foo.com');
-        $cnameConfig->addCname('bar.com');
+        $config = new CnameConfig();
+        $certificate = new CnameConfigCertificate();
+        $certificate->setCertId("493****-cn-hangzhou");
+        $certificate->setCertificate("-----BEGIN CERTIFICATE----- MIIDhDCCAmwCCQCFs8ixARsyrDANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMC **** -----END CERTIFICATE-----");
+        $certificate->setPrivateKey("-----BEGIN CERTIFICATE----- MIIDhDCCAmwCCQCFs8ixARsyrDANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMC **** -----END CERTIFICATE-----");
+        $certificate->setPreviousCertId("493****-cn-hangzhou");
+        $certificate->setForce(true);
+        $certificate->setDeleteCertificate(false);
 
-        $xml = $cnameConfig->serializeToXml();
-        $comp = new CnameConfig();
-        $comp->parseFromXml($xml);
+        $config->setCname("example.com");
+        $config->setCertificateConfig($certificate);
 
-        $cnames1 = $cnameConfig->getCnames();
-        $cnames2 = $comp->getCnames();
-
-        $this->assertEquals(count($cnames1), count($cnames2));
-        $this->assertEquals(count($cnames1[0]), count($cnames2[0]));
-        $this->assertEquals(1, count($cnames1[0]));
-        $this->assertEquals($cnames1[0]['Domain'], $cnames2[0]['Domain']);
+        $this->assertEquals($this->cleanXml($this->validXml1), $this->cleanXml($config->serializeToXml()));
     }
 
-    public function testCnameNumberLimit()
+
+    private function cleanXml($xml)
     {
-        $cnameConfig = new CnameConfig();
-        for ($i = 0; $i < CnameConfig::OSS_MAX_RULES; $i += 1) {
-            $cnameConfig->addCname(strval($i) . '.foo.com');
-        }
-        try {
-            $cnameConfig->addCname('www.foo.com');
-            $this->assertFalse(true);
-        } catch (OssException $e) {
-            $this->assertEquals(
-                $e->getMessage(),
-                "num of cname in the config exceeds self::OSS_MAX_RULES: " . strval(CnameConfig::OSS_MAX_RULES));
-        }
+        return str_replace("\n", "", str_replace("\r", "", $xml));
     }
+
 }

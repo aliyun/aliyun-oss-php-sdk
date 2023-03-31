@@ -8,83 +8,128 @@ use OSS\Core\OssException;
 /**
  * Class CnameConfig
  * @package OSS\Model
- *
- * TODO: fix link
- * @link http://help.aliyun.com/document_detail/oss/api-reference/cors/PutBucketcors.html
+ * @link https://help.aliyun.com/document_detail/428391.html
  */
 class CnameConfig implements XmlConfig
 {
-    public function __construct()
+
+    /**
+     * @var CnameConfigCertificate
+     */
+    private $certificateConfig;
+
+
+    /**
+     * @var string
+     */
+    private $cname;
+
+    /**
+     * @param $cname string
+     */
+    public function setCname($cname)
     {
-        $this->cnameList = array();
+        $this->cname = $cname;
     }
 
     /**
-     * @return array
-     * @example
-     *  array(2) {
-     *    [0]=>
-     *    array(3) {
-     *      ["Domain"]=>
-     *      string(11) "www.foo.com"
-     *      ["Status"]=>
-     *      string(7) "enabled"
-     *      ["LastModified"]=>
-     *      string(8) "20150101"
-     *    }
-     *    [1]=>
-     *    array(3) {
-     *      ["Domain"]=>
-     *      string(7) "bar.com"
-     *      ["Status"]=>
-     *      string(8) "disabled"
-     *      ["LastModified"]=>
-     *      string(8) "20160101"
-     *    }
-     *  }
+     * @param $certificateConfig CnameConfigCertificate
      */
-    public function getCnames()
+    public function setCertificateConfig($certificateConfig)
     {
-        return $this->cnameList;
+        $this->certificateConfig = $certificateConfig;
+    }
+
+    /**
+     * @return CnameConfigCertificate
+     */
+    public function getCertificateConfig()
+    {
+        return $this->certificateConfig;
     }
 
 
-    public function addCname($cname)
-    {
-        if (count($this->cnameList) >= self::OSS_MAX_RULES) {
-            throw new OssException(
-                "num of cname in the config exceeds self::OSS_MAX_RULES: " . strval(self::OSS_MAX_RULES));
-        }
-        $this->cnameList[] = array('Domain' => $cname);
+    /**
+     * @return string
+     */
+    public function getCname(){
+        return $this->cname;
     }
 
+    /**
+     * Parse the xml into this object.
+     *
+     * @param string $strXml
+     * @return void|null
+     */
     public function parseFromXml($strXml)
     {
+        $this->cnameConfig = array();
         $xml = simplexml_load_string($strXml);
         if (!isset($xml->Cname)) return;
-        foreach ($xml->Cname as $entry) {
-            $cname = array();
-            foreach ($entry as $key => $value) {
-                $cname[strval($key)] = strval($value);
+        $this->parseCname($xml->Cname);
+    }
+
+    /**
+     * @param $xmlCname \SimpleXMLElement
+     */
+    private function parseCname($xmlCname)
+    {
+        if(isset($xmlCname)){
+            if (isset($xmlCname->Domain)){
+                $this->setCname(strval($xmlCname->Domain));
             }
-            $this->cnameList[] = $cname;
+            if (isset($xmlCname->CertificateConfiguration)){
+                $this->parseCertificateConfiguration($xmlCname->CertificateConfiguration);
+            }
+        }
+
+    }
+
+    /**
+     * @param $certificateConfiguration \SimpleXMLElement
+     */
+    private function parseCertificateConfiguration($certificateConfiguration)
+    {
+        if(isset($certificateConfiguration)){
+            $certificateConfig = new CnameConfigCertificate();
+            if (isset($certificateConfiguration->CertId)){
+                $certificateConfig->setCertId(strval($certificateConfiguration->CertId));
+            }
+            if (isset($certificateConfiguration->Certificate)){
+                $certificateConfig->setCertificate(strval($certificateConfiguration->Certificate));
+            }
+            if (isset($certificateConfiguration->PrivateKey)){
+                $certificateConfig->setPrivateKey(strval($certificateConfiguration->PrivateKey));
+            }
+            if (isset($certificateConfiguration->PreviousCertId)){
+                $certificateConfig->setPreviousCertId(strval($certificateConfiguration->PreviousCertId));
+            }
+            if (isset($certificateConfiguration->Force)){
+                $certificateConfig->setForce(strval($certificateConfiguration->Force));
+            }
+            if (isset($certificateConfiguration->DeleteCertificate)){
+                $certificateConfig->setDeleteCertificate(strval($certificateConfiguration->DeleteCertificate));
+            }
+            $this->setCertificateConfig($certificateConfig);
         }
     }
 
     public function serializeToXml()
     {
-        $strXml = <<<EOF
-<?xml version="1.0" encoding="utf-8"?>
-<BucketCnameConfiguration>
-</BucketCnameConfiguration>
-EOF;
-        $xml = new \SimpleXMLElement($strXml);
-        foreach ($this->cnameList as $cname) {
-            $node = $xml->addChild('Cname');
-            foreach ($cname as $key => $value) {
-                $node->addChild($key, $value);
-            }
+        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><BucketCnameConfiguration></BucketCnameConfiguration>');
+
+        if (isset($this->cname) || isset($this->certificateConfig)){
+            $xmlCname = $xml->addChild('Cname');
         }
+        if (isset($this->cname)){
+            $xmlCname->addChild('Domain',$this->cname);
+        }
+
+        if (isset($this->certificateConfig)){
+            $this->certificateConfig->appendToXml($xmlCname);
+        }
+
         return $xml->asXML();
     }
 
@@ -93,7 +138,4 @@ EOF;
         return $this->serializeToXml();
     }
 
-    const OSS_MAX_RULES = 10;
-
-    private $cnameList = array();
 }
