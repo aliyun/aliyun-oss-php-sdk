@@ -1,12 +1,13 @@
 <?php
 
 namespace OSS\Model;
+use OSS\Core\OssException;
 /**
  * Class LiveChannelInfo
  * @package OSS\Model
  *
  */
-class LiveChannelInfo implements XmlConfig
+class LiveChannelInfo
 {
     public function __construct($name = null, $description = null)
     {
@@ -31,9 +32,17 @@ class LiveChannelInfo implements XmlConfig
         return $this->publishUrls;
     }
 
+    public function addPublishUrls($url){
+        $this->publishUrls[] = $url;
+    }
+
     public function getPlayUrls()
     {
         return $this->playUrls;
+    }
+
+    public function addPlayUrls($url){
+        $this->playUrls[] = $url;
     }
 
     public function getStatus()
@@ -41,9 +50,18 @@ class LiveChannelInfo implements XmlConfig
         return $this->status;
     }
 
+    public function setStatus($status){
+        $this->status = $status;
+    }
+
     public function getLastModified()
     {
         return $this->lastModified;
+    }
+
+    public function setLastModified($lastModified)
+    {
+       $this->lastModified = $lastModified;
     }
 
     public function getDescription()

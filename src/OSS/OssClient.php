@@ -8,10 +8,14 @@ use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\GetLiveChannelHistory;
+use OSS\Model\GetLiveChannelInfo;
+use OSS\Model\GetLiveChannelStatus;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
-use OSS\Model\LiveChannelListInfo;
+use OSS\Model\ListLiveChannel;
+use OSS\Model\PutLiveChannel;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
@@ -608,8 +612,8 @@ class OssClient
      * @param string channelName  $channelName
      * @param LiveChannelConfig $channelConfig
      * @param array $options
-     * @throws OssException
-     * @return LiveChannelInfo
+     * @return PutLiveChannel|null
+     * @throws OssException|RequestCore_Exception
      */
     public function putBucketLiveChannel($bucket, $channelName, $channelConfig, $options = NULL)
     {
@@ -626,7 +630,6 @@ class OssClient
         $info = $result->getData();
         $info->setName($channelName);
         $info->setDescription($channelConfig->getDescription());
-        
         return $info;
     }
 
@@ -637,8 +640,8 @@ class OssClient
      * @param string channelName $channelName
      * @param string channelStatus $channelStatus enabled or disabled
      * @param array $options
-     * @throws OssException
-     * @return null 
+     * @return null
+     * @throws OssException|RequestCore_Exception
      */
     public function putLiveChannelStatus($bucket, $channelName, $channelStatus, $options = NULL)
     {
@@ -660,8 +663,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param string channelName $channelName
      * @param array $options
-     * @throws OssException
-     * @return GetLiveChannelInfo
+     * @return GetLiveChannelInfo|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getLiveChannelInfo($bucket, $channelName, $options = NULL)
     {
@@ -682,8 +685,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param string channelName $channelName
      * @param array $options
-     * @throws OssException
-     * @return GetLiveChannelStatus
+     * @return GetLiveChannelStatus|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getLiveChannelStatus($bucket, $channelName, $options = NULL)
     {
@@ -705,8 +708,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param string channelName $channelName
      * @param array $options
-     * @throws OssException
-     * @return GetLiveChannelHistory
+     * @return GetLiveChannelHistory|null
+      * @throws OssException|RequestCore_Exception
      */
     public function getLiveChannelHistory($bucket, $channelName, $options = NULL)
     {
@@ -727,8 +730,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return LiveChannelListInfo
+     * @return ListLiveChannel|null
+     * @throws OssException|RequestCore_Exception
      */
     public function listBucketLiveChannels($bucket, $options = NULL)
     {
@@ -744,34 +747,52 @@ class OssClient
         );
         $response = $this->auth($options);
         $result = new ListLiveChannelResult($response);
-        $list = $result->getData();
-        $list->setBucketName($bucket);
-
-        return $list;
+        return $result->getData();
     }
 
     /**
      * Creates a play list file for the LiveChannel
      *
      * @param string $bucket bucket name
-     * @param string channelName $channelName 
+     * @param $channelName
      * @param string $playlistName The playlist name, must end with ".m3u8".
-     * @param array $setTime  startTime and EndTime in unix time. No more than 1 day.
-     * @throws OssException
+     * @param null|array $options
      * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
      */
-    public function postVodPlaylist($bucket, $channelName, $playlistName, $setTime)
+    public function postVodPlaylist($bucket, $channelName, $playlistName, $options = NULL)
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = $channelName . '/' . $playlistName;
         $options[self::OSS_SUB_RESOURCE] = 'vod';
-        $options[self::OSS_LIVE_CHANNEL_END_TIME] = $setTime['EndTime'];
-        $options[self::OSS_LIVE_CHANNEL_START_TIME] = $setTime['StartTime'];
-       
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Get a play list file for the LiveChannel
+     *
+     * @param string $bucket bucket name
+     * @param string channelName $channelName
+     * @param array $options  startTime and EndTime in unix time. No more than 1 day.
+     * @return null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getVodPlaylist($bucket, $channelName, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = $channelName ;
+        $options[self::OSS_SUB_RESOURCE] = 'vod';
+
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
         return $result->getData();
     }
 
@@ -781,8 +802,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param string channelName $channelName
      * @param array $options
-     * @throws OssException
      * @return null
+     * @throws OssException|RequestCore_Exception
      */
     public function deleteBucketLiveChannel($bucket, $channelName, $options = NULL)
     {
@@ -804,8 +825,7 @@ class OssClient
      * @param string channelName $channelName
      * @param int timeout timeout value in seconds
      * @param array $options
-     * @throws OssException
-     * @return The signed pushing streaming url
+     * @return string the signed pushing streaming url
      */
     public function signRtmpUrl($bucket, $channelName, $timeout = 60, $options = NULL)
     {

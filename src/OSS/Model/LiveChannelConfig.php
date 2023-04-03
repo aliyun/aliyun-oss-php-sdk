@@ -6,71 +6,169 @@ namespace OSS\Model;
 /**
  * Class LiveChannelConfig
  * @package OSS\Model
+ * @link https://help.aliyun.com/document_detail/44294.html
  */
 class LiveChannelConfig implements XmlConfig
 {
-    public function __construct($option = array())
+    /**
+     * @var string
+     */
+    private $description;
+    /**
+     * @var string
+     */
+    private $status;
+
+    /**
+     * @var LiveChannelConfigTarget
+     */
+    private $target;
+
+    /**
+     * @var LiveChannelConfigSnapshot
+     */
+    private $snapshot;
+
+
+    /**
+     * LiveChannelConfig constructor.
+     * @param null|string $description
+     * @param null|string $status
+     * @param null|LiveChannelConfigTarget $target
+     * @param null|LiveChannelConfigSnapshot $snapshot
+     */
+    public function __construct($description=null,$status=null,$target=null,$snapshot=null)
     {
-        if (isset($option['description'])) {
-            $this->description = $option['description'];
-        }
-        if (isset($option['status'])) {
-            $this->status = $option['status'];
-        }
-        if (isset($option['type'])) {
-            $this->type = $option['type'];
-        }
-        if (isset($option['fragDuration'])) {
-            $this->fragDuration = $option['fragDuration'];
-        }
-        if (isset($option['fragCount'])) {
-            $this->fragCount = $option['fragCount'];
-        }
-        if (isset($option['playListName'])) {
-            $this->playListName = $option['playListName'];
-        }
+            $this->description = $description;
+            $this->status = $status;
+            $this->target = $target;
+            $this->snapshot = $snapshot;
     }
 
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;
     }
 
+    /**
+     * @param $description
+     */
+    public function setDescription($description){
+        $this->description = $description;
+    }
+
+    /**
+     * @return string
+     */
     public function getStatus()
     {
         return $this->status;
     }
 
-    public function getType()
+    /**
+     * @param $status string
+     */
+    public function setStatus($status)
     {
-        return $this->type;
+        $this->status = $status;
     }
 
-    public function getFragDuration()
+    /**
+     * @param $target LiveChannelConfigTarget
+     */
+    public function setTarget($target)
     {
-        return $this->fragDuration;
+        $this->target = $target;
     }
 
-    public function getFragCount()
+    /**
+     * @return LiveChannelConfigTarget
+     */
+    public function getTarget()
     {
-        return $this->fragCount;
+        return $this->target;
     }
 
-    public function getPlayListName()
+    /**
+     * @param $snapshot LiveChannelConfigSnapshot
+     */
+    public function setSnapshot($snapshot)
     {
-        return $this->playListName;
+        $this->snapshot = $snapshot;
+    }
+
+    /**
+     * @return LiveChannelConfigSnapshot
+     */
+    public function getSnapshot()
+    {
+        return $this->snapshot;
     }
 
     public function parseFromXml($strXml)
     {
         $xml = simplexml_load_string($strXml);
-        $this->description = strval($xml->Description);
-        $this->status = strval($xml->Status);
-        $target = $xml->Target;
-        $this->type = strval($target->Type);
-        $this->fragDuration = intval($target->FragDuration);
-        $this->fragCount = intval($target->FragCount);
-        $this->playListName = strval($target->PlayListName);
+        if (!isset($xml->Description) && !isset($xml->Status) && !isset($xml->Target) && !isset($xml->Snapshot)) return;
+        if (isset($xml->Description)){
+            $this->description = strval($xml->Description);
+        }
+        if (isset($xml->Status)){
+            $this->status = strval($xml->Status);
+        }
+        if (isset($xml->Target)){
+            $this->parseTarget($xml->Target);
+        }
+        if (isset($xml->Snapshot)){
+            $this->parseSnapshot($xml->Snapshot);
+        }
+    }
+
+    /**
+     * @param $xmlTarget \SimpleXMLElement
+     */
+    private function parseTarget($xmlTarget){
+        if (isset($xmlTarget)){
+            $target = new LiveChannelConfigTarget();
+            if (isset($xmlTarget->Type)){
+                $target->setType(strval($xmlTarget->Type));
+            }
+            if (isset($xmlTarget->FragDuration)){
+                $target->setFragDuration(strval($xmlTarget->FragDuration));
+            }
+            if (isset($xmlTarget->FragCount)){
+                $target->setFragCount(strval($xmlTarget->FragCount));
+            }
+            if (isset($xmlTarget->PlayListName)){
+                $target->setPlayListName(strval($xmlTarget->PlayListName));
+            }
+
+            $this->setTarget($target);
+        }
+
+    }
+
+    /**
+     * @param $xmlSnapshot \SimpleXMLElement
+     */
+    private function parseSnapshot($xmlSnapshot){
+        if (isset($xmlSnapshot)){
+            $snapshot = new LiveChannelConfigSnapshot();
+            if (isset($xmlSnapshot->RoleName)){
+                $snapshot->setRoleName(strval($xmlSnapshot->RoleName));
+            }
+            if (isset($xmlSnapshot->DestBucket)){
+                $snapshot->setDestBucket(strval($xmlSnapshot->DestBucket));
+            }
+            if (isset($xmlSnapshot->NotifyTopic)){
+                $snapshot->setNotifyTopic(strval($xmlSnapshot->NotifyTopic));
+            }
+            if (isset($xmlSnapshot->Interval)){
+                $snapshot->setInterval(strval($xmlSnapshot->Interval));
+            }
+        }
     }
 
     public function serializeToXml()
@@ -83,27 +181,21 @@ EOF;
         $xml = new \SimpleXMLElement($strXml);
         if (isset($this->description)) {
             $xml->addChild('Description', $this->description);
+        }else{
+            $xml->addChild('Description');
         }
-
         if (isset($this->status)) {
             $xml->addChild('Status', $this->status);
         }
-
-        $node = $xml->addChild('Target');
-        $node->addChild('Type', $this->type);
-
-        if (isset($this->fragDuration)) {
-            $node->addChild('FragDuration', $this->fragDuration);
+        if (isset($this->target)){
+            $xmlTarget = $xml->addChild('Target');
+            $this->target->appendToXml($xmlTarget);
         }
 
-        if (isset($this->fragCount)) {
-            $node->addChild('FragCount', $this->fragCount);
+        if (isset($this->snapshot)){
+            $xmlSnapshot = $xml->addChild('Snapshot');
+            $this->snapshot->appendToXml($xmlSnapshot);
         }
-
-        if (isset($this->playListName)) {
-            $node->addChild('PlayListName', $this->playListName);
-        }
-
         return $xml->asXML();
     }
 
@@ -111,11 +203,6 @@ EOF;
     {
         return $this->serializeToXml();
     }
-    
-    private $description;
-    private $status = "enabled";
-    private $type;
-    private $fragDuration = 5;
-    private $fragCount = 3;
-    private $playListName = "playlist.m3u8";
+
+
 }

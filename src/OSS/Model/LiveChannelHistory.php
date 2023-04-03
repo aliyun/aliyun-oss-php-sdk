@@ -1,12 +1,14 @@
 <?php
 
 namespace OSS\Model;
+use OSS\Core\OssException;
+
 /**
  * Class LiveChannelHistory
  * @package OSS\Model
- *
+ * @link https://help.aliyun.com/document_detail/44301.html
  */
-class LiveChannelHistory implements XmlConfig
+class LiveChannelHistory
 {
     public function __construct()
     {

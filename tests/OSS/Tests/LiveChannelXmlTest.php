@@ -6,7 +6,7 @@ require_once __DIR__ . '/Common.php';
 
 use OSS\Core\OssException;
 use OSS\Model\LiveChannelInfo;
-use OSS\Model\LiveChannelListInfo;
+use OSS\Model\ListLiveChannel;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\GetLiveChannelStatus;
 use OSS\Model\GetLiveChannelHistory;
@@ -173,20 +173,21 @@ BBBB;
 
         $this->assertEquals('xxx', $config->getDescription());
         $this->assertEquals('enabled', $config->getStatus());
-        $this->assertEquals('hls', $config->getType());
-        $this->assertEquals(1000, $config->getFragDuration());
-        $this->assertEquals(5, $config->getFragCount());
-        $this->assertEquals('hello.m3u8', $config->getPlayListName());
+        $this->assertEquals('hls', $config->getTarget()->getType());
+        $this->assertEquals(1000, $config->getTarget()->getFragDuration());
+        $this->assertEquals(5, $config->getTarget()->getFragCount());
+
+        $this->assertEquals('hello.m3u8', $config->getTarget()->getPlayListName());
 
         $xml = $config->serializeToXml();
         $config2 = new LiveChannelConfig(array('name' => 'live-2'));
         $config2->parseFromXml($xml);
         $this->assertEquals('xxx', $config2->getDescription());
         $this->assertEquals('enabled', $config2->getStatus());
-        $this->assertEquals('hls', $config2->getType());
-        $this->assertEquals(1000, $config2->getFragDuration());
-        $this->assertEquals(5, $config2->getFragCount());
-        $this->assertEquals('hello.m3u8', $config2->getPlayListName());
+        $this->assertEquals('hls', $config2->getTarget()->getType());
+        $this->assertEquals(1000, $config2->getTarget()->getFragDuration());
+        $this->assertEquals(5, $config2->getTarget()->getFragCount());
+        $this->assertEquals('hello.m3u8', $config2->getTarget()->getPlayListName());
     }
 
     public function testLiveChannelInfo()
@@ -209,13 +210,13 @@ BBBB;
 
     public function testLiveChannelList()
     {
-        $list = new LiveChannelListInfo();
+        $list = new ListLiveChannel();
         $list->parseFromXml($this->list);
 
         $this->assertEquals('xxx', $list->getPrefix());
         $this->assertEquals('yyy', $list->getMarker());
         $this->assertEquals(100, $list->getMaxKeys());
-        $this->assertEquals(false, $list->getIsTruncated());
+        $this->assertEquals("false", $list->getIsTruncated());
         $this->assertEquals('121312132', $list->getNextMarker());
 
         $channels = $list->getChannelList();
@@ -262,7 +263,7 @@ BBBB;
     public function testGetLiveChannelHistorySerializeToXml()
     {
         try {
-          $history = new GetLiveChannelHistory ();
+          $history = new GetLiveChannelHistory();
           $history->serializeToXml();
             $this->assertTrue(false);
       } catch (OssException $e) {
