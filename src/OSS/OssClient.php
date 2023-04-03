@@ -407,8 +407,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param WebsiteConfig $websiteConfig
      * @param array $options
-     * @throws OssException
      * @return null
+     * @throws OssException|RequestCore_Exception
      */
     public function putBucketWebsite($bucket, $websiteConfig, $options = NULL)
     {
@@ -429,8 +429,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return WebsiteConfig
+     * @return WebsiteConfig|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getBucketWebsite($bucket, $options = NULL)
     {
@@ -449,8 +449,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
      * @return null
+     * @throws OssException|RequestCore_Exception
      */
     public function deleteBucketWebsite($bucket, $options = NULL)
     {
