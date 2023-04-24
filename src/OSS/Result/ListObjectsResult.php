@@ -6,6 +6,7 @@ use OSS\Core\OssException;
 use OSS\Core\OssUtil;
 use OSS\Model\ObjectInfo;
 use OSS\Model\ObjectListInfo;
+use OSS\Model\Owner;
 use OSS\Model\PrefixInfo;
 
 /**
@@ -52,7 +53,13 @@ class ListObjectsResult extends Result
                 $type = isset($content->Type) ? strval($content->Type) : "";
                 $size = isset($content->Size) ? strval($content->Size) : "0";
                 $storageClass = isset($content->StorageClass) ? strval($content->StorageClass) : "";
-                $retList[] = new ObjectInfo($key, $lastModified, $eTag, $type, $size, $storageClass);
+                if(isset($content->Owner)){
+                    $owner = new Owner(strval($content->Owner->ID),strval($content->Owner->DisplayName));
+                }else{
+                    $owner = null;
+                }
+                $restoreInfo= isset($content->RestoreInfo) ? strval($content->RestoreInfo) : null;
+                $retList[] = new ObjectInfo($key, $lastModified, $eTag, $type, $size, $storageClass,$owner,$restoreInfo);
             }
         }
         return $retList;

@@ -24,8 +24,10 @@ class ObjectInfo
      * @param string $type
      * @param string $size
      * @param string $storageClass
+     * @param Owner|null $owner
+     * @param null $restoreInfo
      */
-    public function __construct($key, $lastModified, $eTag, $type, $size, $storageClass)
+    public function __construct($key, $lastModified, $eTag, $type, $size, $storageClass,$owner=null,$restoreInfo=null)
     {
         $this->key = $key;
         $this->lastModified = $lastModified;
@@ -33,6 +35,8 @@ class ObjectInfo
         $this->type = $type;
         $this->size = $size;
         $this->storageClass = $storageClass;
+        $this->owner = $owner;
+        $this->restoreInfo = $restoreInfo;
     }
 
     /**
@@ -94,10 +98,32 @@ class ObjectInfo
         return $this->storageClass;
     }
 
+    /**
+     * @return string
+     */
+    public function getRestoreInfo()
+    {
+        return $this->restoreInfo;
+    }
+
+
+    /**
+     * @return Owner|null
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
     private $key = "";
     private $lastModified = "";
     private $eTag = "";
     private $type = "";
     private $size = "0";
     private $storageClass = "";
+    /**
+     * @var Owner
+     */
+    private $owner;
+    private $restoreInfo;
 }
