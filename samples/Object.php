@@ -55,7 +55,7 @@ $day = 3;
 $tier = 'Expedited';
 $config = new RestoreConfig($day,$tier);
 $options = array(
-	OssClient::OSS_RESTORE_CONFIG => $config
+    OssClient::OSS_RESTORE_CONFIG => $config
 );
 $ossClient->restoreObject($bucket, 'b.file',$options);
 
@@ -93,9 +93,9 @@ $content = "hello world";
 
 // The speed limit is 100 KB/s, which is 819200 bit/s.
 $options = array(
-	OssClient::OSS_HEADERS => array(
-		OssClient::OSS_TRAFFIC_LIMIT => 819200,
-	));
+    OssClient::OSS_HEADERS => array(
+        OssClient::OSS_TRAFFIC_LIMIT => 819200,
+    ));
 // Speed limit upload.
 $ossClient->putObject($bucket, $object, $content, $options);
 
@@ -205,7 +205,7 @@ function uploadFile($ossClient, $bucket)
 }
 
 /**
- * Lists all files and folders in the bucket. 
+ * Lists all files and folders in the bucket.
  * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
  * Loop through all the items returned from ListObjects.
  *
@@ -227,30 +227,47 @@ function listObjects($ossClient, $bucket)
     );
     try {
         $listObjectInfo = $ossClient->listObjects($bucket, $options);
+        printf("Bucket Name: %s". "\n",$listObjectInfo->getBucketName());
+        printf("Prefix: %s". "\n",$listObjectInfo->getPrefix());
+        printf("Marker: %s". "\n",$listObjectInfo->getMarker());
+        printf("Next Marker: %s". "\n",$listObjectInfo->getNextMarker());
+        printf("Max Keys: %s". "\n",$listObjectInfo->getMaxKeys());
+        printf("Delimiter: %s". "\n",$listObjectInfo->getDelimiter());
+        printf("Is Truncated: %s". "\n",$listObjectInfo->getIsTruncated());
+        $objectList = $listObjectInfo->getObjectList(); // object list
+        $prefixList = $listObjectInfo->getPrefixList(); // directory list
+        if (!empty($objectList)) {
+            print("objectList:\n");
+            foreach ($objectList as $objectInfo) {
+                printf("Object Name: %s". "\n",$objectInfo->getKey());
+                printf("Object Size: %s". "\n",$objectInfo->getSize());
+                printf("Object Type: %s". "\n",$objectInfo->getType());
+                printf("Object ETag: %s". "\n",$objectInfo->getETag());
+                printf("Object Last Modified: %s". "\n",$objectInfo->getLastModified());
+                printf("Object Storage Class: %s". "\n",$objectInfo->getStorageClass());
+
+                if ($objectInfo->getRestoreInfo()){
+                    printf("Restore Info: %s". "\n",$objectInfo->getRestoreInfo() );
+                }
+
+                if($objectInfo->getOwner()){
+                    printf("Owner Id:".$objectInfo->getOwner()->getId() . "\n");
+                    printf("Owner Name:".$objectInfo->getOwner()->getDisplayName() . "\n");
+                }
+            }
+        }
+        if (!empty($prefixList)) {
+            print("prefixList: \n");
+            foreach ($prefixList as $prefixInfo) {
+                printf("Common Prefix:%s\n",$prefixInfo->getPrefix());
+            }
+        }
     } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
         return;
     }
     print(__FUNCTION__ . ": OK" . "\n");
-    $objectList = $listObjectInfo->getObjectList(); // object list
-    $prefixList = $listObjectInfo->getPrefixList(); // directory list
-    if (!empty($objectList)) {
-        print("objectList:\n");
-        foreach ($objectList as $objectInfo) {
-            print($objectInfo->getKey() . "\n");
-            if($objectInfo->getOwner() != null){
-                printf("owner id:".$objectInfo->getOwner()->getId() . "\n");
-                printf("owner name:".$objectInfo->getOwner()->getDisplayName() . "\n");
-            }
-        }
-    }
-    if (!empty($prefixList)) {
-        print("prefixList: \n");
-        foreach ($prefixList as $prefixInfo) {
-            print($prefixInfo->getPrefix() . "\n");
-        }
-    }
 }
 
 /**
@@ -264,42 +281,61 @@ function listObjects($ossClient, $bucket)
  */
 function listObjectsV2($ossClient, $bucket)
 {
-	$prefix = 'oss-php-sdk-test/';
-	$delimiter = '/';
-	$maxkeys = 1000;
-	$options = array(
-		'delimiter' => $delimiter,
-		'prefix' => $prefix,
-		'max-keys' => $maxkeys,
-		'start-after' =>'test-object',
-		'fetch-owner' =>'true',
-	);
-	try {
-		$listObjectInfo = $ossClient->listObjectsV2($bucket, $options);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
-	$objectList = $listObjectInfo->getObjectList(); // object list
-	$prefixList = $listObjectInfo->getPrefixList(); // directory list
-	if (!empty($objectList)) {
-		print("objectList:\n");
-		foreach ($objectList as $objectInfo) {
-			print($objectInfo->getKey() . "\n");
-			if($objectInfo->getOwner() != null){
-				printf("owner id:".$objectInfo->getOwner()->getId() . "\n");
-				printf("owner name:".$objectInfo->getOwner()->getDisplayName() . "\n");
-			}
-		}
-	}
-	if (!empty($prefixList)) {
-		print("prefixList: \n");
-		foreach ($prefixList as $prefixInfo) {
-			print($prefixInfo->getPrefix() . "\n");
-		}
-	}
+    $prefix = 'oss-php-sdk-test/';
+    $delimiter = '/';
+    $maxkeys = 1000;
+    $options = array(
+        'delimiter' => $delimiter,
+        'prefix' => $prefix,
+        'max-keys' => $maxkeys,
+        'start-after' =>'test-object',
+        'fetch-owner' =>'true',
+    );
+    try {
+        $listObjectInfo = $ossClient->listObjectsV2($bucket, $options);
+        printf("Bucket Name: %s". "\n",$listObjectInfo->getBucketName());
+        printf("Prefix: %s". "\n",$listObjectInfo->getPrefix());
+        printf("Next Continuation Token: %s". "\n",$listObjectInfo->getNextContinuationToken());
+        printf("Continuation Token: %s". "\n",$listObjectInfo->getContinuationToken());
+        printf("Max Keys: %s". "\n",$listObjectInfo->getMaxKeys());
+        printf("Key Count: %s". "\n",$listObjectInfo->getKeyCount());
+        printf("Delimiter: %s". "\n",$listObjectInfo->getDelimiter());
+        printf("Is Truncated: %s". "\n",$listObjectInfo->getIsTruncated());
+        printf("Start After: %s". "\n",$listObjectInfo->getStartAfter());
+        $objectList = $listObjectInfo->getObjectList(); // object list
+        $prefixList = $listObjectInfo->getPrefixList(); // directory list
+        if (!empty($objectList)) {
+            print("objectList:\n");
+            foreach ($objectList as $objectInfo) {
+                printf("Object Name: %s". "\n",$objectInfo->getKey());
+                printf("Object Size: %s". "\n",$objectInfo->getSize());
+                printf("Object Type: %s". "\n",$objectInfo->getType());
+                printf("Object ETag: %s". "\n",$objectInfo->getETag());
+                printf("Object Last Modified: %s". "\n",$objectInfo->getLastModified());
+                printf("Object Storage Class: %s". "\n",$objectInfo->getStorageClass());
+
+                if ($objectInfo->getRestoreInfo()){
+                    printf("Restore Info: %s". "\n",$objectInfo->getRestoreInfo() );
+                }
+
+                if($objectInfo->getOwner()){
+                    printf("Owner Id:".$objectInfo->getOwner()->getId() . "\n");
+                    printf("Owner Name:".$objectInfo->getOwner()->getDisplayName() . "\n");
+                }
+            }
+        }
+        if (!empty($prefixList)) {
+            print("prefixList: \n");
+            foreach ($prefixList as $prefixInfo) {
+                printf("Common Prefix:%s\n",$prefixInfo->getPrefix());
+            }
+        }
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
@@ -623,20 +659,20 @@ function doesObjectExist($ossClient, $bucket)
  */
 function putObjectSpeed($ossClient, $bucket)
 {
-	$object = "upload-test-object-name.txt";
-	$content = file_get_contents(__FILE__);
-	$options = array(
-		OssClient::OSS_HEADERS => array(
-			OssClient::OSS_TRAFFIC_LIMIT => 819200,
-		));
-	try {
-		$ossClient->putObject($bucket, $object, $content, $options);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    $object = "upload-test-object-name.txt";
+    $content = file_get_contents(__FILE__);
+    $options = array(
+        OssClient::OSS_HEADERS => array(
+            OssClient::OSS_TRAFFIC_LIMIT => 819200,
+        ));
+    try {
+        $ossClient->putObject($bucket, $object, $content, $options);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
@@ -648,19 +684,19 @@ function putObjectSpeed($ossClient, $bucket)
  */
 function getObjectSpeed($ossClient, $bucket)
 {
-	$object = "upload-test-object-name.txt";
-	$options = array(
-		OssClient::OSS_HEADERS => array(
-			OssClient::OSS_TRAFFIC_LIMIT => 819200,
-		));
-	try {
-		$ossClient->getObject($bucket, $object, $options);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    $object = "upload-test-object-name.txt";
+    $options = array(
+        OssClient::OSS_HEADERS => array(
+            OssClient::OSS_TRAFFIC_LIMIT => 819200,
+        ));
+    try {
+        $ossClient->getObject($bucket, $object, $options);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
@@ -672,14 +708,14 @@ function getObjectSpeed($ossClient, $bucket)
  */
 function signUrlSpeedUpload($ossClient, $bucket)
 {
-	$object = "upload-test-object-name.txt";
-	$timeout = 120;
-	$options = array(
-		OssClient::OSS_TRAFFIC_LIMIT => 819200,
-	);
-	$timeout = 60;
-	$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
-	print($signedUrl);
+    $object = "upload-test-object-name.txt";
+    $timeout = 120;
+    $options = array(
+        OssClient::OSS_TRAFFIC_LIMIT => 819200,
+    );
+    $timeout = 60;
+    $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "PUT", $options);
+    print($signedUrl);
 }
 
 
@@ -692,14 +728,14 @@ function signUrlSpeedUpload($ossClient, $bucket)
  */
 function signUrlSpeedDownload($ossClient, $bucket)
 {
-	$object = "upload-test-object-name.txt";
-	$timeout = 120;
-	$options = array(
-		OssClient::OSS_TRAFFIC_LIMIT => 819200,
-	);
-	$signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "GET", $options);
-	print($signedUrl);
-	print(__FUNCTION__ . ": OK" . "\n");
+    $object = "upload-test-object-name.txt";
+    $timeout = 120;
+    $options = array(
+        OssClient::OSS_TRAFFIC_LIMIT => 819200,
+    );
+    $signedUrl = $ossClient->signUrl($bucket, $object, $timeout, "GET", $options);
+    print($signedUrl);
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
@@ -711,19 +747,19 @@ function signUrlSpeedDownload($ossClient, $bucket)
  */
 function restoreObject($ossClient, $bucket)
 {
-	$object = "oss-php-sdk-test/upload-test-object-name.txt";
-	$day = 3;
-	$tier = 'Expedited';
-	$config = new RestoreConfig($day,$tier);
-	$options = array(
-		OssClient::OSS_RESTORE_CONFIG => $config
-	);
-	try {
-		$ossClient->restoreObject($bucket, $object,$options);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    $object = "oss-php-sdk-test/upload-test-object-name.txt";
+    $day = 3;
+    $tier = 'Expedited';
+    $config = new RestoreConfig($day,$tier);
+    $options = array(
+        OssClient::OSS_RESTORE_CONFIG => $config
+    );
+    try {
+        $ossClient->restoreObject($bucket, $object,$options);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
