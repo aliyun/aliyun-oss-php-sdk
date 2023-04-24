@@ -9,6 +9,7 @@ use OSS\Credentials\StaticCredentialsProvider;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\CallbackPolicyConfig;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
@@ -19,6 +20,7 @@ use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\CallbackPolicyResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -2828,6 +2830,71 @@ class OssClient
         $options[self::OSS_DATE] = $expiration;
         $this->setSignStsInUrl(true);
         return $this->auth($options);
+    }
+
+
+    /**
+     * Set bucket callback policy config
+     * @param string $bucket bucket name
+     * @param CallbackPolicyConfig $config
+     * @param null|array $options key-value
+     * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function putBucketCallbackPolicy($bucket, $config, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy&comp=callback';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get bucket callback policy config
+     * @param string $bucket bucket name
+     * @param null|array $options key-value
+     * @return CallbackPolicyConfig|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function getBucketCallbackPolicy($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy&comp=callback';
+        $response = $this->auth($options);
+        $result = new CallbackPolicyResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Delete bucket callback policy config
+     * @param string $bucket bucket name
+     * @param null|array $options key-value
+     * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function deleteBucketCallbackPolicy($bucket, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'policy&comp=callback';
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
     }
 
     /**
