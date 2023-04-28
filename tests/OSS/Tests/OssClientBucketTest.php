@@ -98,6 +98,52 @@ class OssClientBucketTest extends TestOssClientBase
         }
     }
 
+    public function testBucketWithServerEncryption()
+    {
+        $this->ossClient->deleteBucket($this->bucket);
+
+        $options[OssClient::OSS_HEADERS] = array(
+            OssClient::OSS_HEADER_SERVER_SIDE_ENCRYPTION=>"AES256",
+        );
+        $this->ossClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE,$options);
+        Common::waitMetaSync();
+        $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
+        $result = $this->ossClient->getBucketEncryption($this->bucket);
+        $this->assertEquals($result->getSSEAlgorithm(), "AES256");
+
+        $this->ossClient->deleteBucket($this->bucket);
+
+        $options[OssClient::OSS_HEADERS] = array(
+            OssClient::OSS_HEADER_SERVER_SIDE_ENCRYPTION=>"KMS",
+            OssClient::OSS_HEADER_SERVER_SIDE_DATA_ENCRYPTION=>"SM4",
+        );
+        $this->ossClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE,$options);
+        Common::waitMetaSync();
+        $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
+        $result = $this->ossClient->getBucketEncryption($this->bucket);
+        $this->assertEquals($result->getSSEAlgorithm(), "KMS");
+        $this->assertEquals($result->getKMSDataEncryption(), "SM4");
+
+
+        $this->ossClient->deleteBucket($this->bucket);
+
+        $options[OssClient::OSS_HEADERS] = array(
+            OssClient::OSS_HEADER_SERVER_SIDE_ENCRYPTION=>"KMS",
+            OssClient::OSS_HEADER_SERVER_SIDE_DATA_ENCRYPTION=>"SM4",
+            OssClient::OSS_HEADER_SERVER_SIDE_ENCRYPTION_KEY_ID=>"kms-id"
+        );
+        $this->ossClient->createBucket($this->bucket,OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE,$options);
+        Common::waitMetaSync();
+        $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
+        $result = $this->ossClient->getBucketEncryption($this->bucket);
+        $this->assertEquals($result->getSSEAlgorithm(), "KMS");
+        $this->assertEquals($result->getKMSDataEncryption(), "SM4");
+        $this->assertEquals($result->getKMSMasterKeyID(), "kms-id");
+
+
+
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

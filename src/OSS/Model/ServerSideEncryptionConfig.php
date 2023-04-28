@@ -13,22 +13,24 @@ use OSS\Core\OssException;
  */
 class ServerSideEncryptionConfig implements XmlConfig
 {
+
     /**
      * ServerSideEncryptionConfig constructor.
      * @param null $sseAlgorithm
      * @param null $kmsMasterKeyID
+     * @param null $kmsDataEncryption
      */
-    public function __construct($sseAlgorithm = null, $kmsMasterKeyID = null)
+    public function __construct($sseAlgorithm = null, $kmsMasterKeyID = null, $kmsDataEncryption = null)
     {
         $this->sseAlgorithm = $sseAlgorithm;
         $this->kmsMasterKeyID = $kmsMasterKeyID;
+        $this->kmsDataEncryption = $kmsDataEncryption;
     }
 
     /**
      * Parse ServerSideEncryptionConfig from the xml.
      *
      * @param string $strXml
-     * @throws OssException
      * @return null
      */
     public function parseFromXml($strXml)
@@ -37,10 +39,17 @@ class ServerSideEncryptionConfig implements XmlConfig
         if (!isset($xml->ApplyServerSideEncryptionByDefault)) return;
         foreach ($xml->ApplyServerSideEncryptionByDefault as $default) {
             foreach ($default as $key => $value) {
-                if ($key === 'SSEAlgorithm') {
-                    $this->sseAlgorithm = strval($value);
-                } elseif ($key === 'KMSMasterKeyID') {
-                    $this->kmsMasterKeyID = strval($value);
+                switch ($key){
+                    case 'SSEAlgorithm':
+                        $this->sseAlgorithm = strval($value);
+                        break;
+                    case 'KMSMasterKeyID':
+                        $this->kmsMasterKeyID = strval($value);
+                        break;
+                    case 'KMSDataEncryption':
+                        $this->kmsDataEncryption = strval($value);
+                        break;
+
                 }
             }
             break;
@@ -61,6 +70,9 @@ class ServerSideEncryptionConfig implements XmlConfig
         }
         if (isset($this->kmsMasterKeyID)) {
             $default->addChild('KMSMasterKeyID', $this->kmsMasterKeyID);
+        }
+        if (isset($this->kmsDataEncryption)) {
+            $default->addChild('KMSDataEncryption', $this->kmsDataEncryption);
         }
         return $xml->asXML();
     }
@@ -86,6 +98,19 @@ class ServerSideEncryptionConfig implements XmlConfig
         return $this->kmsMasterKeyID;
     }
 
+    /**
+     * @return string
+     */
+    public function getKMSDataEncryption()
+    {
+        return $this->kmsDataEncryption;
+    }
+
     private $sseAlgorithm = "";
     private $kmsMasterKeyID = "";
+
+    /**
+     * @var string
+     */
+    private $kmsDataEncryption;
 }

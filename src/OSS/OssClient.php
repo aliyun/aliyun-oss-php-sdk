@@ -193,8 +193,9 @@ class OssClient
      * @param string $bucket
      * @param string $acl
      * @param array $options
-     * @param string $storageType
      * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
      */
     public function createBucket($bucket, $acl = self::OSS_ACL_TYPE_PRIVATE, $options = NULL)
     {
@@ -202,7 +203,11 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
-        $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
+        if (isset($options[self::OSS_HEADERS])){
+            $options[self::OSS_HEADERS] = array_merge($options[self::OSS_HEADERS],array(self::OSS_ACL => $acl));
+        }else{
+            $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
+        }
         if (isset($options[self::OSS_STORAGE])) {
             $this->precheckStorage($options[self::OSS_STORAGE]);
             $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE]);
@@ -3677,6 +3682,9 @@ class OssClient
     const OSS_VERSION_ID_MARKER = 'version-id-marker';
     const OSS_VERSION_ID = 'versionId';
     const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
+    const OSS_HEADER_SERVER_SIDE_ENCRYPTION = 'x-oss-server-side-encryption';
+    const OSS_HEADER_SERVER_SIDE_ENCRYPTION_KEY_ID = 'x-oss-server-side-encryption-key-id';
+    const OSS_HEADER_SERVER_SIDE_DATA_ENCRYPTION = 'x-oss-server-side-data-encryption';
     const OSS_CNAME = 'cname';
 
     //private URLs

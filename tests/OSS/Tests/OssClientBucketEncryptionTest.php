@@ -59,5 +59,39 @@ class OssClientBucketEncryptionTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertEquals("NoSuchServerSideEncryptionRule", $e->getErrorCode());
         }
+
+        $config = new ServerSideEncryptionConfig("KMS", "kms-id","SM4");
+        try {
+            $this->ossClient->putBucketEncryption($this->bucket, $config);
+        } catch (OssException $e) {
+            var_dump($e->getMessage());
+            $this->assertTrue(false);
+        }
+        try {
+            Common::waitMetaSync();
+            $config2 = $this->ossClient->getBucketEncryption($this->bucket);
+            $this->assertEquals($config->serializeToXml(), $config2->serializeToXml());
+            $this->assertEquals("KMS", $config2->getSSEAlgorithm());
+            $this->assertEquals("kms-id", $config2->getKMSMasterKeyID());
+            $this->assertEquals("SM4", $config2->getKMSDataEncryption());
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            Common::waitMetaSync();
+            $this->ossClient->deleteBucketEncryption($this->bucket);
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+        try {
+            Common::waitMetaSync();
+            $config2 = $this->ossClient->getBucketEncryption($this->bucket);
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertEquals("NoSuchServerSideEncryptionRule", $e->getErrorCode());
+        }
+
+
     }
 }
