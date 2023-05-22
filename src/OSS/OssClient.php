@@ -3440,15 +3440,16 @@ class OssClient
         $index = count($explodeResult);
         if ($index === 1)
             return $string_to_sign;
-
-        $queryStringParams = explode('&', $explodeResult[$index - 1]);
-        sort($queryStringParams);
-
-        foreach($queryStringParams as $params)
+        parse_str($explodeResult[$index - 1], $queryArrayParams);
+        ksort($queryArrayParams);
+        foreach($queryArrayParams as $key=> $param)
         {
-             $queryStringSorted .= $params . '&';    
+            if (!empty($param)){
+                $queryStringSorted .= $key . '=' . $param . '&';
+            }else{
+                $queryStringSorted .= $key . '&';
+            }
         }
-
         $queryStringSorted = substr($queryStringSorted, 0, -1);
 
         $result = '';
