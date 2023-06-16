@@ -9,6 +9,7 @@ use OSS\Credentials\StaticCredentialsProvider;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\ArchiveDirectReadConfig;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
@@ -19,6 +20,7 @@ use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketArchiveDirectReadResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -1630,6 +1632,52 @@ class OssClient
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $response = $this->auth($options);
         $result = new GetBucketTransferAccelerationResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Put Bucket Archive Direct Read
+     * @param $bucket
+     * @param $enabled boolean
+     * @param null $options
+     * @return null
+     * @throws OssException|RequestCore_Exception
+     */
+
+    public function putBucketArchiveDirectRead($bucket,$enabled,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'archiveDirectRead';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $config = new ArchiveDirectReadConfig();
+        $config->setEnabled($enabled);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new HeaderResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Bucket Bucket Archive Direct Read
+     * @param $bucket
+     * @param null $options
+     * @return boolean|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getBucketArchiveDirectRead($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'archiveDirectRead';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $response = $this->auth($options);
+        $result = new GetBucketArchiveDirectReadResult($response);
         return $result->getData();
     }
 
@@ -3412,9 +3460,36 @@ class OssClient
             $signableResource .= '/' . str_replace(array('%2F', '%25'), array('/', '%'), rawurlencode($options[self::OSS_OBJECT]));
         }
         if (isset($options[self::OSS_SUB_RESOURCE])) {
-            $signableResource .= '?' . $options[self::OSS_SUB_RESOURCE];
+            $subResource = $this->filterSubResource($options[self::OSS_SUB_RESOURCE]);
+            if (strlen($subResource) > 0){
+                $signableResource .= '?' . $subResource;
+            }
         }
         return $signableResource;
+    }
+
+    /**
+     * Filter sub resource
+     * @param $subResource
+     * @return string
+     */
+    private function filterSubResource($subResource)
+    {
+        $queryString = '';
+        parse_str($subResource, $queryArrayParams);
+        foreach($queryArrayParams as $key=> $param)
+        {
+            if (!in_array($key,self::$FILTER_SIGN_KEY)){
+                if (!empty($param)){
+                    $queryString .= $key . '=' . $param . '&';
+                }else{
+                    $queryString .= $key . '&';
+                }
+            }
+        }
+        $queryString = substr($queryString, 0, -1);
+
+        return $queryString;
     }
 
     /**
@@ -3440,15 +3515,16 @@ class OssClient
         $index = count($explodeResult);
         if ($index === 1)
             return $string_to_sign;
-
-        $queryStringParams = explode('&', $explodeResult[$index - 1]);
-        sort($queryStringParams);
-
-        foreach($queryStringParams as $params)
+        parse_str($explodeResult[$index - 1], $queryArrayParams);
+        ksort($queryArrayParams);
+        foreach($queryArrayParams as $key=> $param)
         {
-             $queryStringSorted .= $params . '&';    
+            if (!empty($param)){
+                $queryStringSorted .= $key . '=' . $param . '&';
+            }else{
+                $queryStringSorted .= $key . '&';
+            }
         }
-
         $queryStringSorted = substr($queryStringSorted, 0, -1);
 
         $result = '';
@@ -3733,6 +3809,7 @@ class OssClient
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
     const OSS_OPTIONS_REQUEST_HEADERS = 'Access-Control-Request-Headers';
 
+    static $FILTER_SIGN_KEY = array('archiveDirectRead');
     //use ssl flag
     private $useSSL = false;
     private $maxRetries = 3;
