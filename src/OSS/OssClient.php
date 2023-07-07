@@ -9,8 +9,11 @@ use OSS\Credentials\StaticCredentialsProvider;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\AccessPointConfig;
+use OSS\Model\AccessPointInfo;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\ListAccessPoints;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
@@ -19,6 +22,7 @@ use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketAccessPointResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -29,6 +33,7 @@ use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
+use OSS\Result\ListBucketAccessPointResult;
 use OSS\Result\ListBucketsResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
@@ -1630,6 +1635,167 @@ class OssClient
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $response = $this->auth($options);
         $result = new GetBucketTransferAccelerationResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Put Bucket Access Point
+     * @param string $bucket bucket name
+     * @param AccessPointConfig $config config
+     * @param null $options
+     * @return AccessPointInfo|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function putBucketAccessPoint($bucket,$config,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPoint';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
+        $response = $this->auth($options);
+        $result = new GetBucketAccessPointResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Bucket Access Point
+     * @param string $bucket bucket name
+     * @param string $apName ap name
+     * @param null $options
+     * @return AccessPointInfo|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getBucketAccessPoint($bucket,$apName,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPoint';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_HEADERS][self::OSS_ACCESS_POINT_NAME] = $apName;
+        $response = $this->auth($options);
+        $result = new GetBucketAccessPointResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * List Bucket Access Point
+     * @param string $bucket bucket name
+     * @param array|null $options
+     * @return ListAccessPoints|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function listBucketAccessPoint($bucket,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPoint';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        if (isset($options[self::OSS_MAX_KEYS])){
+            $options[self::OSS_QUERY_STRING][self::OSS_MAX_KEYS] = $options[self::OSS_MAX_KEYS];
+        }
+        if(isset($options[self::OSS_CONTINUATION_TOKEN])){
+            $options[self::OSS_QUERY_STRING][self::OSS_CONTINUATION_TOKEN] = $options[self::OSS_CONTINUATION_TOKEN];
+        }
+        $response = $this->auth($options);
+        $result = new ListBucketAccessPointResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Delete Bucket Access Point
+     * @param string $bucket bucket name
+     * @param string $apName access point name
+     * @param array|null $options
+     * @return ListAccessPoints|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function deleteBucketAccessPoint($bucket,$apName,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPoint';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_HEADERS][self::OSS_ACCESS_POINT_NAME] = $apName;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Put Access Point Policy
+     * @param string $bucket bucket name
+     * @param string $apName access name
+     * @param string $policy policy in json format
+     * @param array|null $options
+     * @return AccessPointInfo|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function putAccessPointPolicy($bucket,$apName,$policy,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPointPolicy';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_HEADERS][self::OSS_ACCESS_POINT_NAME] = $apName;
+        $options[self::OSS_CONTENT] = $policy;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Access Point Policy
+     * @param string $bucket bucket name
+     * @param string $apName ap name
+     * @param null $options
+     * @return BodyResult|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function getAccessPointPolicy($bucket,$apName,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPointPolicy';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
+        $options[self::OSS_HEADERS][self::OSS_ACCESS_POINT_NAME] = $apName;
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
+        return $result->getData();
+    }
+
+
+    /**
+     * Delete Access Point Policy
+     * @param string $bucket bucket name
+     * @param string $apName ap name
+     * @param null $options
+     * @return AccessPointInfo|null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function deleteAccessPointPolicy($bucket,$apName,$options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'accessPointPolicy';
+        $options[self::OSS_HEADERS][self::OSS_ACCESS_POINT_NAME] = $apName;
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
         return $result->getData();
     }
 
@@ -3678,6 +3844,7 @@ class OssClient
     const OSS_VERSION_ID = 'versionId';
     const OSS_HEADER_VERSION_ID = 'x-oss-version-id';
     const OSS_CNAME = 'cname';
+    const OSS_ACCESS_POINT_NAME = 'x-oss-access-point-name';
 
     //private URLs
     const OSS_URL_ACCESS_KEY_ID = 'OSSAccessKeyId';
