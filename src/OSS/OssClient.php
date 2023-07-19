@@ -2372,6 +2372,32 @@ class OssClient
         return $result->getData();
     }
 
+
+    /**
+     * Async Process the object
+     *
+     * @param string $bucket bucket name
+     * @param string $object object name
+     * @param string $asyncProcess async process script
+     * @param null $options
+     * @return string|null process result, json format
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function asyncProcessObject($bucket, $object, $asyncProcess, $options = NULL)
+    {
+        $this->precheckCommon($bucket, $object, $options);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'x-oss-async-process';
+        $options[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
+        $options[self::OSS_CONTENT] = 'x-oss-async-process='.$asyncProcess;
+        $response = $this->auth($options);
+        $result = new BodyResult($response);
+        return $result->getData();
+    }
+
     /**
      * Gets the part size according to the preferred part size.
      * If the specified part size is too small or too big, it will return a min part or max part size instead.
