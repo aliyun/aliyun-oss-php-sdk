@@ -20,7 +20,7 @@ class RefererConfig implements XmlConfig
         if (!isset($xml->AllowEmptyReferer)) return;
         if (!isset($xml->RefererList)) return;
         $this->allowEmptyReferer =
-            (strval($xml->AllowEmptyReferer) === 'TRUE' || strval($xml->AllowEmptyReferer) === 'true') ? true : false;
+            (strval($xml->AllowEmptyReferer) === '' || strval($xml->AllowEmptyReferer) === 'true') ? true : false;
 
         foreach ($xml->RefererList->Referer as $key => $refer) {
             $this->refererList[] = strval($refer);

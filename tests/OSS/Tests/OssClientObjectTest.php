@@ -620,6 +620,24 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testGetSimplifiedObjectMetaWithAccessTime()
+    {
+        $object = "oss-php-sdk-test/upload-test-object-name.txt";
+
+        try {
+            $this->ossClient->putBucketAccessMonitor($this->bucket, "Enabled");
+        } catch (OssException $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            $objectMeta = $this->ossClient->getSimplifiedObjectMeta($this->bucket, $object);
+            $this->assertEquals(true, array_key_exists(strtolower('x-oss-last-access-time'), $objectMeta));
+        } catch (OssException $e) {
+            $this->assertFalse(false);
+        }
+    }
+
     public function testUploadStream()
     {
         $object = "oss-php-sdk-test/put-from-stream.txt";
