@@ -42,6 +42,7 @@ use OSS\Result\GetLiveChannelStatusResult;
 use OSS\Result\ListLiveChannelResult;
 use OSS\Result\AppendResult;
 use OSS\Model\ObjectListInfo;
+use OSS\Result\Result;
 use OSS\Result\SymlinkResult;
 use OSS\Result\UploadPartResult;
 use OSS\Model\BucketListInfo;
@@ -1624,7 +1625,6 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
         $response = $this->auth($options);
-        
         if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
             $result = new CallbackResult($response);
         } else {
@@ -1633,6 +1633,32 @@ class OssClient
             
         return $result->getData();
     }
+    
+	/**
+	 * Upload the part content of Encrypt object to oss
+	 * @param $bucket
+	 * @param $object
+	 * @param $content
+	 * @param $uploadId
+	 * @param null $options
+	 * @return Etag
+	 * @throws OssException
+	 * @throws RequestCore_Exception
+	 */
+	public function uploadPartEncrypt($bucket, $object, $content,$uploadId, $options = NULL)
+	{
+
+		$this->precheckCommon($bucket, $object, $options);
+		$this->precheckParam($options, self::OSS_PART_NUM, __FUNCTION__);
+		$options[self::OSS_CONTENT] = $content;
+		$options[self::OSS_BUCKET] = $bucket;
+		$options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+		$options[self::OSS_OBJECT] = $object;
+		$options[self::OSS_UPLOAD_ID] = $uploadId;
+		$response = $this->auth($options);
+		$result = new UploadPartResult($response);
+		return $result->getData();
+	}
 
 
     /**
@@ -2028,6 +2054,9 @@ class OssClient
             unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
+        if(isset($response->header[OssEncryptionClient::X_OSS_META_CLIENT_SIDE_ENCRYPTION_KEY])){
+        	return $response;
+		}
         $result = new BodyResult($response);
         return $result->getData();
     }
@@ -2845,7 +2874,6 @@ class OssClient
             $conjunction = '&';
         }
         $requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
-
         //Creates the request
         $request = new RequestCore($requestUrl, $this->requestProxy);
         $request->set_useragent($this->generateUserAgent());
@@ -2895,9 +2923,8 @@ class OssClient
             if ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
                 $headers[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
             }
-
-            $headers[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
-            $headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
+			$headers[self::OSS_CONTENT_LENGTH] = strlen($options[self::OSS_CONTENT]);
+			$headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
         }
 
         if (isset($options[self::OSS_CALLBACK])) {
@@ -2956,7 +2983,6 @@ class OssClient
         if ($this->connectTimeout !== 0) {
             $request->connect_timeout = $this->connectTimeout;
         }
-
         try {
             $request->send_request();
         } catch (RequestCore_Exception $e) {
@@ -3495,6 +3521,7 @@ class OssClient
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
     const OSS_ENCODING_TYPE = "encoding-type";
     const OSS_ENCODING_TYPE_URL = "url";
+    
 
     // Domain Types
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object

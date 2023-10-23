@@ -22,7 +22,25 @@ class TestOssClientBase extends \PHPUnit\Framework\TestCase
     {
         $this->bucket = Common::getBucketName() .'-'. time();
         $this->ossClient = Common::getOssClient();
+        $options[OssClient::OSS_HEADERS]['prefix'] = Common::getBucketName() .'-';
+        $list = $this->ossClient->listBuckets($options);
+        foreach ($list->getBucketList() as $bucketInfo){
+            $objects = $this->ossClient->listObjects($bucketInfo->getName(), array('max-keys' => 1000, 'delimiter' => ''))->getObjectList();
+            $keys = array();
+            foreach ($objects as $obj) {
+                $keys[] = $obj->getKey();
+            }
+            if (count($keys) > 0) {
+                $this->ossClient->deleteObjects($bucketInfo->getName(), $keys);
+            }
+            $uploads = $this->ossClient->listMultipartUploads($bucketInfo->getName())->getUploads();
+            foreach ($uploads as $up) {
+                $this->ossClient->abortMultipartUpload($bucketInfo->getName(), $up->getKey(), $up->getUploadId());
+            }
+            $this->ossClient->deleteBucket($bucketInfo->getName());
+        }
         $this->ossClient->createBucket($this->bucket);
+
         Common::waitMetaSync();
     }
 

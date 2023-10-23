@@ -8,8 +8,12 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 }
 require_once __DIR__ . '/Config.php';
 
+use OSS\Crypto\BaseCryptoProvider;
 use OSS\OssClient;
+use Oss\OssEncryptionClient;
 use OSS\Core\OssException;
+use OSS\Crypto\RsaProvider;
+use Oss\Crypto\KmsProvider;
 
 /**
  * Class Common
@@ -39,6 +43,26 @@ class Common
         }
         return $ossClient;
     }
+	
+	
+	/**
+	 * @param KmsProvider|RsaProvider $provider
+	 * @return OssEncryptionClient|null
+	 */
+	public static function getOssEncryptionClient($provider)
+	{
+		if (!$provider instanceof BaseCryptoProvider){
+			throw new OssException('Crypto provider must be an instance of BaseCryptoProvider');
+		}
+		try {
+			$ossClient = new OssEncryptionClient(self::accessKeyId, self::accessKeySecret, self::endpoint, $provider);
+		} catch (OssException $e) {
+			printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
+			printf($e->getMessage() . "\n");
+			return null;
+		}
+		return $ossClient;
+	}
 
     public static function getBucketName()
     {
