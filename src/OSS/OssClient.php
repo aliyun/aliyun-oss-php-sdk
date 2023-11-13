@@ -3262,14 +3262,15 @@ class OssClient
         $tmp_object = $options[self::OSS_OBJECT];
         try {
             if (OssUtil::isGb2312($options[self::OSS_OBJECT])) {
-                $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+                $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8", $options[self::OSS_OBJECT]);
             } elseif (OssUtil::checkChar($options[self::OSS_OBJECT], true)) {
-                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8", $options[self::OSS_OBJECT]);
             }
         } catch (\Exception $e) {
             try {
                 $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
             } catch (\Exception $e) {
+                throw $e;
             }
         }
         $options[self::OSS_OBJECT] = $tmp_object;
