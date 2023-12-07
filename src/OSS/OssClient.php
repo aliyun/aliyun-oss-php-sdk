@@ -6,6 +6,7 @@ use OSS\Core\OssException;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\AppendInfo;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
@@ -1671,6 +1672,12 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
         $response = $this->auth($options);
+
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK()) {
+            $local_crc64 = OssUtil::crc64($content);
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"put object");
+        }
         
         if (isset($options[self::OSS_CALLBACK]) && !empty($options[self::OSS_CALLBACK])) {
             $result = new CallbackResult($response);
@@ -1759,6 +1766,11 @@ class OssClient
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_CONTENT_LENGTH] = $file_size;
         $response = $this->auth($options);
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK()) {
+            $local_crc64 = OssUtil::crc64(file_get_contents($options[self::OSS_FILE_UPLOAD]));
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"upload file");
+        }
         $result = new PutSetDeleteResult($response);
         return $result->getData();
     }
@@ -1809,7 +1821,7 @@ class OssClient
      * @param string $object objcet name
      * @param string $content content to append
      * @param array $options
-     * @return int next append position
+     * @return AppendInfo
      * @throws OssException
      */
     public function appendObject($bucket, $object, $content, $position, $options = NULL)
@@ -1839,6 +1851,12 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object);
         }
         $response = $this->auth($options);
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK()) {
+            $init_crc = isset($options[self::OSS_INIT_CRC64]) ? $options[self::OSS_INIT_CRC64] : 0;
+            $local_crc64 = OssUtil::crc64($content,$init_crc);
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"append object position:". $position);
+        }
         $result = new AppendResult($response);
         return $result->getData();
     }
@@ -1850,7 +1868,7 @@ class OssClient
      * @param string $object object name
      * @param string $file The local file path to append with
      * @param array $options
-     * @return int next append position
+     * @return AppendInfo
      * @throws OssException
      */
     public function appendFile($bucket, $object, $file, $position, $options = NULL)
@@ -1881,6 +1899,12 @@ class OssClient
         $options[self::OSS_POSITION] = strval($position);
 
         $response = $this->auth($options);
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK()) {
+            $init_crc = isset($options[self::OSS_INIT_CRC64]) ? $options[self::OSS_INIT_CRC64] : 0;
+            $local_crc64 = OssUtil::crc64(file_get_contents($options[self::OSS_FILE_UPLOAD]),$init_crc);
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"append file position:". $position);
+        }
         $result = new AppendResult($response);
         return $result->getData();
     }
@@ -2075,6 +2099,11 @@ class OssClient
             unset($options[self::OSS_RANGE]);
         }
         $response = $this->auth($options);
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK() && !isset($range)) {
+            $local_crc64 = OssUtil::crc64($response->body);
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"get object");
+        }
         $result = new BodyResult($response);
         return $result->getData();
     }
@@ -2307,6 +2336,13 @@ class OssClient
             $options[self::OSS_CONTENT_LENGTH] = $options[self::OSS_LENGTH];
         }
         $response = $this->auth($options);
+        $is_check_crc64 = $this->isCheckCrc64($options);
+        if ($is_check_crc64 && $response->isOK()) {
+            $fromPos = $options[self::OSS_SEEK_TO];
+            $toPos = $options[self::OSS_LENGTH]-1+$options[self::OSS_SEEK_TO];
+            $local_crc64 = OssUtil::getCrc64SumForFile($options[self::OSS_FILE_UPLOAD],$fromPos,$toPos);
+            $this->checkCrc64($local_crc64,$response->header['x-oss-hash-crc64ecma'],"upload part");
+        }
         $result = new UploadPartResult($response);
         return $result->getData();
     }
@@ -2793,6 +2829,16 @@ class OssClient
         return $this->getValue($options, self::OSS_CHECK_MD5, false, true, true);
     }
 
+    /**
+     * Checks crc64
+     *
+     * @param array $options
+     * @return bool|null
+     */
+    private function isCheckCrc64($options)
+    {
+        return $this->getValue($options, self::OSS_CHECK_CRC64, false, true, true);
+    }
     /**
      * Gets value of the specified key from the options 
      *
@@ -3410,6 +3456,20 @@ class OssClient
     }
 
     /**
+     * Check whether the contents of crc 64 are equal
+     * @param string $localCrc64
+     * @param string $ossCrc64
+     * @param string $msg
+     * @throws OssException
+     */
+    public function checkCrc64($localCrc64,$ossCrc64,$msg){
+        if($localCrc64 != $ossCrc64){
+            $errorMsg = sprintf("%s check crc64 failed. local:%s, oss:%s.",$msg, $localCrc64, $ossCrc64);
+            throw new OssException($errorMsg);
+        }
+    }
+
+    /**
      * Sets the http's timeout (in seconds)
      *
      * @param int $timeout
@@ -3490,6 +3550,8 @@ class OssClient
     const OSS_SUB_RESOURCE = 'sub_resource';
     const OSS_DEFAULT_PREFIX = 'x-oss-';
     const OSS_CHECK_MD5 = 'checkmd5';
+    const OSS_CHECK_CRC64 = 'checkcrc64';
+    const OSS_INIT_CRC64 = 'init_crc64';
     const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
     const OSS_SYMLINK_TARGET = 'x-oss-symlink-target';
     const OSS_SYMLINK = 'symlink';

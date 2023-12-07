@@ -353,12 +353,12 @@ class OssClientObjectTest extends TestOssClientBase
          * Append the upload string
          */
         try {
-            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[0], 0);
-            $this->assertEquals($position, strlen($content_array[0]));
-            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[1], $position);
-            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]));
-            $position = $this->ossClient->appendObject($this->bucket, $object, $content_array[2], $position, array(OssClient::OSS_LENGTH => strlen($content_array[2])));
-            $this->assertEquals($position, strlen($content_array[0]) + strlen($content_array[1]) + strlen($content_array[2]));
+            $rs = $this->ossClient->appendObject($this->bucket, $object, $content_array[0], 0);
+            $this->assertEquals($rs->getPosition(), strlen($content_array[0]));
+            $rs1 = $this->ossClient->appendObject($this->bucket, $object, $content_array[1], $rs->getPosition());
+            $this->assertEquals($rs1->getPosition(), strlen($content_array[0]) + strlen($content_array[1]));
+            $rs2 = $this->ossClient->appendObject($this->bucket, $object, $content_array[2], $rs1->getPosition(), array(OssClient::OSS_LENGTH => strlen($content_array[2])));
+            $this->assertEquals($rs2->getPosition(), strlen($content_array[0]) + strlen($content_array[1]) + strlen($content_array[2]));
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
@@ -397,10 +397,10 @@ class OssClientObjectTest extends TestOssClientBase
          * Append the upload of local files
          */
         try {
-            $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, 0);
-            $this->assertEquals($position, filesize(__FILE__));
-            $position = $this->ossClient->appendFile($this->bucket, $object, __FILE__, $position);
-            $this->assertEquals($position, filesize(__FILE__) * 2);
+            $result = $this->ossClient->appendFile($this->bucket, $object, __FILE__, 0);
+            $this->assertEquals($result->getPosition(), filesize(__FILE__));
+            $result2 = $this->ossClient->appendFile($this->bucket, $object, __FILE__, $result->getPosition());
+            $this->assertEquals($result2->getPosition(), filesize(__FILE__) * 2);
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
@@ -436,8 +436,8 @@ class OssClientObjectTest extends TestOssClientBase
          * Append upload with option
          */
         try {
-            $position = $this->ossClient->appendObject($this->bucket, $object, "Hello OSS, ", 0, $options);
-            $position = $this->ossClient->appendObject($this->bucket, $object, "Hi OSS.", $position);
+            $position1 = $this->ossClient->appendObject($this->bucket, $object, "Hello OSS, ", 0, $options);
+            $position = $this->ossClient->appendObject($this->bucket, $object, "Hi OSS.", $position1->getPosition());
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
