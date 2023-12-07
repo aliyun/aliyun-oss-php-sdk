@@ -27,6 +27,7 @@ class OssClientBucketCnameTest extends TestOssClientBase
             $this->assertEquals("www.example.com", $info1->getCname());
             $this->assertEquals($bucketName, $info1->getBucket());
         } catch (OssException $e) {
+            printf($e->getMessage());
             $this->assertTrue(false);
         }
 
@@ -40,6 +41,14 @@ class OssClientBucketCnameTest extends TestOssClientBase
 
         try {
             $result = $client->addBucketCname($bucketName, "www.example.com");
+        } catch (OssException $e) {
+            $this->assertEquals('NeedVerifyDomainOwnership', $e->getErrorCode());
+        }
+
+        try {
+            $config = new CnameConfig();
+            $config->setCname("www.example.com");
+            $result = $client->addBucketCnameV2($bucketName, $config);
         } catch (OssException $e) {
             $this->assertEquals('NeedVerifyDomainOwnership', $e->getErrorCode());
         }

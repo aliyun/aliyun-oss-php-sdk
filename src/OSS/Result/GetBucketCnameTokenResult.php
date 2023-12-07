@@ -7,7 +7,7 @@ use OSS\Model\CnameTokenInfo;
 class GetBucketCnameTokenResult extends Result
 {
     /**
-     * @return CnameConfig
+     * @return CnameTokenInfo
      */
     protected function parseDataFromResponse()
     {

@@ -6,6 +6,8 @@ use OSS\Core\OssException;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\CnameInfo;
+use OSS\Model\CnameList;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
 use OSS\Model\LoggingConfig;
@@ -16,6 +18,7 @@ use OSS\Model\ObjectListInfoV2;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
+use OSS\Result\GetBucketCnameResult;
 use OSS\Result\GetCorsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
@@ -540,8 +543,8 @@ class OssClient
      * @param string $bucket bucket name
      * @param string $cname
      * @param array $options
-     * @throws OssException
      * @return null
+     * @throws OssException|RequestCore_Exception
      */
     public function addBucketCname($bucket, $cname, $options = NULL)
     {
@@ -551,7 +554,32 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname($cname);
+        $cnameConfig->setCname($cname);
+        $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $options[self::OSS_COMP] = 'add';
+        $options[self::OSS_CNAME] = '';
+
+        $response = $this->auth($options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Bind a CName for the bucket v2
+     *
+     * @param string $bucket bucket name
+     * @param CnameConfig $cnameConfig
+     * @param array $options
+     * @return null
+     * @throws OssException|RequestCore_Exception
+     */
+    public function addBucketCnameV2($bucket, $cnameConfig, $options = NULL)
+    {
+        $this->precheckCommon($bucket, NULL, $options, false);
+        $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
         $options[self::OSS_COMP] = 'add';
         $options[self::OSS_CNAME] = '';
@@ -566,8 +594,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return CnameConfig
+     * @return CnameList|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getBucketCname($bucket, $options = NULL)
     {
@@ -577,7 +605,7 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_CNAME] = '';
         $response = $this->auth($options);
-        $result = new GetCnameResult($response);
+        $result = new GetBucketCnameResult($response);
         return $result->getData();
     }
 
@@ -585,10 +613,11 @@ class OssClient
      * Remove a CName binding from the bucket
      *
      * @param string $bucket bucket name
-     * @param CnameConfig $cnameConfig
+     * @param string $cname
      * @param array $options
-     * @throws OssException
      * @return null
+     * @throws OssException
+     * @throws RequestCore_Exception
      */
     public function deleteBucketCname($bucket, $cname, $options = NULL)
     {
@@ -597,9 +626,9 @@ class OssClient
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
-        $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname($cname);
-        $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
+        $config = new CnameConfig();
+        $config->setCname($cname);
+        $options[self::OSS_CONTENT] = $config->serializeToXml();
         $options[self::OSS_COMP] = 'delete';
         $options[self::OSS_CNAME] = '';
 
@@ -613,8 +642,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return CnameToken
+     * @return CnameTokenInfo|null
+     * @throws OssException|RequestCore_Exception
      */
     public function createBucketCnameToken($bucket, $cname, $options = NULL)
     {
@@ -624,12 +653,12 @@ class OssClient
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
-        $cnameConfig->addCname($cname);
+        $cnameConfig->setCname($cname);
         $options[self::OSS_CONTENT] = $cnameConfig->serializeToXml();
         $options[self::OSS_COMP] = 'token';
         $options[self::OSS_CNAME] = '';
         $response = $this->auth($options);
-        $result = new CreateBucketCnameTokenResult($response);
+        $result = new GetBucketCnameTokenResult($response);
         return $result->getData();
     }
 
@@ -638,8 +667,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return CnameToken
+     * @return CnameTokeninfo|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getBucketCnameToken($bucket, $cname, $options = NULL)
     {
