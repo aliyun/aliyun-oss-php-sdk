@@ -1064,7 +1064,7 @@ class OssClient
      * @param string $bucket bucket name
      * @param RefererConfig $refererConfig
      * @param array $options
-     * @return ResponseCore
+     * @return ResponseCore|null
      * @throws null
      */
     public function putBucketReferer($bucket, $refererConfig, $options = NULL)
@@ -1087,8 +1087,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
-     * @return RefererConfig
+     * @return RefererConfig|null
+     * @throws OssException|RequestCore_Exception
      */
     public function getBucketReferer($bucket, $options = NULL)
     {

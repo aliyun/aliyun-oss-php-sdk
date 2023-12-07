@@ -14,13 +14,29 @@ if (is_null($ossClient)) exit(1);
 // Set referer whitelist
 $refererConfig = new RefererConfig();
 $refererConfig->setAllowEmptyReferer(true);
+$refererConfig->setAllowTruncateQueryString(false);
 $refererConfig->addReferer("www.aliiyun.com");
 $refererConfig->addReferer("www.aliiyuncs.com");
+
+$refererConfig->addBlackReferer("www.refuse.com");
+$refererConfig->addBlackReferer("www.?.deny.com");
 $ossClient->putBucketReferer($bucket, $refererConfig);
 Common::println("bucket $bucket refererConfig created:" . $refererConfig->serializeToXml());
 // Get referer whitelist
 $refererConfig = $ossClient->getBucketReferer($bucket);
-Common::println("bucket $bucket refererConfig fetched:" . $refererConfig->serializeToXml());
+
+Common::println("bucket $bucket referer allow empty referer:" . $refererConfig->getAllowEmptyReferer());
+Common::println("bucket $bucket referer allow truncate query string:" . $refererConfig->getAllowTruncateQueryString());
+if (count($refererConfig->getRefererList()) > 0){
+    foreach ($refererConfig->getRefererList() as $referer){
+        Common::println("bucket $bucket referer list:" . $referer);
+    }
+}
+if ($refererConfig->getRefererBlacklist() != null){
+    foreach ($refererConfig->getRefererBlacklist() as $referer){
+        Common::println("bucket $bucket referer blacklist:" . $referer);
+    }
+}
 
 // Delete referrer whitelist
 $refererConfig = new RefererConfig();
@@ -33,7 +49,6 @@ Common::println("bucket $bucket refererConfig deleted");
 putBucketReferer($ossClient, $bucket);
 getBucketReferer($ossClient, $bucket);
 deleteBucketReferer($ossClient, $bucket);
-getBucketReferer($ossClient, $bucket);
 
 /**
  * Set bucket referer configuration
@@ -48,6 +63,8 @@ function putBucketReferer($ossClient, $bucket)
     $refererConfig->setAllowEmptyReferer(true);
     $refererConfig->addReferer("www.aliiyun.com");
     $refererConfig->addReferer("www.aliiyuncs.com");
+    $refererConfig->addBlackReferer("www.refuse.com");
+    $refererConfig->addBlackReferer("www.?.deny.com");
     try {
         $ossClient->putBucketReferer($bucket, $refererConfig);
     } catch (OssException $e) {
@@ -67,9 +84,20 @@ function putBucketReferer($ossClient, $bucket)
  */
 function getBucketReferer($ossClient, $bucket)
 {
-    $refererConfig = null;
     try {
         $refererConfig = $ossClient->getBucketReferer($bucket);
+        Common::println("bucket $bucket referer allow empty referer:" . $refererConfig->getAllowEmptyReferer());
+        Common::println("bucket $bucket referer allow truncate query string:" . $refererConfig->getAllowTruncateQueryString());
+        if (count($refererConfig->getRefererList()) > 0){
+            foreach ($refererConfig->getRefererList() as $referer){
+                Common::println("bucket $bucket referer list:" . $referer);
+            }
+        }
+        if ($refererConfig->getRefererBlacklist() != null){
+            foreach ($refererConfig->getRefererBlacklist() as $referer){
+                Common::println("bucket $bucket referer blacklist:" . $referer);
+            }
+        }
     } catch (OssException $e) {
         printf(__FUNCTION__ . ": FAILED\n");
         printf($e->getMessage() . "\n");
