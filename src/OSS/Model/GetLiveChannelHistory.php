@@ -32,6 +32,10 @@ class GetLiveChannelHistory implements XmlConfig
     {
         throw new OssException("Not implemented.");
     }
-    
-    private $liveRecordList = array();
+
+
+    /**
+     * @var LiveChannelHistory[]
+     */
+    private $liveRecordList;
 }
