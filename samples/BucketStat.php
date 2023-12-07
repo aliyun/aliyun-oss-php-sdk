@@ -27,6 +27,9 @@ Common::println("Bucket ".$bucket." archive object count is:".$stat->getArchiveO
 Common::println("Bucket ".$bucket." cold archive storage is:".$stat->getColdArchiveStorage().PHP_EOL);
 Common::println("Bucket ".$bucket." cold archive real storage is:".$stat->getColdArchiveRealStorage().PHP_EOL);
 Common::println("Bucket ".$bucket." cold archive object count is:".$stat->getColdArchiveObjectCount().PHP_EOL);
+Common::println("Bucket ".$bucket." deep cold archive storage is:".$stat->getDeepColdArchiveStorage().PHP_EOL);
+Common::println("Bucket ".$bucket." deep cold archive real storage is:".$stat->getDeepColdArchiveRealStorage().PHP_EOL);
+Common::println("Bucket ".$bucket." deep cold archive object count is:".$stat->getDeepColdArchiveObjectCount().PHP_EOL);
 
 //******************************* For complete usage, see the following functions ****************************************************
 getBucketStat($ossClient,$bucket);
@@ -61,5 +64,8 @@ function getBucketStat($ossClient, $bucket)
     printf("Bucket ".$bucket." cold archive storage is:".$stat->getColdArchiveStorage().PHP_EOL);
     printf("Bucket ".$bucket." cold archive real storage is:".$stat->getColdArchiveRealStorage().PHP_EOL);
     printf("Bucket ".$bucket." cold archive object count is:".$stat->getColdArchiveObjectCount().PHP_EOL);
+    printf("Bucket ".$bucket." deep cold archive storage is:".$stat->getDeepColdArchiveStorage().PHP_EOL);
+    printf("Bucket ".$bucket." deep cold archive real storage is:".$stat->getDeepColdArchiveRealStorage().PHP_EOL);
+    printf("Bucket ".$bucket." deep cold archive object count is:".$stat->getDeepColdArchiveObjectCount().PHP_EOL);
     print(__FUNCTION__ . ": OK" . "\n");
 }

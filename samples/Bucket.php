@@ -14,6 +14,17 @@ $bucket = Common::getBucketName();
 $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 Common::println("bucket $bucket created");
 
+// Create a bucket under the reserved capacity
+$id = "a1b398e6-c4e5-481b-8638-*******";
+$options = array(
+    OssClient::OSS_STORAGE => OssClient::OSS_STORAGE_DEEPCOLDARCHIVE,
+    OssClient::OSS_REDUNDANCY => OssClient::OSS_REDUNDANCY_LRS,
+    OssClient::OSS_RESERVED_CAPACITY_ID => $id
+
+);
+$ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE,$options);
+Common::println("bucket $bucket created");
+
 // Check whether a bucket exists
 $doesExist = $ossClient->doesBucketExist($bucket);
 Common::println("bucket $bucket exist? " . ($doesExist ? "yes" : "no"));
@@ -34,6 +45,9 @@ Common::println("bucket creation time:".$info->getCreateDate()."\n");
 Common::println("bucket storage class:".$info->getStorageClass()."\n");
 Common::println("bucket extranet endpoint:".$info->getExtranetEndpoint()."\n");
 Common::println("bucket intranet endpoint:".$info->getIntranetEndpoint()."\n");
+if ($info->getReservedCapacityInstanceId() != null){
+    Common::println("bucket reserved capacity instance id:".$info->getReservedCapacityInstanceId()."\n");
+}
 
 
 // Get the bucket list
@@ -111,20 +125,23 @@ function doesBucketExist($ossClient, $bucket)
  */
 function getBucketInfo($ossClient, $bucket)
 {
-	try {
-		$info = $ossClient->getBucketInfo($bucket);
-		printf("bucket name:%s\n", $info->getName());
-		printf("bucket location:%s\n", $info->getLocation());
-		printf("bucket creation time:%s\n", $info->getCreateDate());
-		printf("bucket storage class:%s\n", $info->getStorageClass());
-		printf("bucket extranet endpoint:%s\n", $info->getExtranetEndpoint());
-		printf("bucket intranet endpoint:%s\n", $info->getIntranetEndpoint());
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    try {
+        $info = $ossClient->getBucketInfo($bucket);
+        printf("bucket name:%s\n", $info->getName());
+        printf("bucket location:%s\n", $info->getLocation());
+        printf("bucket creation time:%s\n", $info->getCreateDate());
+        printf("bucket storage class:%s\n", $info->getStorageClass());
+        printf("bucket extranet endpoint:%s\n", $info->getExtranetEndpoint());
+        printf("bucket intranet endpoint:%s\n", $info->getIntranetEndpoint());
+        if ($info->getReservedCapacityInstanceId() != null){
+            Common::println("bucket reserved capacity instance id:".$info->getReservedCapacityInstanceId()."\n");
+        }
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 
@@ -136,16 +153,15 @@ function getBucketInfo($ossClient, $bucket)
  */
 function getBucketLocation($ossClient, $bucket)
 {
-	try {
-		$regions = $ossClient->getBucketLocation($bucket);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	
-	print("bucket $bucket region: " .print_r($regions,true));
-	
+    try {
+        $regions = $ossClient->getBucketLocation($bucket);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+
+    print("bucket $bucket region: " .print_r($regions,true));
 }
 
 
@@ -157,15 +173,15 @@ function getBucketLocation($ossClient, $bucket)
  */
 function getBucketMeta($ossClient, $bucket)
 {
-	try {
-		$metas = $ossClient->getBucketMeta($bucket);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
-	print("bucket $bucket meta: " .print_r($metas,true));
+    try {
+        $metas = $ossClient->getBucketMeta($bucket);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
+    print("bucket $bucket meta: " .print_r($metas,true));
 }
 
 /**

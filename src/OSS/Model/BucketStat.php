@@ -171,6 +171,41 @@ class BucketStat
     }
 
     /**
+     * @return int
+     */
+    public function getReservedCapacityStorage() {
+        return $this->reservedCapacityStorage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getReservedCapacityObjectCount() {
+        return $this->reservedCapacityObjectCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDeepColdArchiveStorage() {
+        return $this->deepColdArchiveStorage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDeepColdArchiveRealStorage() {
+        return $this->deepColdArchiveRealStorage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDeepColdArchiveObjectCount() {
+        return $this->deepColdArchiveObjectCount;
+    }
+
+    /**
      * Parse stat from the xml.
      *
      * @param string $strXml
@@ -227,6 +262,21 @@ class BucketStat
         }
         if (isset($xml->ColdArchiveObjectCount) ) {
             $this->coldArchiveObjectCount = intval($xml->ColdArchiveObjectCount);
+        }
+        if (isset($xml->ReservedCapacityStorage) ) {
+            $this->reservedCapacityStorage = intval($xml->ReservedCapacityStorage);
+        }
+        if (isset($xml->ReservedCapacityObjectCount) ) {
+            $this->reservedCapacityObjectCount = intval($xml->ReservedCapacityObjectCount);
+        }
+        if (isset($xml->DeepColdArchiveStorage) ) {
+            $this->deepColdArchiveStorage = intval($xml->DeepColdArchiveStorage);
+        }
+        if (isset($xml->DeepColdArchiveRealStorage) ) {
+            $this->deepColdArchiveRealStorage = intval($xml->DeepColdArchiveRealStorage);
+        }
+        if (isset($xml->DeepColdArchiveObjectCount) ) {
+            $this->deepColdArchiveObjectCount = intval($xml->DeepColdArchiveObjectCount);
         }
     }
     
@@ -328,4 +378,24 @@ class BucketStat
      */
     private $coldArchiveObjectCount;
 
+    /**
+     * @var int
+     */
+    private $reservedCapacityStorage;
+    /**
+     * @var int
+     */
+    private $reservedCapacityObjectCount;
+    /**
+     * @var int
+     */
+    private $deepColdArchiveStorage;
+    /**
+     * @var int
+     */
+    private $deepColdArchiveRealStorage;
+    /**
+     * @var int
+     */
+    private $deepColdArchiveObjectCount;
 }

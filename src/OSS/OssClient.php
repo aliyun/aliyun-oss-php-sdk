@@ -9,14 +9,20 @@ use OSS\Credentials\StaticCredentialsProvider;
 use OSS\Http\RequestCore;
 use OSS\Http\RequestCore_Exception;
 use OSS\Http\ResponseCore;
+use OSS\Model\BucketInfo;
 use OSS\Model\CorsConfig;
 use OSS\Model\CnameConfig;
+use OSS\Model\ListBucketWithReservedCapacity;
+use OSS\Model\ListReservedCapacity;
 use OSS\Model\LoggingConfig;
 use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\ObjectListInfoV2;
+use OSS\Model\CreateReservedCapacity;
+use OSS\Model\ReservedCapacityRecord;
 use OSS\Model\StorageCapacityConfig;
+use OSS\Model\UpdateReservedCapacity;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
 use OSS\Result\GetCorsResult;
@@ -24,17 +30,20 @@ use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
 use OSS\Result\GetLoggingResult;
 use OSS\Result\GetRefererResult;
+use OSS\Result\GetReservedCapacityResult;
 use OSS\Result\GetStorageCapacityResult;
 use OSS\Result\GetWebsiteResult;
 use OSS\Result\GetCnameResult;
 use OSS\Result\HeaderResult;
 use OSS\Result\InitiateMultipartUploadResult;
 use OSS\Result\ListBucketsResult;
+use OSS\Result\ListBucketWithReservedCapacityResult;
 use OSS\Result\ListMultipartUploadResult;
 use OSS\Model\ListMultipartUploadInfo;
 use OSS\Result\ListObjectsResult;
 use OSS\Result\ListObjectsV2Result;
 use OSS\Result\ListPartsResult;
+use OSS\Result\ListReservedCapacityResult;
 use OSS\Result\PutSetDeleteResult;
 use OSS\Result\DeleteObjectsResult;
 use OSS\Result\CopyObjectResult;
@@ -200,14 +209,20 @@ class OssClient
     {
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
+        $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
         $options[self::OSS_OBJECT] = '/';
         $options[self::OSS_HEADERS] = array(self::OSS_ACL => $acl);
         if (isset($options[self::OSS_STORAGE])) {
             $this->precheckStorage($options[self::OSS_STORAGE]);
-            $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE]);
-            unset($options[self::OSS_STORAGE]);
         }
+        if (isset($options[self::OSS_REDUNDANCY])) {
+            $this->precheckRedundancyType($options[self::OSS_REDUNDANCY]);
+        }
+        $options[self::OSS_CONTENT] = OssUtil::createBucketXmlBody($options[self::OSS_STORAGE],$options[self::OSS_RESERVED_CAPACITY_ID],$options[self::OSS_REDUNDANCY]);
+        unset($options[self::OSS_STORAGE]);
+        unset($options[self::OSS_RESERVED_CAPACITY_ID]);
+        unset($options[self::OSS_REDUNDANCY]);
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -1152,8 +1167,8 @@ class OssClient
      *
      * @param string $bucket bucket name
      * @param array $options
-     * @throws OssException
      * @return BucketInfo
+     * @throws OssException|RequestCore_Exception
      */
     public function getBucketInfo($bucket, $options = NULL)
     {
@@ -2831,6 +2846,133 @@ class OssClient
     }
 
     /**
+     * Create Reserved Capacity
+     *
+     * @param CreateReservedCapacity $create
+     * @param null|array $options
+     * @return null|array
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function createReservedCapacity($create,$options = NULL)
+    {
+        $this->precheckOptions($options);
+        $response =  $this->createReservedCapacityXml("",$create->serializeToXml(),$options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Update Reserved Capacity By Id
+     * @param string $id reserved capacity id
+     * @param UpdateReservedCapacity $update
+     * @param null|array $options
+     * @return ReservedCapacityRecord|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function updateReservedCapacity($id,$update,$options = NULL)
+    {
+        $this->precheckOptions($options);
+        $response =  $this->createReservedCapacityXml($id,$update->serializeToXml(),$options);
+        $result = new PutSetDeleteResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Create or Update Reserved Capacity
+     * @param string $id reserved capacity id
+     * @param string $xmlData config in xml format
+     * @param null|array $options
+     * @return ResponseCore|string
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function createReservedCapacityXml($id,$xmlData,$options = NULL){
+        $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'reservedCapacity';
+        if (!empty($id)){
+            $options[self::OSS_SUB_RESOURCE] .= "&x-oss-reserved-capacity-id=".$id;
+        }
+        $options[self::OSS_CONTENT] = $xmlData;
+        return $this->auth($options);
+    }
+
+    /**
+     * List Buckets Under the Reserved Capacity
+     * @param string $id
+     * @param null|array $options
+     * @return null|ListBucketWithReservedCapacity
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function listBucketWithReservedCapacity($id,$options = NULL)
+    {
+        $this->precheckOptions($options);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'reservedCapacity';
+        if (!empty($id)){
+            $options[self::OSS_SUB_RESOURCE] .= "&x-oss-reserved-capacity-id=".$id;
+        }
+        $options[self::OSS_SUB_RESOURCE] .= "&comp=queryBucketList";
+        $response = $this->auth($options);
+        $result = new ListBucketWithReservedCapacityResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * List Reserved Capacity
+     * @param null $options
+     * @return null|ListReservedCapacity
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+
+    public function listReservedCapacity($options = NULL)
+    {
+        $this->precheckOptions($options);
+        $response = $this->getReservedCapacityXml("",$options);
+        $result = new ListReservedCapacityResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get Reserved Capacity
+     * @param string $id reserved capacity id
+     * @param null|array $options
+     * @return ReservedCapacityRecord|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function getReservedCapacity($id,$options = NULL)
+    {
+        $this->precheckOptions($options);
+        $response =  $this->getReservedCapacityXml($id,$options);
+        $result = new GetReservedCapacityResult($response);
+        return $result->getData();
+    }
+
+    /**
+     * Get or List Reserved Capacity
+     * @param string $id reserved capacity id
+     * @param null|array $options
+     * @return ResponseCore|string
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function getReservedCapacityXml($id,$options = NULL){
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        $options[self::OSS_SUB_RESOURCE] = 'reservedCapacity';
+        if (!empty($id)){
+            $options[self::OSS_SUB_RESOURCE] .= "&x-oss-reserved-capacity-id=".$id;
+        }
+        return $this->auth($options);
+    }
+
+    /**
      * validates options. Create a empty array if it's NULL.
      *
      * @param array $options
@@ -2868,28 +3010,23 @@ class OssClient
     }
 
     /**
-     * 校验option restore
-     *
-     * @param string $restore
+     * @param $storage string
      * @throws OssException
      */
     private function precheckStorage($storage)
     {
-        if (is_string($storage)) {
-            switch ($storage) {
-                case self::OSS_STORAGE_ARCHIVE:
-                    return;
-                case self::OSS_STORAGE_IA:
-                    return;
-                case self::OSS_STORAGE_STANDARD:
-                    return;
-                case self::OSS_STORAGE_COLDARCHIVE:
-                    return;
-                default:
-                    break;
-            }
+        $storageList = array(self::OSS_STORAGE_IA,self::OSS_STORAGE_STANDARD,self::OSS_STORAGE_COLDARCHIVE,self::OSS_STORAGE_RESERVEDCAPACITY,self::OSS_STORAGE_DEEPCOLDARCHIVE,self::OSS_STORAGE_ARCHIVE);
+        if (!in_array($storage,$storageList)){
+            throw new OssException('storage name is invalid');
         }
-        throw new OssException('storage name is invalid');
+    }
+
+    private function precheckRedundancyType($redundancyType)
+    {
+        $redundancyTypeList = array(self::OSS_REDUNDANCY_LRS,self::OSS_REDUNDANCY_ZRS);
+        if (!in_array($redundancyType,$redundancyTypeList)){
+            throw new OssException('data redundancy type name is invalid');
+        }
     }
 
     /**
@@ -3000,8 +3137,10 @@ class OssClient
     private function auth($options)
     {
         OssUtil::validateOptions($options);
-        //Validates bucket, not required for list_bucket
-        $this->authPrecheckBucket($options);
+        if (!$this->checkSubResource($options)){
+            //Validates bucket, not required for list_bucket
+            $this->authPrecheckBucket($options);
+        }
         //Validates object
         $this->authPrecheckObject($options);
         //object name encoding must be UTF-8
@@ -3232,6 +3371,21 @@ class OssClient
         if (!(('/' == $options[self::OSS_OBJECT]) && ('' == $options[self::OSS_BUCKET]) && ('GET' == $options[self::OSS_METHOD])) && !OssUtil::validateBucket($options[self::OSS_BUCKET])) {
             throw new OssException('"' . $options[self::OSS_BUCKET] . '"' . 'bucket name is invalid');
         }
+    }
+
+    /**
+     * Verify whether the sub source needs to be checked for buckets
+     * @param $options
+     * @return bool
+     */
+    private function checkSubResource($options)
+    {
+        foreach (self::$KEY_WORDS as $keyword) {
+            if (strpos($options[self::OSS_SUB_RESOURCE], $keyword) !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -3665,11 +3819,17 @@ class OssClient
     const OSS_REQUEST_ID = 'x-oss-request-id';
     const OSS_INFO = 'info';
     const OSS_STORAGE = 'storage';
+    const OSS_REDUNDANCY = 'redundancy-type';
+    const OSS_REDUNDANCY_LRS = 'LRS';
+    const OSS_REDUNDANCY_ZRS = 'ZRS';
+    const OSS_RESERVED_CAPACITY_ID = 'reserved-capacity-instance-id';
     const OSS_RESTORE = 'restore';
     const OSS_STORAGE_STANDARD = 'Standard';
     const OSS_STORAGE_IA = 'IA';
     const OSS_STORAGE_ARCHIVE = 'Archive';
     const OSS_STORAGE_COLDARCHIVE = 'ColdArchive';
+    const OSS_STORAGE_DEEPCOLDARCHIVE = 'DeepColdArchive';
+    const OSS_STORAGE_RESERVEDCAPACITY = 'ReservedCapacity';
     const OSS_TAGGING = 'tagging';
     const OSS_WORM_ID = 'wormId';
     const OSS_RESTORE_CONFIG = 'restore-config';
@@ -3708,6 +3868,9 @@ class OssClient
     const OSS_ACL_TYPE_PRIVATE = 'private';
     const OSS_ACL_TYPE_PUBLIC_READ = 'public-read';
     const OSS_ACL_TYPE_PUBLIC_READ_WRITE = 'public-read-write';
+
+
+
     const OSS_ENCODING_TYPE = "encoding-type";
     const OSS_ENCODING_TYPE_URL = "url";
     
@@ -3732,6 +3895,10 @@ class OssClient
     const OSS_OPTIONS_ORIGIN = 'Origin';
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
     const OSS_OPTIONS_REQUEST_HEADERS = 'Access-Control-Request-Headers';
+
+    static $KEY_WORDS = array(
+        'reservedCapacity'
+    );
 
     //use ssl flag
     private $useSSL = false;

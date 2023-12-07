@@ -174,17 +174,28 @@ class OssUtil
         }
     }
 
-
     /**
      * Generate the xml message of createBucketXmlBody.
      *
-     * @param string $storageClass
-     * @return string
+     * @param null|string $storageClass
+     * @param null|string $reservedCapacityInstanceId
+     * @param null|string $dataRedundancyType
+     * @return bool|string
      */
-    public static function createBucketXmlBody($storageClass)
+    public static function createBucketXmlBody($storageClass=null,$reservedCapacityInstanceId=null,$dataRedundancyType=null)
     {
+        if (!isset($storageClass) && !isset($reservedCapacityInstanceId) && !isset($dataRedundancyType)) return '';
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><CreateBucketConfiguration></CreateBucketConfiguration>');
-        $xml->addChild('StorageClass',  $storageClass);
+        if (isset($storageClass)){
+            $xml->addChild('StorageClass',  $storageClass);
+        }
+        if (isset($reservedCapacityInstanceId)){
+            $xml->addChild('ReservedCapacityInstanceId',  $reservedCapacityInstanceId);
+        }
+        if (isset($dataRedundancyType)){
+            $xml->addChild('DataRedundancyType',  $dataRedundancyType);
+        }
+
         return $xml->asXML();
     }
 

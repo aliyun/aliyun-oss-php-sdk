@@ -14,9 +14,7 @@ use OSS\Model\BucketInfo;
 class GetBucketInfoResult extends Result
 {
     /**
-     * Parse data from response
-     * 
-     * @return string
+     * @return BucketInfo
      * @throws OssException
      */
     protected function parseDataFromResponse()
