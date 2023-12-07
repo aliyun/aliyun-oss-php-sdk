@@ -3,10 +3,12 @@
 namespace OSS\Tests;
 
 use OSS\Core\OssException;
+use OSS\Credentials\EnvironmentVariableCredentialsProvider;
 use OSS\OssClient;
 use OSS\Credentials\Credentials;
 use OSS\Credentials\CredentialsProvider;
 use OSS\Credentials\StaticCredentialsProvider;
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class TestEmptyIdCredentials extends Credentials
 {
@@ -77,7 +79,6 @@ class TestCredentialsProvider implements CredentialsProvider
         return $this->credentials;
     }
 }
-
 
 class OssClientTest extends TestOssClientBase
 {
@@ -489,6 +490,32 @@ class OssClientTest extends TestOssClientBase
             $this->assertFalse(true);
         } catch (OssException $e) {
             $this->assertEquals('access key id is empty', $e->getMessage());
+        }
+    }
+
+    public function testEnvironmentVariableCredentialsProvider()
+    {
+        try {
+            $provider = new EnvironmentVariableCredentialsProvider();
+            $config = array(
+                'provider' => $provider,
+                'endpoint'=>'oss-cn-hangzhou.aliyuncs.com'
+            );
+            $ossClient = new OssClient($config);
+            $ossClient->putObject($this->bucket,'test_emptybody','');
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            printf($e->getMessage());
+            $this->assertFalse(true);
+        }
+
+
+        try {
+            $ossClient->getObject($this->bucket,'test_emptybody');
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            printf($e->getMessage());
+            $this->assertFalse(true);
         }
     }
 }
