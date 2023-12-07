@@ -2781,6 +2781,7 @@ class OssClient
      */
     public function signUrl($bucket, $object, $timeout = 60, $method = self::OSS_HTTP_GET, $options = NULL)
     {
+        $this->precheckObjectExt($object,$this->enableStrictObjName);
         $this->precheckCommon($bucket, $object, $options);
         //method
         if (self::OSS_HTTP_GET !== $method && self::OSS_HTTP_PUT !== $method) {
@@ -2865,6 +2866,22 @@ class OssClient
     private function precheckObject($object)
     {
         OssUtil::throwOssExceptionWithMessageIfEmpty($object, "object name is empty");
+    }
+
+    /**
+     * validates object name start with ? or not
+     * @param $object string
+     * @param $strict boolean
+     * @throws OssException
+     */
+    private function precheckObjectExt($object,$strict)
+    {
+        $this->precheckObject($object);
+        if ($strict){
+            if (is_string($object) && $object[0] === "?") {
+                throw new OssException('"' . $object. '"' . ' object name cannot start with `?`');
+            }
+        }
     }
 
     /**
@@ -3203,6 +3220,16 @@ class OssClient
     public function setSignStsInUrl($enable)
     {
         $this->enableStsInUrl = $enable;
+    }
+
+    /**
+     * Enable/disable strict object name.
+     *
+     * @param boolean $enable
+     */
+    public function setStrictObjectName($enable)
+    {
+        $this->enableStrictObjName = $enable;
     }
 
     /**
@@ -3747,6 +3774,7 @@ class OssClient
     private $provider;
     private $hostname;
     private $enableStsInUrl = false;
+    private $enableStrictObjName = true;
     private $timeout = 0;
     private $connectTimeout = 0;
 }
