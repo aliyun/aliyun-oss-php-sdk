@@ -41,20 +41,20 @@ deleteBucketEncryption($ossClient, $bucket);
  */
 
 function putBucketEncryption($ossClient,$bucket){
-	try {
-		// Set Bucket's default server-side encryption method to OSS fully managed encryption (SSE-OSS).
-		$config = new ServerSideEncryptionConfig("AES256");
-		// Set Bucket's default server-side encryption method to KMS, and do not specify a CMK ID.
-		//$config = new ServerSideEncryptionConfig("KMS");
-		// Set Bucket's default server-side encryption method to KMS, and specify the CMK ID.
-		//$config = new ServerSideEncryptionConfig("KMS", "your kms id");
-		$ossClient->putBucketEncryption($bucket, $config);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    try {
+        // Set Bucket's default server-side encryption method to OSS fully managed encryption (SSE-OSS).
+        $config = new ServerSideEncryptionConfig("AES256");
+        // Set Bucket's default server-side encryption method to KMS, and do not specify a CMK ID.
+        //$config = new ServerSideEncryptionConfig("KMS");
+        // Set Bucket's default server-side encryption method to KMS, and specify the CMK ID.
+        //$config = new ServerSideEncryptionConfig("KMS", "your kms id");
+        $ossClient->putBucketEncryption($bucket, $config);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**
@@ -65,16 +65,20 @@ function putBucketEncryption($ossClient,$bucket){
  */
 
 function getBucketEncryption($ossClient,$bucket){
-	try {
-		$config = $ossClient->getBucketEncryption($bucket);
-		print($config->getSSEAlgorithm());
-		print($config->getKMSMasterKeyID());
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    try {
+        $config = $ossClient->getBucketEncryption($bucket);
+        print($config->getSSEAlgorithm());
+        print($config->getKMSMasterKeyID());
+        if ($config->getKMSDataEncryption() !== null){
+            print($config->getKMSDataEncryption());
+            printf("KMS Data Encryption: %s\n",$config->getKMSDataEncryption());
+        }
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 
@@ -86,13 +90,13 @@ function getBucketEncryption($ossClient,$bucket){
  */
 
 function deleteBucketEncryption($ossClient,$bucket){
-	try {
-		$ossClient->deleteBucketEncryption($bucket);
-	} catch (OssException $e) {
-		printf(__FUNCTION__ . ": FAILED\n");
-		printf($e->getMessage() . "\n");
-		return;
-	}
-	print(__FUNCTION__ . ": OK" . "\n");
+    try {
+        $ossClient->deleteBucketEncryption($bucket);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
