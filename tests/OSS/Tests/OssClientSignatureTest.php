@@ -2,6 +2,7 @@
 
 namespace OSS\Tests;
 
+use http\Client;
 use OSS\Core\OssException;
 use OSS\Http\RequestCore;
 use OSS\Http\ResponseCore;
@@ -91,6 +92,33 @@ class OssClientSignatureTest extends TestOssClientBase
                 $this->assertTrue(false);
             }
         }
+
+        $object = "?a.file";
+        $timeout = 3600;
+        $options = array('Content-Type' => 'txt');
+        try {
+            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertTrue(true);
+            if (strpos($e, "object name cannot start with `?`") == false)
+            {
+                $this->assertTrue(false);
+            }
+        }
+
+        $object = "?a.file";
+        $timeout = 3600;
+        $options = array('Content-Type' => 'txt');
+        try {
+            $this->ossClient->setStrictObjectName(false);
+            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            print_r($e->getMessage());
+            $this->assertFalse(true);
+        }
+
     }
 
     function testGetgenPreSignedUrlForGettingObject()
