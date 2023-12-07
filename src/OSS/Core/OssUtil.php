@@ -531,4 +531,35 @@ BBB;
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
     }
+
+    /**
+     * getUploadCpFilePath return the file path of the checkpoint
+     * @param string $filePath
+     * @param $bucketName
+     * @param $objectKey
+     * @return string
+     */
+    public static function getCpFilePath($bucketName,$objectKey,$versionId=""){
+        $dest = sprintf("oss://%s/%s", $bucketName, $objectKey);
+        $cpFileName = self::getCpFileName("", $dest, $versionId);
+        return sys_get_temp_dir(). DIRECTORY_SEPARATOR . $cpFileName;
+    }
+
+    /**
+     * getCpFileName return the name of the checkpoint file
+     * @param string $src
+     * @param string $dest
+     * @param string $versionId
+     * @return string
+     */
+    public static function getCpFileName($src,$dest,$versionId){
+        $srcCheckSum = md5($src);
+        $destCheckSum = md5($dest);
+        if ($versionId == ''){
+            return sprintf("%s-%s.cp", $srcCheckSum, $destCheckSum);
+        }
+        $versionCheckSum = md5($versionId);
+        return sprintf("%s-%s-%s.cp", $srcCheckSum, $destCheckSum,$versionCheckSum);
+    }
+
 }
