@@ -161,6 +161,15 @@ BBBB;
 
     }
 
+
+    public function testGetDataFromFile()
+    {
+        $this->assertEquals(OssUtil::getDataFromFile(__FILE__, 0, sprintf('%u',filesize(__FILE__)) - 1), file_get_contents(__FILE__));
+        $this->assertEquals(OssUtil::getDataFromFile(__FILE__, 0, OssClient::OSS_MAX_PART_SIZE + 1), "");
+        $this->assertEquals(OssUtil::getDataFromFile(__FILE__, 0, sprintf('%u',filesize(__FILE__)) + 1), "");
+
+    }
+
     public function testGenerateFile()
     {
         $path = __DIR__ . DIRECTORY_SEPARATOR . "generatedFile.txt";

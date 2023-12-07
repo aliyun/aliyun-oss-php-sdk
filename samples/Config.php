@@ -12,4 +12,7 @@ final class Config
     const OSS_ACCESS_KEY = 'update me';
     const OSS_ENDPOINT = 'update me';
     const OSS_TEST_BUCKET = 'update me';
+    const KMS_ENDPOINT_OTHER = 'update me';
+    const KMS_ENDPOINT = 'update me';
+
 }

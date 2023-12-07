@@ -320,6 +320,55 @@ BBB;
         return $content_md5;
     }
 
+
+    /**
+     * Get date of the file.
+     *
+     * @param $filename
+     * @param $from_pos
+     * @param $to_pos
+     * @return string
+     */
+    public static function getDataFromFile($filename, $from_pos, $to_pos)
+    {
+        $content = "";
+        if (($to_pos - $from_pos) > self::OSS_MAX_PART_SIZE) {
+            return $content;
+        }
+        $filesize = sprintf('%u',filesize($filename));
+        if ($from_pos >= $filesize || $to_pos >= $filesize || $from_pos < 0 || $to_pos < 0) {
+            return $content;
+        }
+
+        $total_length = $to_pos - $from_pos + 1;
+        $buffer = 8192;
+        $left_length = $total_length;
+        if (!file_exists($filename)) {
+            return $content;
+        }
+
+        if (false === $fh = fopen($filename, 'rb')) {
+            return $content;
+        }
+        fseek($fh, $from_pos);
+        $data = '';
+        while (!feof($fh)) {
+            if ($left_length >= $buffer) {
+                $read_length = $buffer;
+            } else {
+                $read_length = $left_length;
+            }
+            if ($read_length <= 0) {
+                break;
+            } else {
+                $data .= fread($fh, $read_length);
+                $left_length = $left_length - $read_length;
+            }
+        }
+        fclose($fh);
+        return $data;
+    }
+
     /**
      * Check if the OS is Windows. The default encoding in Windows is GBK.
      *
