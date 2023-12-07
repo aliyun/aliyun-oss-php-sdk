@@ -16,10 +16,12 @@ use OSS\Model\LiveChannelConfig;
 use OSS\Model\LiveChannelInfo;
 use OSS\Model\LiveChannelListInfo;
 use OSS\Model\ObjectListInfoV2;
+use OSS\Model\RegionInfoList;
 use OSS\Model\StorageCapacityConfig;
 use OSS\Result\AclResult;
 use OSS\Result\BodyResult;
 use OSS\Result\GetCorsResult;
+use OSS\Result\GetDescribeRegionsResult;
 use OSS\Result\GetLifecycleResult;
 use OSS\Result\GetLocationResult;
 use OSS\Result\GetLoggingResult;
@@ -2830,6 +2832,32 @@ class OssClient
         return $this->auth($options);
     }
 
+
+    /**
+     * Get Describe Regions
+     *
+     * @param null|array $options
+     * @return RegionInfoList|ResponseCore|string|null
+     * @throws OssException
+     * @throws RequestCore_Exception
+     */
+    public function getDescribeRegions($options = NULL)
+    {
+        $this->precheckOptions($options);
+        $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
+        $options[self::OSS_OBJECT] = '/';
+        if (isset($options['regions'])){
+            $regions = $options['regions'];
+        }else{
+            $regions = "";
+        }
+        $options[self::OSS_SUB_RESOURCE] = 'regions='.$regions;
+        $response = $this->auth($options);
+        $result = new GetDescribeRegionsResult($response);
+        return $result->getData();
+    }
+
+
     /**
      * validates options. Create a empty array if it's NULL.
      *
@@ -3412,9 +3440,37 @@ class OssClient
             $signableResource .= '/' . str_replace(array('%2F', '%25'), array('/', '%'), rawurlencode($options[self::OSS_OBJECT]));
         }
         if (isset($options[self::OSS_SUB_RESOURCE])) {
-            $signableResource .= '?' . $options[self::OSS_SUB_RESOURCE];
+            $subResource = $this->filterSubResource($options[self::OSS_SUB_RESOURCE]);
+            if (strlen($subResource) > 0){
+                $signableResource .= '?' . $subResource;
+            }
         }
         return $signableResource;
+    }
+
+
+    /**
+     * Filter sub resource
+     * @param $subResource
+     * @return string
+     */
+    private function filterSubResource($subResource)
+    {
+        $queryString = '';
+        parse_str($subResource, $queryArrayParams);
+        foreach($queryArrayParams as $key=> $param)
+        {
+            if (!in_array($key,self::$FILTER_SIGN_KEY)){
+                if (!empty($param)){
+                    $queryString .= $key . '=' . $param . '&';
+                }else{
+                    $queryString .= $key . '&';
+                }
+            }
+        }
+        $queryString = substr($queryString, 0, -1);
+
+        return $queryString;
     }
 
     /**
@@ -3733,6 +3789,8 @@ class OssClient
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
     const OSS_OPTIONS_REQUEST_HEADERS = 'Access-Control-Request-Headers';
 
+    static $FILTER_SIGN_KEY = array("regions");
+
     //use ssl flag
     private $useSSL = false;
     private $maxRetries = 3;
@@ -3749,4 +3807,6 @@ class OssClient
     private $enableStsInUrl = false;
     private $timeout = 0;
     private $connectTimeout = 0;
+
+
 }
