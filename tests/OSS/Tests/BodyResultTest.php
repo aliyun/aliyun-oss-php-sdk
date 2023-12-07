@@ -14,6 +14,21 @@ class BodyResultTest extends \PHPUnit\Framework\TestCase
         $result = new BodyResult($response);
         $this->assertTrue($result->isOK());
         $this->assertEquals($result->getData(), "hi");
+
+        $response = new ResponseCore(array(), false, 200);
+        $result = new BodyResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertEquals($result->getData(), false);
+
+        $response = new ResponseCore(array(), 0, 200);
+        $result = new BodyResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertEquals($result->getData(), 0);
+
+        $response = new ResponseCore(array(), "false", 200);
+        $result = new BodyResult($response);
+        $this->assertTrue($result->isOK());
+        $this->assertEquals($result->getData(), "false");
     }
 
     public function testParseInvalid404()

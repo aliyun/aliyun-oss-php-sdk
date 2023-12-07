@@ -14,17 +14,15 @@ class GetLocationResult extends Result
 
     /**
      * Parse data from response
-     * 
-     * @return string
+     * @return false|\SimpleXMLElement|string|null
      * @throws OssException
      */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;
-        if (empty($content)) {
+        if (!isset($content) || $content === "") {
             throw new OssException("body is null");
         }
-        $xml = simplexml_load_string($content);
-        return $xml;
+        return simplexml_load_string($content);
     }
 }

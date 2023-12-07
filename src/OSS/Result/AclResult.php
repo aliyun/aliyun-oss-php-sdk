@@ -18,7 +18,7 @@ class AclResult extends Result
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;
-        if (empty($content)) {
+        if (!isset($content) || $content === "") {
             throw new OssException("body is null");
         }
         $xml = simplexml_load_string($content);
