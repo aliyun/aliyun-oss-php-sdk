@@ -46,6 +46,16 @@ class BucketInfo
     }
 
     /**
+     * Get access monitor
+     *
+     * @return string
+     */
+    public function getAccessMonitor()
+    {
+        return $this->accessMonitor;
+    }
+
+    /**
      * Get bucket creation time.
      *
      * @return string
@@ -111,6 +121,9 @@ class BucketInfo
         if (isset($xml->Name)) {
             $this->name = strval($xml->Name);
         }
+        if (isset($xml->AccessMonitor)) {
+            $this->accessMonitor = strval($xml->AccessMonitor);
+        }
         if (isset($xml->CreationDate)) {
             $this->createDate = strval($xml->CreationDate);
         }
@@ -143,6 +156,13 @@ class BucketInfo
      * @var string
      */
     private $name;
+
+    /**
+     * access monitor
+     *
+     * @var string
+     */
+    private $accessMonitor;
 
     /**
      * bucket creation time

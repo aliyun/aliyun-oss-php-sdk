@@ -31,6 +31,11 @@ Common::println($result['body']);
 $content = $ossClient->getObject($bucket, "b.file");
 Common::println("b.file is fetched, the content is: " . $content);
 
+// Get an oss object meta
+$objectMeta = $ossClient->getSimplifiedObjectMeta($bucket, "b.file");
+Common::println("b.file last access time: " . $objectMeta['x-oss-last-access-time']);
+
+
 // Add a symlink to an object
 $content = $ossClient->putSymlink($bucket, "test-symlink", "b.file");
 Common::println("test-symlink is created");
@@ -127,6 +132,7 @@ getObjectToLocalFile($ossClient, $bucket);
 copyObject($ossClient, $bucket);
 modifyMetaForObject($ossClient, $bucket);
 getObjectMeta($ossClient, $bucket);
+getSimplifiedObjectMeta($ossClient, $bucket);
 deleteObject($ossClient, $bucket);
 deleteObjects($ossClient, $bucket);
 doesObjectExist($ossClient, $bucket);
@@ -548,6 +554,27 @@ function getObjectMeta($ossClient, $bucket)
     } else {
         print(__FUNCTION__ . ": ObjectMeta checked FAILED" . "\n");
     }
+}
+
+/**
+ * Get object simple meta, that is, getSimplifiedObjectMeta
+ *
+ * @param OssClient $ossClient OssClient instance
+ * @param string $bucket bucket name
+ * @return null
+ */
+function getSimplifiedObjectMeta($ossClient, $bucket)
+{
+    $object = "oss-php-sdk-test/upload-test-object-name.txt";
+    try {
+        $objectMeta = $ossClient->getSimplifiedObjectMeta($bucket, $object);
+        printf("last-access-time:%s",$objectMeta['x-oss-last-access-time']);
+    } catch (OssException $e) {
+        printf(__FUNCTION__ . ": FAILED\n");
+        printf($e->getMessage() . "\n");
+        return;
+    }
+    print(__FUNCTION__ . ": OK" . "\n");
 }
 
 /**

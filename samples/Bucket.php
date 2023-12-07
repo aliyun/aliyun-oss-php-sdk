@@ -29,6 +29,7 @@ Common::println("bucket $bucket meta: " .print_r($metas,true));
 // Get the info of bucket
 $info = $ossClient->getBucketInfo($bucket);
 Common::println("bucket name:".$info->getName()."\n");
+Common::println("bucket access monitor:".$info->getAccessMonitor()."\n");
 Common::println("bucket location:". $info->getLocation()."\n");
 Common::println("bucket creation time:".$info->getCreateDate()."\n");
 Common::println("bucket storage class:".$info->getStorageClass()."\n");
@@ -114,6 +115,7 @@ function getBucketInfo($ossClient, $bucket)
 	try {
 		$info = $ossClient->getBucketInfo($bucket);
 		printf("bucket name:%s\n", $info->getName());
+        printf("bucket access monitor:%s",$info->getAccessMonitor()."\n");
 		printf("bucket location:%s\n", $info->getLocation());
 		printf("bucket creation time:%s\n", $info->getCreateDate());
 		printf("bucket storage class:%s\n", $info->getStorageClass());

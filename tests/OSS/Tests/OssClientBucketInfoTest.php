@@ -11,6 +11,7 @@ class OssClientBucketInfoTest extends TestOssClientBase
     {
         try {
             $info = $this->ossClient->getBucketInfo($this->bucket);
+            $this->assertEquals("Disabled",$info->getAccessMonitor());
             $this->assertEquals($this->bucket, $info->getName());
             $this->assertEquals("Standard", $info->getStorageClass());
         } catch (OssException $e) {
