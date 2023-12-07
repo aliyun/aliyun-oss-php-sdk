@@ -2,6 +2,7 @@
 
 namespace OSS\Result;
 
+use OSS\Core\OssException;
 use OSS\Model\WebsiteConfig;
 
 /**
@@ -11,16 +12,19 @@ use OSS\Model\WebsiteConfig;
 class GetWebsiteResult extends Result
 {
     /**
-     * Parse WebsiteConfig data
-     *
      * @return WebsiteConfig
+     * @throws OssException
      */
     protected function parseDataFromResponse()
     {
         $content = $this->rawResponse->body;
-        $config = new WebsiteConfig();
-        $config->parseFromXml($content);
-        return $config;
+        if (empty($content)) {
+            throw new OssException("body is null");
+        }
+
+        $websiteConfig = new WebsiteConfig();
+        $websiteConfig->parseFromXml($content);
+        return $websiteConfig;
     }
 
     /**
