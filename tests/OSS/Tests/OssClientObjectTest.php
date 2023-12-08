@@ -342,6 +342,66 @@ class OssClientObjectTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
+
+        // test object name with %,+ or space
+        $object = "oss-php-sdk-test/upload-%test-object-name.txt";
+        $content = file_get_contents(__FILE__);
+        $options = array(
+            OssClient::OSS_LENGTH => strlen($content),
+        );
+
+        try {
+            $this->ossClient->putObject($this->bucket, $object, $content, $options);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, file_get_contents(__FILE__));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        $object = "object name space";
+        $content = file_get_contents(__FILE__);
+        $options = array(
+            OssClient::OSS_LENGTH => strlen($content),
+        );
+
+        try {
+            $this->ossClient->putObject($this->bucket, $object, $content, $options);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, file_get_contents(__FILE__));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+
+        $object = "object+name+space";
+        $content = file_get_contents(__FILE__);
+        $options = array(
+            OssClient::OSS_LENGTH => strlen($content),
+        );
+
+        try {
+            $this->ossClient->putObject($this->bucket, $object, $content, $options);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $content = $this->ossClient->getObject($this->bucket, $object);
+            $this->assertEquals($content, file_get_contents(__FILE__));
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
     }
 
     public function testAppendObject()
