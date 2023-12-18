@@ -345,7 +345,10 @@ BBB;
     public static function encodePath($file_path)
     {
         if (self::chkChinese($file_path) && self::isWin()) {
-            $file_path = iconv('utf-8', 'gbk', $file_path);
+            $path = iconv('gbk', 'utf-8', $file_path);
+            if ($path !== false){
+                return $path;
+            }
         }
         return $file_path;
     }

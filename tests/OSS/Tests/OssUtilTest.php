@@ -63,7 +63,12 @@ class OssUtilTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(OssUtil::chkChinese($str), 1);
         if (OssUtil::isWin()) {
             $strGB = OssUtil::encodePath($str);
-            $this->assertEquals($str, iconv("GB2312", "UTF-8", $strGB));
+            if (iconv( "gbk","UTF-8", $strGB)){
+                $strUtf8 = iconv( "gbk","UTF-8", $strGB);
+            }else{
+                $strUtf8 = $strGB;
+            }
+            $this->assertEquals($str,$strUtf8);
         }
     }
 
@@ -143,7 +148,7 @@ BBBB;
 
     public function testReadDir()
     {
-        $list = OssUtil::readDir("./src", ".|..|.svn|.git", true);
+        $list = OssUtil::readDir(__DIR__, ".|..|.svn|.git", true);
         $this->assertNotNull($list);
     }
 
