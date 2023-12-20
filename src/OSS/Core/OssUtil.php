@@ -531,4 +531,40 @@ BBB;
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
     }
+
+    public static function initNoEscapeArray()
+    {
+        $noEscape = array_fill(0, 128, false);
+        for ($i = ord('A'); $i <= ord('Z'); $i++) {
+            $noEscape[$i] = true;
+        }
+        for ($i = ord('a'); $i <= ord('z'); $i++) {
+            $noEscape[$i] = true;
+        }
+        for ($i = ord('0'); $i <= ord('9'); $i++) {
+            $noEscape[$i] = true;
+        }
+        $noEscape[ord('-')] = true;
+        $noEscape[ord('.')] = true;
+        $noEscape[ord('_')] = true;
+        $noEscape[ord('~')] = true;
+        return $noEscape;
+    }
+
+    public static function escapePath($path, $encodeSep)
+    {
+        $noEscape = self::initNoEscapeArray();
+        $result = '';
+        $length = strlen($path);
+        for ($i = 0; $i < $length; $i++) {
+            $c = $path[$i];
+
+            if ($noEscape[ord($c)] || ($c == '/' && !$encodeSep)) {
+                $result .= $c;
+            } else {
+                $result .= sprintf('%%%02X', ord($c));
+            }
+        }
+        return $result;
+    }
 }

@@ -183,6 +183,12 @@ class RequestCore
      */
     public $connect_timeout = 10;
 
+    /**
+     * Sign String
+     * @var string
+     */
+    public $string_to_sign;
+
     /*%******************************************************************************************%*/
     // CONSTANTS
 
