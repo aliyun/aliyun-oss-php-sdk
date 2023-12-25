@@ -82,6 +82,10 @@ use OSS\Result\GetBucketTransferAccelerationResult;
 use OSS\Model\CnameTokenInfo;
 use OSS\Result\CreateBucketCnameTokenResult;
 use OSS\Result\GetBucketCnameTokenResult;
+use OSS\Signer\SignerInterface;
+use OSS\Signer\SignerV1;
+use OSS\Signer\SignerV4;
+
 
 /**
  * Class OssClient
@@ -165,6 +169,16 @@ class OssClient
             throw new OssException("provider must be an instance of CredentialsProvider");
         }
         $this->provider = $provider;
+
+        $this->region = isset($config['region']) ? $config['region'] : '';
+        $this->cloudBoxId = isset($config['cloudBoxId']) ? $config['cloudBoxId'] : '';
+
+        $signatureVersion = isset($config['signatureVersion']) ? $config['signatureVersion'] : SELF::OSS_SIGNATURE_VERSION_V1;
+        if ($signatureVersion === SELF::OSS_SIGNATURE_VERSION_V4) {
+            $this->signer = new SignerV4();
+        } else {
+            $this->signer = new SignerV1();
+        }
         self::checkEnv();
     }
 
@@ -2780,23 +2794,8 @@ class OssClient
      */
     public function signUrl($bucket, $object, $timeout = 60, $method = self::OSS_HTTP_GET, $options = NULL)
     {
-        $this->precheckObjectExt($object, $this->enableStrictObjName);
-        $this->precheckCommon($bucket, $object, $options);
-        //method
-        if (self::OSS_HTTP_GET !== $method && self::OSS_HTTP_PUT !== $method) {
-            throw new OssException("method is invalid");
-        }
-        $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_OBJECT] = $object;
-        $options[self::OSS_METHOD] = $method;
-        if (!isset($options[self::OSS_CONTENT_TYPE])) {
-            $options[self::OSS_CONTENT_TYPE] = '';
-        }
-        $timeout = time() + $timeout;
-        $options[self::OSS_PREAUTH] = $timeout;
-        $options[self::OSS_DATE] = $timeout;
-        $this->setSignStsInUrl(true);
-        return $this->auth($options);
+        $expiration = time() + $timeout;
+        return $this->generatePresignedUrl($bucket, $object, $expiration, $method, $options);
     }
 
     /**
@@ -2813,21 +2812,50 @@ class OssClient
      */
     public function generatePresignedUrl($bucket, $object, $expiration, $method = self::OSS_HTTP_GET, $options = NULL)
     {
+        $this->precheckObjectExt($object, $this->enableStrictObjName);
         $this->precheckCommon($bucket, $object, $options);
+
+        $cred = $this->provider->getCredentials();
+
         //method
         if (self::OSS_HTTP_GET !== $method && self::OSS_HTTP_PUT !== $method) {
             throw new OssException("method is invalid");
         }
-        $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_OBJECT] = $object;
-        $options[self::OSS_METHOD] = $method;
-        if (!isset($options[self::OSS_CONTENT_TYPE])) {
-            $options[self::OSS_CONTENT_TYPE] = '';
+
+        // Should https or http be used?
+        $scheme = $this->useSSL ? 'https://' : 'http://';
+        // gets the host name. If the host name is public domain or private domain, form a third level domain by prefixing the bucket name on the domain name.
+        $hostname = $this->generateHostname($bucket);
+        $path = $this->generatePath($bucket, $object);
+        $headers = $this->generateHeaders($options, '');
+        $query_string = $this->generateQueryString($options);
+        $query_string = empty($query_string) ? '' : '?'.$query_string;
+        $requestUrl = $scheme . $hostname . $path . $query_string;
+
+        //Creates the request
+        $request = new RequestCore($requestUrl);
+
+        $request->set_method($method);
+
+        foreach ($headers as $header_key => $header_value) {
+            $header_value = trim($header_value);
+            if (empty($header_value)) {
+                continue;
+            }
+            $request->add_header($header_key, $header_value);
         }
-        $options[self::OSS_PREAUTH] = $expiration;
-        $options[self::OSS_DATE] = $expiration;
-        $this->setSignStsInUrl(true);
-        return $this->auth($options);
+
+        $signingOpt = array(
+            'bucket' => $bucket,
+            'key' => $object,
+            'region' => $this->getRegion(),
+            'product' => $this->getProduct(),
+            '$expiration' => $expiration,
+        );
+
+        $this->signer->presign($request, $cred, $signingOpt);
+
+        return $request->request_url;
     }
 
     /**
@@ -3027,31 +3055,18 @@ class OssClient
         $cred = $this->provider->getCredentials();
         $this->checkCredentials($cred);
 
+        $bucket = isset($options[self::OSS_BUCKET]) ? $options[self::OSS_BUCKET] : '';
+        $object = isset($options[self::OSS_OBJECT]) ? $options[self::OSS_OBJECT] : '';
+
         // Should https or http be used?
         $scheme = $this->useSSL ? 'https://' : 'http://';
         // gets the host name. If the host name is public domain or private domain, form a third level domain by prefixing the bucket name on the domain name.
-        $hostname = $this->generateHostname($options[self::OSS_BUCKET]);
-        $string_to_sign = '';
-        $headers = $this->generateHeaders($options, $hostname,$cred);
-        $signable_query_string_params = $this->generateSignableQueryStringParam($options,$cred);
-        $signable_query_string = OssUtil::toQueryString($signable_query_string_params);
-        $resource_uri = $this->generateResourceUri($options);
-        //Generates the URL (add query parameters)
-        $conjunction = '?';
-        $non_signable_resource = '';
-        if (isset($options[self::OSS_SUB_RESOURCE])) {
-            $conjunction = '&';
-        }
-        if ($signable_query_string !== '') {
-            $signable_query_string = $conjunction . $signable_query_string;
-            $conjunction = '&';
-        }
+        $hostname = $this->generateHostname($bucket);
+        $path = $this->generatePath($bucket, $object);
+        $headers = $this->generateHeaders($options, $hostname);
         $query_string = $this->generateQueryString($options);
-        if ($query_string !== '') {
-            $non_signable_resource .= $conjunction . $query_string;
-            $conjunction = '&';
-        }
-        $requestUrl = $scheme . $hostname . $resource_uri . $signable_query_string . $non_signable_resource;
+        $query_string = empty($query_string) ? '' : '?'.$query_string;
+        $requestUrl = $scheme . $hostname . $path . $query_string;
 
         //Creates the request
         $request = new RequestCore($requestUrl, $this->requestProxy);
@@ -3091,12 +3106,9 @@ class OssClient
                 $request->set_write_file($options[self::OSS_FILE_DOWNLOAD]);
             }
         }
-
         if (isset($options[self::OSS_METHOD])) {
             $request->set_method($options[self::OSS_METHOD]);
-            $string_to_sign .= $options[self::OSS_METHOD] . "\n";
         }
-
         if (isset($options[self::OSS_CONTENT])) {
             $request->set_body($options[self::OSS_CONTENT]);
             if ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
@@ -3118,43 +3130,27 @@ class OssClient
             $headers[self::OSS_ACCEPT_ENCODING] = '';
         }
 
-        uksort($headers, 'strnatcasecmp');
+        if (!isset($headers[self::OSS_CONTENT_TYPE])) {
+            $headers[self::OSS_CONTENT_TYPE] = self::DEFAULT_CONTENT_TYPE;
+        }
 
         foreach ($headers as $header_key => $header_value) {
-            $header_value = str_replace(array("\r", "\n"), '', $header_value);
-            if ($header_value !== '' || $header_key === self::OSS_ACCEPT_ENCODING) {
-                $request->add_header($header_key, $header_value);
+            $header_value = trim($header_value);
+            if (empty($header_value)) {
+                continue;
             }
-
-            if (
-                strtolower($header_key) === 'content-md5' ||
-                strtolower($header_key) === 'content-type' ||
-                strtolower($header_key) === 'date' ||
-                (isset($options['self::OSS_PREAUTH']) && (integer)$options['self::OSS_PREAUTH'] > 0)
-            ) {
-                $string_to_sign .= $header_value . "\n";
-            } elseif (substr(strtolower($header_key), 0, 6) === self::OSS_DEFAULT_PREFIX) {
-                $string_to_sign .= strtolower($header_key) . ':' . $header_value . "\n";
-            }
+            $request->add_header($header_key, $header_value);
         }
-        // Generates the signable_resource
-        $signable_resource = $this->generateSignableResource($options);
-        $signable_resource = rawurldecode($signable_resource) . urldecode($signable_query_string);
-        $string_to_sign_ordered = $string_to_sign;
-        $string_to_sign .= $signable_resource;
-
-        // Sort the strings to be signed.
-        $string_to_sign_ordered .= $this->stringToSignSorted($signable_resource);
-
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign_ordered,$cred->getAccessKeySecret(), true));
-        $request->add_header('Authorization', 'OSS ' . $cred->getAccessKeyId() . ':' . $signature);
-
-        if (isset($options[self::OSS_PREAUTH]) && (integer)$options[self::OSS_PREAUTH] > 0) {
-            $signed_url = $requestUrl . $conjunction . self::OSS_URL_ACCESS_KEY_ID . '=' . rawurlencode($cred->getAccessKeyId()) . '&' . self::OSS_URL_EXPIRES . '=' . $options[self::OSS_PREAUTH] . '&' . self::OSS_URL_SIGNATURE . '=' . rawurlencode($signature);
-            return $signed_url;
-        } elseif (isset($options[self::OSS_PREAUTH])) {
-            return $requestUrl;
-        }
+        
+        // sign request
+        $signingOpt = array(
+            'bucket' => $bucket,
+            'key' => $object,
+            'region' => $this->getRegion(),
+            'product' => $this->getProduct(),
+        );
+        $this->signer->sign($request, $cred, $signingOpt);
+        $string_to_sign = isset($signingOpt['string_to_sign']) ? $signingOpt['string_to_sign'] : '';
 
         if ($this->timeout !== 0) {
             $request->timeout = $this->timeout;
@@ -3337,33 +3333,27 @@ class OssClient
     }
 
     /**
-     * Gets the resource Uri in the current request
+     * Gets the Uri path in the current request
      *
-     * @param $options
+     * @param $bucket
+     * @param $object
      * @return string return the resource uri.
      */
-    private function generateResourceUri($options)
+    private function generatePath($bucket, $object)
     {
-        $resource_uri = "";
-
-        // resource_uri + bucket
-        if (isset($options[self::OSS_BUCKET]) && '' !== $options[self::OSS_BUCKET]) {
+        $paths = array();;
+        // +bucket
+        if ('' !== $bucket) {
             if ($this->hostType === self::OSS_HOST_TYPE_IP) {
-                $resource_uri = '/' . $options[self::OSS_BUCKET];
+                $paths[] =  $bucket;
             }
         }
-
-        // resource_uri + object
-        if (isset($options[self::OSS_OBJECT]) && '/' !== $options[self::OSS_OBJECT]) {
-            $resource_uri .= '/' . str_replace(array('%2F', '%25'), array('/', '%'), rawurlencode($options[self::OSS_OBJECT]));
+        // + object
+        if ('' !== $object) {
+            $paths[] = str_replace(array('%2F'), array('/'), rawurlencode($object));
         }
 
-        // resource_uri + sub_resource
-        $conjunction = '?';
-        if (isset($options[self::OSS_SUB_RESOURCE])) {
-            $resource_uri .= $conjunction . $options[self::OSS_SUB_RESOURCE];
-        }
-        return $resource_uri;
+        return '/'.implode('/', $paths);
     }
 
     /**
@@ -3452,11 +3442,14 @@ class OssClient
     private function generateQueryString($options)
     {
         //query parameters
-        $queryStringParams = array();
+        $query = array();
         if (isset($options[self::OSS_QUERY_STRING])) {
-            $queryStringParams = array_merge($queryStringParams, $options[self::OSS_QUERY_STRING]);
+            $query = array_merge($query, $options[self::OSS_QUERY_STRING]);
         }
-        return OssUtil::toQueryString($queryStringParams);
+        if (isset($options[self::OSS_SUB_RESOURCE])) {
+            $query[$options[self::OSS_SUB_RESOURCE]] = '';
+        }
+        return OssUtil::toQueryString($query);
     }
 
     private function stringToSignSorted($string_to_sign)
@@ -3490,25 +3483,28 @@ class OssClient
      *
      * @param mixed $options
      * @param string $hostname hostname
-     * @param Credentials $cred
      * @return array
      */
-    private function generateHeaders($options, $hostname,$cred)
+    private function generateHeaders($options, $hostname)
     {
-        $headers = array(
-            self::OSS_CONTENT_MD5 => '',
-            self::OSS_CONTENT_TYPE => isset($options[self::OSS_CONTENT_TYPE]) ? $options[self::OSS_CONTENT_TYPE] : self::DEFAULT_CONTENT_TYPE,
-            self::OSS_DATE => isset($options[self::OSS_DATE]) ? $options[self::OSS_DATE] : gmdate('D, d M Y H:i:s \G\M\T'),
-            self::OSS_HOST => $hostname,
-        );
+        $headers = array();
+
+        if (!empty($hostname)) {
+            $headers[self::OSS_HOST] = $hostname;
+        }
+
+        if (isset($options[self::OSS_CONTENT_TYPE])) {
+            $headers[self::OSS_CONTENT_TYPE] = $options[self::OSS_CONTENT_TYPE];
+        }
+
+        if (isset($options[self::OSS_DATE])) {
+            $headers[self::OSS_DATE] = $options[self::OSS_DATE];
+        }
+
         if (isset($options[self::OSS_CONTENT_MD5])) {
             $headers[self::OSS_CONTENT_MD5] = $options[self::OSS_CONTENT_MD5];
         }
 
-        //Add stsSecurityToken
-        if ((!empty($cred->getSecurityToken())) && (!$this->enableStsInUrl)) {
-            $headers[self::OSS_SECURITY_TOKEN] = $cred->getSecurityToken();
-        }
         //Merge HTTP headers
         if (isset($options[self::OSS_HEADERS])) {
             $headers = array_merge($headers, $options[self::OSS_HEADERS]);
@@ -3573,6 +3569,30 @@ class OssClient
         if (empty($credential->getAccessKeySecret())) {
             throw new OssException("access key secret is empty");
         }
+    }
+
+    /**
+     * For get Sign Product
+     * @return string
+     */
+    private function getProduct()
+    {
+        if (!empty($this->cloudBoxId)) {
+            return self::OSS_CLOUDBOX_PRODUCT;
+        }
+        return self::OSS_DEFAULT_PRODUCT;
+    }
+
+    /**
+     * For get Sign Region
+     * @return mixed
+     */
+    private function getRegion()
+    {
+        if (!empty($this->cloudBoxId)) {
+            return $this->cloudBoxId;
+        }
+        return $this->region;
     }
 
     /**
@@ -3759,6 +3779,12 @@ class OssClient
     const OSS_OPTIONS_REQUEST_METHOD = 'Access-Control-Request-Method';
     const OSS_OPTIONS_REQUEST_HEADERS = 'Access-Control-Request-Headers';
 
+    // signatrue version information
+    const OSS_SIGNATURE_VERSION_V1 = "v1";
+    const OSS_SIGNATURE_VERSION_V4 = "v4";
+    const OSS_DEFAULT_PRODUCT = "oss";
+    const OSS_CLOUDBOX_PRODUCT = "oss-cloudbox";
+
     //use ssl flag
     private $useSSL = false;
     private $maxRetries = 3;
@@ -3776,4 +3802,7 @@ class OssClient
     private $enableStrictObjName = true;
     private $timeout = 0;
     private $connectTimeout = 0;
+    private $cloudBoxId = null;
+    private $region = null;
+    private $signer;
 }
