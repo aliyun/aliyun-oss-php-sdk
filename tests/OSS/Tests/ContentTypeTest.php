@@ -2,19 +2,14 @@
 
 namespace OSS\Tests;
 
+use OSS\Core\OssUtil;
+use OSS\OssClient;
+
 require_once __DIR__ . '/Common.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class ContentTypeTest extends TestOssClientBase
 {
-    private function runCmd($cmd)
-    {
-        $output = array();
-        $status = 0;
-        exec($cmd . ' 2>/dev/null', $output, $status);
-
-        $this->assertEquals(0, $status);
-    }
-
     private function getContentType($bucket, $object)
     {
         $client = $this->ossClient;
@@ -27,22 +22,22 @@ class ContentTypeTest extends TestOssClientBase
         $client = $this->ossClient;
         $bucket = $this->bucket;
 
-        $file = '/tmp/x.html';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.html';
         $object = 'test/x';
-        $this->runCmd('touch ' . $file);
+        OssUtil::generateFile($file, 5);
 
         $client->uploadFile($bucket, $object, $file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('text/html', $type);
+        unlink($file);
 
-        $file = '/tmp/x.json';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.json';
         $object = 'test/y';
-        $this->runCmd('dd if=/dev/urandom of=' . $file . ' bs=1024 count=100');
+        OssUtil::generateFile($file, 100 * 1024);
 
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
         $type = $this->getContentType($bucket, $object);
-
+        unlink($file);
         $this->assertEquals('application/json', $type);
     }
 
@@ -54,43 +49,37 @@ class ContentTypeTest extends TestOssClientBase
         $object = "test/x.txt";
         $client->putObject($bucket, $object, "hello world");
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('text/plain', $type);
 
-        $file = '/tmp/x.html';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.html';
         $object = 'test/x.txt';
-        $this->runCmd('touch ' . $file);
-
+        OssUtil::generateFile($file, 5);
         $client->uploadFile($bucket, $object, $file);
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('text/html', $type);
 
-        $file = '/tmp/x.none';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.none';
         $object = 'test/x.txt';
-        $this->runCmd('touch ' . $file);
-
+        OssUtil::generateFile($file, 5);
         $client->uploadFile($bucket, $object, $file);
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('text/plain', $type);
 
-        $file = '/tmp/x.mp3';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.mp3';
+        OssUtil::generateFile($file, 1024 * 100);
         $object = 'test/y.json';
-        $this->runCmd('dd if=/dev/urandom of=' . $file . ' bs=1024 count=100');
-
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('audio/mpeg', $type);
-
-        $file = '/tmp/x.none';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.none';
+        OssUtil::generateFile($file, 1024 * 100);
         $object = 'test/y.json';
-        $this->runCmd('dd if=/dev/urandom of=' . $file . ' bs=1024 count=100');
-
         $client->multiuploadFile($bucket, $object, $file, array('partSize' => 100));
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('application/json', $type);
     }
 
@@ -107,27 +96,28 @@ class ContentTypeTest extends TestOssClientBase
 
         $this->assertEquals('text/html', $type);
 
-        $file = '/tmp/x.html';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.html';
         $object = 'test/x';
-        $this->runCmd('touch ' . $file);
+        OssUtil::generateFile($file, 100);
 
-        $client->uploadFile($bucket, $object, $file, array(
+        $client->uploadFile($bucket, $object, $file, array(OssClient::OSS_HEADERS => array(
             'Content-Type' => 'application/json'
-        ));
+        )));
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
 
         $this->assertEquals('application/json', $type);
 
-        $file = '/tmp/x.json';
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'x.json';
         $object = 'test/y';
-        $this->runCmd('dd if=/dev/urandom of=' . $file . ' bs=1024 count=100');
+        OssUtil::generateFile($file, 100 * 1024);
 
         $client->multiuploadFile($bucket, $object, $file, array(
             'partSize' => 100,
             'Content-Type' => 'audio/mpeg'
         ));
+        unlink($file);
         $type = $this->getContentType($bucket, $object);
-
         $this->assertEquals('audio/mpeg', $type);
     }
 }

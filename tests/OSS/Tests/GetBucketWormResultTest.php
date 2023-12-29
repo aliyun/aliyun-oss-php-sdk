@@ -10,30 +10,30 @@ class GetBucketWormResultTest extends \PHPUnit\Framework\TestCase
 {
 
     private $validXml = <<<BBBB
-		<?xml version="1.0" ?>
-		<WormConfiguration>
-			<WormId>ID1</WormId>	
-			<State>Locked</State>
-			<RetentionPeriodInDays>1</RetentionPeriodInDays>
-			<CreationDate>2018-08-14T15:50:32</CreationDate>
-		</WormConfiguration>
-		BBBB;
-    
-	private $validXml2 = <<<BBBB
-		<?xml version="1.0" ?>
-		<WormConfiguration>
-			<WormId>ID2</WormId>
-			<State>InProgress</State>
-			<RetentionPeriodInDays>10</RetentionPeriodInDays>
-			<CreationDate>2018-09-14T15:50:32</CreationDate>
-		</WormConfiguration>
-		BBBB;
+<?xml version="1.0" ?>
+<WormConfiguration>
+<WormId>ID1</WormId>	
+<State>Locked</State>
+<RetentionPeriodInDays>1</RetentionPeriodInDays>
+<CreationDate>2018-08-14T15:50:32</CreationDate>
+</WormConfiguration>
+BBBB;
+
+    private $validXml2 = <<<BBBB
+<?xml version="1.0" ?>
+<WormConfiguration>
+    <WormId>ID2</WormId>
+    <State>InProgress</State>
+    <RetentionPeriodInDays>10</RetentionPeriodInDays>
+    <CreationDate>2018-09-14T15:50:32</CreationDate>
+</WormConfiguration>
+BBBB;
 
     private $invalidXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <WormConfiguration>
-        </WormConfiguration>
-        BBBB;
+<?xml version="1.0" ?>
+<WormConfiguration>
+</WormConfiguration>
+BBBB;
 
     public function testParseValidXml()
     {
