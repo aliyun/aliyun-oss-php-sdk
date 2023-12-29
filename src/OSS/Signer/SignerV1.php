@@ -1,4 +1,5 @@
 <?php
+
 namespace OSS\Signer;
 
 use OSS\Core\OssUtil;
@@ -13,28 +14,20 @@ class SignerV1 implements SignerInterface
         if (!isset($request->request_headers['Date'])) {
             $request->add_header('Date', gmdate('D, d M Y H:i:s \G\M\T'));
         }
-
-      	// Credentials information
-        if (!empty($credentials->getSecurityToken())) {
+        // Credentials information
+        if (strlen($credentials->getSecurityToken()) > 0) {
             $request->add_header("x-oss-security-token", $credentials->getSecurityToken());
         }
-
         $headers = $request->request_headers;
-
         $method = strtoupper($request->method);
-
         $date = $headers['Date'];
-
         $resourcePath = $this->getResourcePath($options);
-
         $queryString = parse_url($request->request_url, PHP_URL_QUERY);
         $query = array();
         parse_str($queryString, $query);
-
         $stringToSign = $this->calcStringToSign($method, $date, $headers, $resourcePath, $query);
-
+//        printf("sign str:%s" . PHP_EOL, $stringToSign);
         $options['string_to_sign'] = $stringToSign;
-
         $signature = base64_encode(hash_hmac('sha1', $stringToSign, $credentials->getAccessKeySecret(), true));
         $request->add_header('Authorization', 'OSS ' . $credentials->getAccessKeyId() . ':' . $signature);
     }
@@ -42,51 +35,40 @@ class SignerV1 implements SignerInterface
     public function presign(RequestCore $request, Credentials $credentials, array &$options)
     {
         $headers = $request->request_headers;
-
         // Date
         $expiration = $options['expiration'];
         if (!isset($request->request_headers['Date'])) {
             $request->add_header('Date', gmdate('D, d M Y H:i:s \G\M\T'));
         }
-
         $parsed_url = parse_url($request->request_url);
         $queryString = isset($parsed_url['query']) ? $parsed_url['query'] : '';
         $query = array();
         parse_str($queryString, $query);
-
-      	// Credentials information
-        if (!empty($credentials->getSecurityToken())) {
-            $query["security-token"] =  $credentials->getSecurityToken();
+        // Credentials information
+        if (strlen($credentials->getSecurityToken()) > 0) {
+            $query["security-token"] = $credentials->getSecurityToken();
         }
-
         $method = strtoupper($request->method);
-        $date = $expiration."";
+        $date = $expiration . "";
         $resourcePath = $this->getResourcePath($options);
-
         $stringToSign = $this->calcStringToSign($method, $date, $headers, $resourcePath, $query);
-
         $options['string_to_sign'] = $stringToSign;
-
         $signature = base64_encode(hash_hmac('sha1', $stringToSign, $credentials->getAccessKeySecret(), true));
-
-        $query['OSSAccessKeyId'] =  $credentials->getAccessKeyId();
-        $query['Expires'] =  $date;
-        $query['Signature'] =  $signature;
-
+        $query['OSSAccessKeyId'] = $credentials->getAccessKeyId();
+        $query['Expires'] = $date;
+        $query['Signature'] = $signature;
         $queryString = OssUtil::toQueryString($query);
-
         $parsed_url['query'] = $queryString;
-
         $request->request_url = OssUtil::unparseUrl($parsed_url);
     }
 
     private function getResourcePath(array $options)
     {
         $resourcePath = '/';
-        if (!empty($options['bucket'])) {
-            $resourcePath .= $options['bucket'].'/';
+        if (strlen($options['bucket']) > 0) {
+            $resourcePath .= $options['bucket'] . '/';
         }
-        if (!empty($options['key'])) {
+        if (strlen($options['key']) > 0) {
             $resourcePath .= $options['key'];
         }
         return $resourcePath;
@@ -106,25 +88,23 @@ class SignerV1 implements SignerInterface
 	    */
         $contentMd5 = '';
         $contentType = '';
-
         // CanonicalizedOSSHeaders
         $signheaders = array();
         foreach ($headers as $key => $value) {
             $lowk = strtolower($key);
             if (strncmp($lowk, "x-oss-", 6) == 0) {
                 $signheaders[$lowk] = $value;
-            } else if ($lowk ===  'content-md5') {
+            } else if ($lowk === 'content-md5') {
                 $contentMd5 = $value;
-            } else if ($lowk ===  'content-type') {
+            } else if ($lowk === 'content-type') {
                 $contentType = $value;
             }
         }
         ksort($signheaders);
         $canonicalizedOSSHeaders = '';
         foreach ($signheaders as $key => $value) {
-            $canonicalizedOSSHeaders .= $key.':' . $value . "\n";
+            $canonicalizedOSSHeaders .= $key . ':' . $value . "\n";
         }
-
         // CanonicalizedResource
         $signquery = array();
         foreach ($query as $key => $value) {
@@ -136,20 +116,17 @@ class SignerV1 implements SignerInterface
         $sortedQueryList = array();
         foreach ($signquery as $key => $value) {
             if (strlen($value) > 0) {
-                $sortedQueryList[] = $key.'='.$value;
+                $sortedQueryList[] = $key . '=' . $value;
             } else {
                 $sortedQueryList[] = $key;
             }
         }
         $queryStringSorted = implode('&', $sortedQueryList);
-
         $canonicalizedResource = $resourcePath;
-
         if (!empty($queryStringSorted)) {
-            $canonicalizedResource .= '?'.$queryStringSorted;
+            $canonicalizedResource .= '?' . $queryStringSorted;
         }
-
-        return $method."\n".$contentMd5."\n".$contentType."\n".$date."\n".$canonicalizedOSSHeaders.$canonicalizedResource;
+        return $method . "\n" . $contentMd5 . "\n" . $contentType . "\n" . $date . "\n" . $canonicalizedOSSHeaders . $canonicalizedResource;
     }
 
     private $signKeyList = array(
@@ -166,7 +143,7 @@ class SignerV1 implements SignerInterface
         "response-content-language", "response-expires",
         "response-cache-control", "response-content-disposition",
         "response-content-encoding", "udf", "udfName", "udfImage",
-        "udfId", "udfImageDesc", "udfApplication", "comp",
+        "udfId", "udfImageDesc", "udfApplication",
         "udfApplicationLog", "restore", "callback", "callback-var", "qosInfo",
         "policy", "stat", "encryption", "versions", "versioning", "versionId", "requestPayment",
         "x-oss-request-payer", "sequential",
