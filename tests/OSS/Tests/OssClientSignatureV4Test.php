@@ -1361,10 +1361,10 @@ class OssClientSignatureV4Test extends TestOssClientBase
         Common::waitMetaSync();
         $this->assertEquals($this->stsOssClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
 
-        $this->assertTrue($this->stsOssClient->doesBucketExist($this->bucket), $options);
-        $this->assertFalse($this->stsOssClient->doesBucketExist($this->bucket . '-notexist'), $options);
+        $this->assertTrue($this->stsOssClient->doesBucketExist($this->bucket));
+        $this->assertFalse($this->stsOssClient->doesBucketExist($this->bucket . '-notexist'));
 
-        $this->assertNotNull($this->stsOssClient->getBucketLocation($this->bucket), $options);
+        $this->assertNotNull($this->stsOssClient->getBucketLocation($this->bucket));
 
         $res = $this->stsOssClient->getBucketMeta($this->bucket, $options);
         $this->assertEquals('200', $res['info']['http_code']);

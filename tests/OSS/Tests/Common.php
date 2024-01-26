@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../autoload.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
+use OSS\Credentials\StaticCredentialsProvider;
 
 /**
  * Class Common
@@ -22,10 +23,18 @@ class Common
     public static function getOssClient()
     {
         try {
-            $ossClient = new OssClient(
-                getenv('OSS_ACCESS_KEY_ID'),
+            $provider = new StaticCredentialsProvider(
+                getenv('OSS_ACCESS_KEY_ID'), 
                 getenv('OSS_ACCESS_KEY_SECRET'),
-                getenv('OSS_ENDPOINT'), false);
+            );
+            $config = array(
+                'region' => getenv('OSS_REGION'),
+                'endpoint' => getenv('OSS_ENDPOINT'),
+                'provider' => $provider,
+                'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
+            );
+            $ossClient = new OssClient($config);
+  
         } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
             printf($e->getMessage() . "\n");

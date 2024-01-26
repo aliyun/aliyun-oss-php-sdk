@@ -91,6 +91,82 @@ class SignerTest extends \PHPUnit\Framework\TestCase
 
     public function testSignerV1HeaderWithToken()
     {
+        // case 1
+        $credentials = new Credentials("ak", "sk", "token");
+        $request = new RequestCore("http://examplebucket.oss-cn-hangzhou.aliyuncs.com");
+        $request->set_method("PUT");
+        $bucket = "examplebucket";
+        $object = "nelson";
+
+        $request->add_header("Content-MD5", "eB5eJF1ptWaXm4bijSPyxw==");
+        $request->add_header("Content-Type", "text/html");
+        $request->add_header("x-oss-meta-author", "alice");
+        $request->add_header("x-oss-meta-magic", "abracadabra");
+        $request->add_header("x-oss-date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $request->add_header("Date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $signer = new SignerV1();
+
+        $signingOpt = array(
+            'bucket' => $bucket,
+            'key' => $object,
+        );
+        $signer->sign($request, $credentials, $signingOpt);
+
+        $signToString = "PUT\neB5eJF1ptWaXm4bijSPyxw==\ntext/html\nWed, 28 Dec 2022 10:27:41 GMT\nx-oss-date:Wed, 28 Dec 2022 10:27:41 GMT\nx-oss-meta-author:alice\nx-oss-meta-magic:abracadabra\nx-oss-security-token:token\n/examplebucket/nelson";
+
+        $this->assertEquals($signToString, $signingOpt['string_to_sign']);
+        $this->assertEquals('OSS ak:H3PAlN3Vucn74tPVEqaQC4AnLwQ=', $request->request_headers['Authorization']);
+        $this->assertEquals('token', $request->request_headers['x-oss-security-token']);
+
+        // case 2
+        $request2 = new RequestCore("http://examplebucket.oss-cn-hangzhou.aliyuncs.com?acl");
+        $request2->set_method("PUT");
+
+        $request2->add_header("Content-MD5", "eB5eJF1ptWaXm4bijSPyxw==");
+        $request2->add_header("Content-Type", "text/html");
+        $request2->add_header("x-oss-meta-author", "alice");
+        $request2->add_header("x-oss-meta-magic", "abracadabra");
+        $request2->add_header("x-oss-date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $request2->add_header("Date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $signer = new SignerV1();
+
+        $signingOpt2 = array(
+            'bucket' => $bucket,
+            'key' => $object,
+        );
+        $signer->sign($request2, $credentials, $signingOpt2);
+
+        $signToString = "PUT\neB5eJF1ptWaXm4bijSPyxw==\ntext/html\nWed, 28 Dec 2022 10:27:41 GMT\nx-oss-date:Wed, 28 Dec 2022 10:27:41 GMT\nx-oss-meta-author:alice\nx-oss-meta-magic:abracadabra\nx-oss-security-token:token\n/examplebucket/nelson?acl";
+
+        $this->assertEquals($signToString, $signingOpt2['string_to_sign']);
+        $this->assertEquals("OSS ak:yeceHMAsgusDPCR979RJcLtd7RI=", $request2->request_headers['Authorization']);
+
+        // case 3 with non-signed query
+        $request3 = new RequestCore("http://examplebucket.oss-cn-hangzhou.aliyuncs.com?acl&non-signed-key=value");
+        $request3->set_method("PUT");
+
+        $request3->add_header("Content-MD5", "eB5eJF1ptWaXm4bijSPyxw==");
+        $request3->add_header("Content-Type", "text/html");
+        $request3->add_header("x-oss-meta-author", "alice");
+        $request3->add_header("x-oss-meta-magic", "abracadabra");
+        $request3->add_header("x-oss-date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $request3->add_header("Date", "Wed, 28 Dec 2022 10:27:41 GMT");
+
+        $signingOpt3 = array(
+            'bucket' => $bucket,
+            'key' => $object,
+        );
+        $signer->sign($request3, $credentials, $signingOpt3);
+
+        $signToString = "PUT\neB5eJF1ptWaXm4bijSPyxw==\ntext/html\nWed, 28 Dec 2022 10:27:41 GMT\nx-oss-date:Wed, 28 Dec 2022 10:27:41 GMT\nx-oss-meta-author:alice\nx-oss-meta-magic:abracadabra\nx-oss-security-token:token\n/examplebucket/nelson?acl";
+
+        $this->assertEquals($signToString, $signingOpt3['string_to_sign']);
+        $this->assertEquals('OSS ak:yeceHMAsgusDPCR979RJcLtd7RI=', $request2->request_headers['Authorization']);
     }
 
     public function testSignerV1Presign()
@@ -374,7 +450,7 @@ class SignerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('599', $query['x-oss-expires']);
         $this->assertEquals('ak/20231217/cn-hangzhou/oss/aliyun_v4_request', $query['x-oss-credential']);
         $this->assertEquals('a39966c61718be0d5b14e668088b3fa07601033f6518ac7b523100014269c0fe', $query['x-oss-signature']);
-        $this->assertEquals('', $query['x-oss-additional-headers']);
+        $this->assertFalse(isset($query['x-oss-additional-headers']));
     }
 
     public function testSignerV4PresignWithToken()
@@ -423,7 +499,8 @@ class SignerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('599', $query['x-oss-expires']);
         $this->assertEquals('ak/20231217/cn-hangzhou/oss/aliyun_v4_request', $query['x-oss-credential']);
         $this->assertEquals('3817ac9d206cd6dfc90f1c09c00be45005602e55898f26f5ddb06d7892e1f8b5', $query['x-oss-signature']);
-        $this->assertEquals('', $parsed_url['x-oss-additional-headers']);
+        $this->assertFalse(isset($query['x-oss-additional-headers']));
+        print($request->request_url);
     }
 
     public function testSignerV4PresignWithAdditionalHeaders()

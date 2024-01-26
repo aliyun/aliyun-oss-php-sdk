@@ -120,19 +120,24 @@ class SignerV4 implements SignerInterface
 
     private function getCommonAdditionalHeaders(RequestCore $request, array $options)
     {
-        $headers = $request->request_headers;
         if (isset($options[OssClient::OSS_ADDITIONAL_HEADERS])) {
             $addHeaders = array();
             foreach ($options[OssClient::OSS_ADDITIONAL_HEADERS] as $key) {
                 $lowk = strtolower($key);
                 if ($this->isDefaultSignedHeader($lowk)) {
                     continue;
-                } else if ($headers[$lowk] !== '') {
-                    $addHeaders[$lowk] = '';
+                } 
+                $addHeaders[$lowk] = '';
+            }
+            $headers = array();
+            foreach ($request->request_headers as  $key => $value) {
+                $lowk = strtolower($key);
+                if (isset($addHeaders[$lowk])) {
+                    $headers[$lowk] = '';
                 }
             }
-            ksort($addHeaders);
-            return array_keys($addHeaders);
+            ksort($headers);
+            return array_keys($headers);
         }
         return array();
     }

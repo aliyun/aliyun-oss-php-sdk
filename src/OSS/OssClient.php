@@ -2889,6 +2889,9 @@ class OssClient
     private function precheckBucket($bucket, $errMsg = 'bucket is not allowed empty')
     {
         OssUtil::throwOssExceptionWithMessageIfEmpty($bucket, $errMsg);
+        if (!OssUtil::validateBucket($bucket)) {
+            throw new OssException('"' . $bucket . '"' . 'bucket name is invalid');
+        }
     }
 
     /**
@@ -2900,6 +2903,9 @@ class OssClient
     private function precheckObject($object)
     {
         OssUtil::throwOssExceptionWithMessageIfEmpty($object, "object name is empty");
+        if (!OssUtil::validateObject($object)) {
+            throw new OssException('"' . $object . '"' . ' object name is invalid');
+        }
     }
 
     /**
@@ -3062,14 +3068,10 @@ class OssClient
     private function auth($options)
     {
         OssUtil::validateOptions($options);
-        //Validates bucket, not required for list_bucket
-        $this->authPrecheckBucket($options);
-
-        //Validates object
+           //Validates object
         if ($this->isCheckObject($options)) {
-            $this->authPrecheckObject($options);
             //object name encoding must be UTF-8
-            $this->authPrecheckObjectEncoding($options);
+            //$this->authPrecheckObjectEncoding($options);
         }
         //Validates ACL
         $this->authPrecheckAcl($options);
@@ -3132,7 +3134,7 @@ class OssClient
         }
         if (isset($options[self::OSS_CONTENT])) {
             $request->set_body($options[self::OSS_CONTENT]);
-            if ($headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
+            if (isset($headers[self::OSS_CONTENT_TYPE]) && $headers[self::OSS_CONTENT_TYPE] === 'application/x-www-form-urlencoded') {
                 $headers[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
             }
 
@@ -3169,8 +3171,11 @@ class OssClient
             'key' => $object,
             'region' => $this->getRegion(),
             'product' => $this->getProduct(),
-            'additionalHeaders' => $options[self::OSS_ADDITIONAL_HEADERS]
         );
+        if (isset($options[self::OSS_ADDITIONAL_HEADERS])) {
+            $signingOpt['additionalHeaders'] = $options[self::OSS_ADDITIONAL_HEADERS];
+        }
+
         $this->signer->sign($request, $cred, $signingOpt);
         $string_to_sign = isset($signingOpt['string_to_sign']) ? $signingOpt['string_to_sign'] : '';
 
@@ -3266,37 +3271,6 @@ class OssClient
     }
 
     /**
-     * Validates bucket name--throw OssException if it's invalid
-     *
-     * @param $options
-     * @throws OssException
-     */
-    private function authPrecheckBucket($options)
-    {
-        if (!(('' == $options[self::OSS_BUCKET]) && ('GET' == $options[self::OSS_METHOD])) && !OssUtil::validateBucket($options[self::OSS_BUCKET])) {
-            throw new OssException('"' . $options[self::OSS_BUCKET] . '"' . 'bucket name is invalid');
-        }
-    }
-
-    /**
-     *
-     * Validates the object name--throw OssException if it's invalid.
-     *
-     * @param $options
-     * @throws OssException
-     */
-    private function authPrecheckObject($options)
-    {
-        if (isset($options[self::OSS_OBJECT]) && $options[self::OSS_OBJECT] === '/') {
-            return;
-        }
-
-        if (isset($options[self::OSS_OBJECT]) && !OssUtil::validateObject($options[self::OSS_OBJECT])) {
-            throw new OssException('"' . $options[self::OSS_OBJECT] . '"' . ' object name is invalid');
-        }
-    }
-
-    /**
      * Checks the object's encoding. Convert it to UTF8 if it's in GBK or GB2312
      *
      * @param mixed $options parameter
@@ -3306,9 +3280,9 @@ class OssClient
         $tmp_object = $options[self::OSS_OBJECT];
         try {
             if (OssUtil::isGb2312($options[self::OSS_OBJECT])) {
-                $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+                $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8", $options[self::OSS_OBJECT]);
             } elseif (OssUtil::checkChar($options[self::OSS_OBJECT], true)) {
-                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8//IGNORE", $options[self::OSS_OBJECT]);
+                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8", $options[self::OSS_OBJECT]);
             }
         } catch (\Exception $e) {
             try {
