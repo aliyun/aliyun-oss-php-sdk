@@ -194,7 +194,7 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $endpoint = ' ' . Common::getEndpoint() . '/ ';
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->listBuckets();
             $this->assertTrue(true);
@@ -238,7 +238,7 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $endpoint = ' ' . Common::getEndpoint() . '/ ';
             $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->putObject($bucket, 'test_emptybody', '');
@@ -250,7 +250,7 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $endpoint = ' ' . Common::getEndpoint() . '/ ';
             $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, "invalid-sts-token");
             $ossClient->putObject($bucket, 'test_emptybody', '');
@@ -264,7 +264,7 @@ class OssClientTest extends TestOssClientBase
     {
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+        $endpoint = ' ' . Common::getEndpoint() . '/ ';
         $bucket = $this->bucket;
         $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
 
@@ -292,8 +292,8 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $endpoint = ' ' . Common::getEndpoint(). '/ ';
+            $bucket = Common::getBucketName();
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCors($bucket);
             $this->assertTrue(true);
@@ -307,7 +307,7 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
+            $endpoint = ' ' . Common::getEndpoint() . '/ ';
             $bucket = $this->bucket;
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $ossClient->getBucketCname($bucket);
@@ -321,8 +321,8 @@ class OssClientTest extends TestOssClientBase
     {
         $accessKeyId = ' ' . getenv('OSS_ACCESS_KEY_ID') . ' ';
         $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-        $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-        $bucket = getenv('OSS_BUCKET') . '-proxy';
+        $endpoint = ' ' . Common::getEndpoint() . '/ ';
+        $bucket = Common::getBucketName() . '-proxy';
         $requestProxy = getenv('OSS_PROXY');
         $key = 'test-proxy-srv-object';
         $content = 'test-content';
@@ -370,7 +370,7 @@ class OssClientTest extends TestOssClientBase
             $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = '192.168.1.1';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = Common::getBucketName();
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false);
             $object = "a.file";
             $timeout = 3600;
@@ -388,7 +388,7 @@ class OssClientTest extends TestOssClientBase
             $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
             $endpoint = 'cname.endpoint';
-            $bucket = getenv('OSS_BUCKET');
+            $bucket = Common::getBucketName();
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, true);
             $object = "a.file";
             $timeout = 3600;
@@ -405,8 +405,8 @@ class OssClientTest extends TestOssClientBase
         try {
             $accessKeyId = 'sk' . getenv('OSS_ACCESS_KEY_ID') . ' ';
             $accessKeySecret = ' ' . getenv('OSS_ACCESS_KEY_SECRET') . ' ';
-            $endpoint = ' ' . getenv('OSS_ENDPOINT') . '/ ';
-            $bucket = getenv('OSS_BUCKET');
+            $endpoint = ' ' . Common::getEndpoint() . '/ ';
+            $bucket = Common::getBucketName();
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, "test-token");
             $object = "a.file";
             $timeout = 3600;
@@ -499,7 +499,7 @@ class OssClientTest extends TestOssClientBase
             $provider = new EnvironmentVariableCredentialsProvider();
             $config = array(
                 'provider' => $provider,
-                'endpoint' => getenv('OSS_ENDPOINT'),
+                'endpoint' => Common::getEndpoint(),
             );
             $ossClient = new OssClient($config);
             $ossClient->putObject($this->bucket, 'test_emptybody', '');

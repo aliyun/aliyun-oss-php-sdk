@@ -1387,8 +1387,8 @@ class OssClientSignatureV4Test extends TestOssClientBase
         $this->bucket = Common::getBucketName() . '-' . time();
         $provider = new StaticCredentialsProvider(getenv('OSS_ACCESS_KEY_ID'), getenv('OSS_ACCESS_KEY_SECRET'));
         $config = array(
-            'region' => getenv('OSS_REGION'),
-            'endpoint' => getenv('OSS_ENDPOINT'),
+            'region' => Common::getRegion(),
+            'endpoint' => Common::getEndpoint(),
             'provider' => $provider,
             'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
         );
@@ -1398,8 +1398,8 @@ class OssClientSignatureV4Test extends TestOssClientBase
 
         $provider = new StaticCredentialsProvider($stsAk, $stsSk, $stsToken);
         $config = array(
-            'region' => getenv('OSS_REGION'),
-            'endpoint' => getenv('OSS_ENDPOINT'),
+            'region' => Common::getRegion(),
+            'endpoint' => Common::getEndpoint(),
             'provider' => $provider,
             'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
         );

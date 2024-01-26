@@ -313,37 +313,14 @@ class OssClientPresignV4Test extends TestOssClientBase
 
     protected function setUp(): void
     {
-        $ak = getenv('OSS_ACCESS_KEY_ID');
-        $sk = getenv('OSS_ACCESS_KEY_SECRET');
-        if (empty($ak) || empty($sk)) {
-            throw new OssException("ak/sk can not be empty!");
-        }
-        $stsAk = getenv('OSS_TEST_STS_ID');
-        $stsSk = getenv('OSS_TEST_STS_KEY');
-        $stsToken = getenv('OSS_SESSION_TOKEN');
-        if (empty($stsAk) || empty($stsSk) || empty($stsToken)) {
-            throw new OssException("sts ak/sk/token can not be empty!");
-        }
-        $this->bucket = Common::getBucketName() . '-' . time();
-        $provider = new StaticCredentialsProvider(getenv('OSS_ACCESS_KEY_ID'), getenv('OSS_ACCESS_KEY_SECRET'));
         $config = array(
-            'region' => getenv('OSS_REGION'),
-            'endpoint' => getenv('OSS_ENDPOINT'),
-            'provider' => $provider,
             'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
         );
-        $this->ossClient = new OssClient($config);
+        $this->bucket = Common::getBucketName() . '-' . time();
+        $this->ossClient = Common::getOssClient($config);
         $this->ossClient->createBucket($this->bucket);
         Common::waitMetaSync();
-
-        $provider = new StaticCredentialsProvider($stsAk, $stsSk, $stsToken);
-        $config = array(
-            'region' => getenv('OSS_REGION'),
-            'endpoint' => getenv('OSS_ENDPOINT'),
-            'provider' => $provider,
-            'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
-        );
-        $this->stsOssClient = new OssClient($config);
+        $this->stsOssClient = Common::getStsOssClient($config);
         Common::waitMetaSync();
     }
 }
