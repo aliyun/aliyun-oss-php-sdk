@@ -3,6 +3,7 @@
 namespace OSS\Tests;
 
 require_once __DIR__ . '/../../../autoload.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'StsClient.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
@@ -45,18 +46,25 @@ class Common
         } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
             printf($e->getMessage() . "\n");
-            return null;
         }
         return $ossClient;
     }
 
     public static function getStsOssClient($conf = NULL)
     {
+        $stsClient = new StsClient();
+        $assumeRole = new AssumeRole();
+        $stsClient->AccessSecret = getenv('OSS_ACCESS_KEY_SECRET');
+        $assumeRole->AccessKeyId = getenv('OSS_ACCESS_KEY_ID');
+        $assumeRole->RoleArn =  getenv('OSS_TEST_RAM_ROLE_ARN');
+        $params = $assumeRole->getAttributes();
+        $response = $stsClient->doAction($params);
+
         try {
             $provider = new StaticCredentialsProvider(
-                getenv('OSS_TEST_STS_ID'), 
-                getenv('OSS_TEST_STS_KEY'),
-                getenv('OSS_SESSION_TOKEN'),
+                $response->Credentials->AccessKeyId, 
+                $response->Credentials->AccessKeySecret,
+                $response->Credentials->SecurityToken,
             );
             $config = array(
                 'region' => self::getRegion(),
