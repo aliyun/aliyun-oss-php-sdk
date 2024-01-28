@@ -10,39 +10,39 @@ class GetBucketEncryptionResultTest extends \PHPUnit\Framework\TestCase
 {
 
     private $validXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <ServerSideEncryptionRule>
-          <ApplyServerSideEncryptionByDefault>
-            <SSEAlgorithm>AES256</SSEAlgorithm>
-            <KMSMasterKeyID></KMSMasterKeyID>
-          </ApplyServerSideEncryptionByDefault>
-        </ServerSideEncryptionRule>
-        BBBB;
+<?xml version="1.0" ?>
+<ServerSideEncryptionRule>
+  <ApplyServerSideEncryptionByDefault>
+    <SSEAlgorithm>AES256</SSEAlgorithm>
+    <KMSMasterKeyID></KMSMasterKeyID>
+  </ApplyServerSideEncryptionByDefault>
+</ServerSideEncryptionRule>
+BBBB;
 
     private $validXml1 = <<<BBBB
-        <?xml version="1.0" ?>
-        <ServerSideEncryptionRule>
-          <ApplyServerSideEncryptionByDefault>
-            <SSEAlgorithm>KMS</SSEAlgorithm>
-            <KMSMasterKeyID>kms-id</KMSMasterKeyID>
-          </ApplyServerSideEncryptionByDefault>
-        </ServerSideEncryptionRule>
-        BBBB;
+<?xml version="1.0" ?>
+<ServerSideEncryptionRule>
+  <ApplyServerSideEncryptionByDefault>
+    <SSEAlgorithm>KMS</SSEAlgorithm>
+    <KMSMasterKeyID>kms-id</KMSMasterKeyID>
+  </ApplyServerSideEncryptionByDefault>
+</ServerSideEncryptionRule>
+BBBB;
 
     private $validXml2 = <<<BBBB
-        <?xml version="1.0" ?>
-        <ServerSideEncryptionRule>
-          <ApplyServerSideEncryptionByDefault>
-            <SSEAlgorithm>KMS</SSEAlgorithm>
-          </ApplyServerSideEncryptionByDefault>
-        </ServerSideEncryptionRule>
-        BBBB;
+<?xml version="1.0" ?>
+<ServerSideEncryptionRule>
+<ApplyServerSideEncryptionByDefault>
+<SSEAlgorithm>KMS</SSEAlgorithm>
+</ApplyServerSideEncryptionByDefault>
+</ServerSideEncryptionRule>
+BBBB;
 
     private $invalidXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <ServerSideEncryptionRule>
-        </ServerSideEncryptionRule>
-        BBBB;
+<?xml version="1.0" ?>
+<ServerSideEncryptionRule>
+</ServerSideEncryptionRule>
+BBBB;
 
     public function testParseValidXml()
     {

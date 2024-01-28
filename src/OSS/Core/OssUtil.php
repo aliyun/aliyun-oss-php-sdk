@@ -531,4 +531,13 @@ BBB;
             throw new OssException("Unrecognized encoding type: " . $encoding);
         }
     }
+
+    public static function unparseUrl($parsed_url) {
+        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        return "$scheme$host$port$path$query";
+    }
 }

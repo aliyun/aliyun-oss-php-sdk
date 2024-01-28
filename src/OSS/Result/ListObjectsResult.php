@@ -2,6 +2,7 @@
 
 namespace OSS\Result;
 
+use OSS\Core\OssException;
 use OSS\Core\OssUtil;
 use OSS\Model\ObjectInfo;
 use OSS\Model\ObjectListInfo;
@@ -16,7 +17,8 @@ class ListObjectsResult extends Result
     /**
      * Parse the xml data returned by the ListObjects interface
      *
-     * return ObjectListInfo
+     * @return ObjectListInfo
+     * @throws OssException
      */
     protected function parseDataFromResponse()
     {

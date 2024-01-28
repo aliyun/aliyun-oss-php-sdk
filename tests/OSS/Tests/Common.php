@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../autoload.php';
 
 use OSS\OssClient;
 use OSS\Core\OssException;
+use OSS\Credentials\StaticCredentialsProvider;
 
 /**
  * Class Common
@@ -19,13 +20,28 @@ class Common
      *
      * @return OssClient  An OssClient instance
      */
-    public static function getOssClient()
+    public static function getOssClient($conf = NULL)
     {
         try {
-            $ossClient = new OssClient(
-                getenv('OSS_ACCESS_KEY_ID'),
+            $provider = new StaticCredentialsProvider(
+                getenv('OSS_ACCESS_KEY_ID'), 
                 getenv('OSS_ACCESS_KEY_SECRET'),
-                getenv('OSS_ENDPOINT'), false);
+            );
+            $config = array(
+                'region' => self::getRegion(),
+                'endpoint' => self::getEndpoint(),
+                'provider' => $provider,
+                'signatureVersion' => self::getSignVersion()
+            );
+
+            if ($conf != null) {
+                foreach ($conf as  $key => $value) {
+                    $config[$key] = $value;
+                }
+            }
+            
+            $ossClient = new OssClient($config);
+  
         } catch (OssException $e) {
             printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
             printf($e->getMessage() . "\n");
@@ -34,19 +50,79 @@ class Common
         return $ossClient;
     }
 
+    public static function getStsOssClient($conf = NULL)
+    {
+        try {
+            $provider = new StaticCredentialsProvider(
+                getenv('OSS_TEST_STS_ID'), 
+                getenv('OSS_TEST_STS_KEY'),
+                getenv('OSS_SESSION_TOKEN'),
+            );
+            $config = array(
+                'region' => self::getRegion(),
+                'endpoint' => self::getEndpoint(),
+                'provider' => $provider,
+                'signatureVersion' => self::getSignVersion()
+            );
+
+            if ($conf != null) {
+                foreach ($conf as  $key => $value) {
+                    $config[$key] = $value;
+                }
+            }
+
+            $ossStsClient = new OssClient($config);
+  
+        } catch (OssException $e) {
+            printf(__FUNCTION__ . "creating OssClient instance: FAILED\n");
+            printf($e->getMessage() . "\n");
+            return null;
+        }
+        return $ossStsClient;
+    }
+
     public static function getBucketName()
     {
-        return getenv('OSS_BUCKET');
+        $name = getenv('OSS_BUCKET');
+        if (empty($name)) {
+            return "skyranch-php-test";
+        }
+        return $name;
     }
 
     public static function getRegion()
     {
-		return getenv('OSS_REGION'); 
+		return getenv('OSS_TEST_REGION'); 
+    }
+
+    public static function getEndpoint()
+    {
+		return getenv('OSS_TEST_ENDPOINT'); 
     }
 
 	public static function getCallbackUrl()
     {
-        return getenv('OSS_CALLBACK_URL');
+        return getenv('OSS_TEST_CALLBACK_URL');
+    }
+
+    public static function getPayerUid()
+    {
+        return getenv('OSS_TEST_PAYER_UID');
+    }
+
+    public static function getPayerAccessKeyId()
+    {
+        return getenv('OSS_TEST_PAYER_ACCESS_KEY_ID');
+    }
+
+    public static function getPayerAccessKeySecret()
+    {
+        return getenv('OSS_TEST_PAYER_ACCESS_KEY_SECRET');
+    }
+
+    public static function getSignVersion()
+    {
+        return OssClient::OSS_SIGNATURE_VERSION_V1;
     }
 
     /**
