@@ -4,9 +4,11 @@ namespace OSS\Tests;
 
 require_once __DIR__ . '/Common.php';
 
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
+
 use OSS\OssClient;
 
-class OssClinetImageTest extends TestOssClientBase
+class OssClientImageTest extends TestOssClientBase
 {
     private $bucketName;
     private $client;
@@ -33,20 +35,20 @@ class OssClinetImageTest extends TestOssClientBase
         parent::tearDown();
         unlink($this->download_file);
     }
-    
+
     public function testImageResize()
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/resize,m_fixed,h_100,w_100", );
+            OssClient::OSS_PROCESS => "image/resize,m_fixed,h_100,w_100",);
         $this->check($options, 100, 100, 3267, 'jpg');
     }
-    
+
     public function testImageCrop()
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/crop,w_100,h_100,x_100,y_100,r_1", );
+            OssClient::OSS_PROCESS => "image/crop,w_100,h_100,x_100,y_100,r_1",);
         $this->check($options, 100, 100, 1969, 'jpg');
     }
 
@@ -54,7 +56,7 @@ class OssClinetImageTest extends TestOssClientBase
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/rotate,90", );
+            OssClient::OSS_PROCESS => "image/rotate,90",);
         $this->check($options, 267, 400, 20998, 'jpg');
     }
 
@@ -62,7 +64,7 @@ class OssClinetImageTest extends TestOssClientBase
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/sharpen,100", );
+            OssClient::OSS_PROCESS => "image/sharpen,100",);
         $this->check($options, 400, 267, 23015, 'jpg');
     }
 
@@ -70,7 +72,7 @@ class OssClinetImageTest extends TestOssClientBase
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/watermark,text_SGVsbG8g5Zu-54mH5pyN5YqhIQ", );
+            OssClient::OSS_PROCESS => "image/watermark,text_SGVsbG8g5Zu-54mH5pyN5YqhIQ",);
         $this->check($options, 400, 267, 26369, 'jpg');
     }
 
@@ -78,7 +80,7 @@ class OssClinetImageTest extends TestOssClientBase
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/format,png", );
+            OssClient::OSS_PROCESS => "image/format,png",);
         $this->check($options, 400, 267, 160733, 'png');
     }
 
@@ -86,22 +88,22 @@ class OssClinetImageTest extends TestOssClientBase
     {
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
-            OssClient::OSS_PROCESS => "image/resize,m_fixed,w_100,h_100", );
+            OssClient::OSS_PROCESS => "image/resize,m_fixed,w_100,h_100",);
         $this->check($options, 100, 100, 3267, 'jpg');
     }
 
     public function testProcesObject()
     {
         $object = 'process-object.jpg';
-        $process = 'image/resize,m_fixed,w_100,h_100'.
-                   '|sys/saveas'.
-                   ',o_'.$this->base64url_encode($object).
-                   ',b_'.$this->base64url_encode($this->bucketName);
+        $process = 'image/resize,m_fixed,w_100,h_100' .
+            '|sys/saveas' .
+            ',o_' . $this->base64url_encode($object) .
+            ',b_' . $this->base64url_encode($this->bucketName);
         $result = $this->client->processObject($this->bucketName, $this->object, $process);
         $this->assertTrue(stripos($result, '"object": "process-object.jpg",') > 0);
         $this->assertTrue(stripos($result, '"status": "OK"') > 0);
 
-        
+
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
         );
@@ -113,14 +115,14 @@ class OssClinetImageTest extends TestOssClientBase
 
         //without bucket
         $object = 'process-object-1.jpg';
-        $process = 'image/watermark,text_SGVsbG8g5Zu-54mH5pyN5YqhIQ'.
-                   '|sys/saveas'.
-                   ',o_'.$this->base64url_encode($object);
+        $process = 'image/watermark,text_SGVsbG8g5Zu-54mH5pyN5YqhIQ' .
+            '|sys/saveas' .
+            ',o_' . $this->base64url_encode($object);
         $result = $this->client->processObject($this->bucketName, $this->object, $process);
         $this->assertTrue(stripos($result, '"object": "process-object-1.jpg",') > 0);
         $this->assertTrue(stripos($result, '"status": "OK"') > 0);
 
-        
+
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $this->download_file,
         );
@@ -142,6 +144,6 @@ class OssClinetImageTest extends TestOssClientBase
 
     private function base64url_encode($data)
     {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 }

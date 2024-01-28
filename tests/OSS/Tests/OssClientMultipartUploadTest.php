@@ -399,7 +399,6 @@ class OssClientMultipartUploadTest extends TestOssClientBase
         try {
             $uploadId = $this->ossClient->initiateMultipartUpload($this->bucket, $object);
             $listMultipartUploadInfo = $this->ossClient->completeMultipartUpload($this->bucket, $object, $uploadId, array());
-            var_dump($listMultipartUploadInfo);
             $this->assertNotNull($listMultipartUploadInfo);
         } catch (OssException $e) {
             $this->assertFalse(true);
@@ -465,7 +464,6 @@ class OssClientMultipartUploadTest extends TestOssClientBase
 
         try {
             $result = $this->ossClient->completeMultipartUpload($this->bucket, $object, $upload_id, null,$options);
-            var_dump($result);
             $this->assertNotNull($result);
         } catch (OssException $e) {
             $this->assertTrue(false);

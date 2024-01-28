@@ -13,7 +13,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
 
 class OssClientSignatureTest extends TestOssClientBase
 {
-    function testGetSignedUrlForGettingObject()
+    public function testGetSignedUrlForGettingObject()
     {
         $object = "a.file";
         $this->ossClient->putObject($this->bucket, $object, file_get_contents(__FILE__));
@@ -158,6 +158,59 @@ class OssClientSignatureTest extends TestOssClientBase
         $this->assertEquals($signedUrl1, $signedUrl2);
         $this->assertTrue(strpos($signedUrl1, 'Expires='.$expiration) !== false);
     }
+
+    public function testPutObjectWithQueryCallback()
+    {
+        $object = "a.file";
+        $timeout = 3600;
+        $url = '{"callbackUrl":"http://aliyun.com", "callbackBody":"bucket=${bucket}&object=${object}"}';
+        $var =
+            '{
+        "x:var1":"value1",
+        "x:var2":"value2"
+    }';
+        try {
+            $options[OssClient::OSS_QUERY_STRING] = array(
+                'callback'=>base64_encode($url),
+                'callback-var'=>base64_encode($var)
+            );
+            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $content = file_get_contents(__FILE__);
+            $request = new RequestCore($signedUrl);
+            $request->set_method('PUT');
+            $request->add_header('Content-Type', '');
+            $request->add_header('Content-Length', strlen($content));
+            $request->set_body($content);
+            $request->send_request();
+            $res = new ResponseCore($request->get_response_header(),
+                $request->get_response_body(), $request->get_response_code());
+            $this->assertEquals($res->status, 203);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            $options = array(OssClient::OSS_CALLBACK => $url,
+                OssClient::OSS_CALLBACK_VAR => $var
+            );
+            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $content = file_get_contents(__FILE__);
+            $request = new RequestCore($signedUrl);
+            $request->set_method('PUT');
+            $request->add_header('Content-Type', '');
+            $request->add_header(OssClient::OSS_CALLBACK, base64_encode($url));
+            $request->add_header(OssClient::OSS_CALLBACK_VAR , base64_encode($var));
+            $request->add_header('Content-Length', strlen($content));
+            $request->set_body($content);
+            $request->send_request();
+            $res = new ResponseCore($request->get_response_header(),
+                $request->get_response_body(), $request->get_response_code());
+            $this->assertEquals($res->status, 203);
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+    }
+
 
     protected function tearDown(): void
     {

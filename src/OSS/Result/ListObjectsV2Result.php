@@ -2,6 +2,7 @@
 
 namespace OSS\Result;
 
+use OSS\Core\OssException;
 use OSS\Core\OssUtil;
 use OSS\Model\ObjectInfo;
 use OSS\Model\ObjectListInfoV2;
@@ -16,7 +17,8 @@ class ListObjectsV2Result extends Result
     /**
      * Parse the xml data returned by the ListObjectsV2 interface
      *
-     * return ObjectListInfoV2
+     * @return ObjectListInfoV2
+     * @throws OssException
      */
     protected function parseDataFromResponse()
     {
@@ -34,7 +36,7 @@ class ListObjectsV2Result extends Result
         $continuationToken = isset($xml->ContinuationToken) ? strval($xml->ContinuationToken) : "";
         $nextContinuationToken = isset($xml->NextContinuationToken) ? strval($xml->NextContinuationToken) : "";
         $startAfter = isset($xml->StartAfter) ? strval($xml->StartAfter) : "";
-        $startAfter =  OssUtil::decodeKey($startAfter, $encodingType);
+        $startAfter = OssUtil::decodeKey($startAfter, $encodingType);
         $keyCount = isset($xml->KeyCount) ? intval($xml->KeyCount) : 0;
         return new ObjectListInfoV2($bucketName, $prefix, $maxKeys, $delimiter, $isTruncated, $objectList, $prefixList, $continuationToken, $nextContinuationToken, $startAfter, $keyCount);
     }

@@ -10,79 +10,79 @@ class DeleteObjectVersionsResultTest extends \PHPUnit\Framework\TestCase
 {
 
     private $validXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-            <Deleted>
-                <Key>demo.jpg</Key>
-                <VersionId>CAEQNRiBgICEoPiC0BYiIGMxZWJmYmMzYjE0OTQ0ZmZhYjgzNzkzYjc2NjZk****</VersionId>
-                <DeleteMarker>true</DeleteMarker>
-                <DeleteMarkerVersionId>111111</DeleteMarkerVersionId>
-            </Deleted>
-        </DeleteResult>
-        BBBB;
+<?xml version="1.0" ?>
+<DeleteResult>
+    <Deleted>
+        <Key>demo.jpg</Key>
+        <VersionId>CAEQNRiBgICEoPiC0BYiIGMxZWJmYmMzYjE0OTQ0ZmZhYjgzNzkzYjc2NjZk****</VersionId>
+        <DeleteMarker>true</DeleteMarker>
+        <DeleteMarkerVersionId>111111</DeleteMarkerVersionId>
+    </Deleted>
+</DeleteResult>
+BBBB;
 
     private $validXml1 = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-            <Deleted>
-                <Key>multipart.data</Key>
-                <VersionId>CAEQNRiBgIDyz.6C0BYiIGQ2NWEwNmVhNTA3ZTQ3MzM5ODliYjM1ZTdjYjA4****</VersionId>
-            </Deleted>
-        </DeleteResult>
-        BBBB;
+<?xml version="1.0" ?>
+<DeleteResult>
+<Deleted>
+    <Key>multipart.data</Key>
+    <VersionId>CAEQNRiBgIDyz.6C0BYiIGQ2NWEwNmVhNTA3ZTQ3MzM5ODliYjM1ZTdjYjA4****</VersionId>
+</Deleted>
+</DeleteResult>
+BBBB;
 
     private $validXml2 = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-            <Deleted>
-                <Key>multipart.data</Key>
-                <DeleteMarker>true</DeleteMarker>
-                <DeleteMarkerVersionId>CAEQMhiBgIDXiaaB0BYiIGQzYmRkZGUxMTM1ZDRjOTZhNjk4YjRjMTAyZjhl****</DeleteMarkerVersionId>
-            </Deleted>
-            <Deleted>
-                <Key>test.jpg</Key>
-                <DeleteMarker>true</DeleteMarker>
-                <DeleteMarkerVersionId>CAEQMhiBgIDB3aWB0BYiIGUzYTA3YzliMzVmNzRkZGM5NjllYTVlMjYyYWEy****</DeleteMarkerVersionId>
-            </Deleted>
-        </DeleteResult>
-        BBBB;
+<?xml version="1.0" ?>
+<DeleteResult>
+    <Deleted>
+        <Key>multipart.data</Key>
+        <DeleteMarker>true</DeleteMarker>
+        <DeleteMarkerVersionId>CAEQMhiBgIDXiaaB0BYiIGQzYmRkZGUxMTM1ZDRjOTZhNjk4YjRjMTAyZjhl****</DeleteMarkerVersionId>
+    </Deleted>
+    <Deleted>
+        <Key>test.jpg</Key>
+        <DeleteMarker>true</DeleteMarker>
+        <DeleteMarkerVersionId>CAEQMhiBgIDB3aWB0BYiIGUzYTA3YzliMzVmNzRkZGM5NjllYTVlMjYyYWEy****</DeleteMarkerVersionId>
+    </Deleted>
+</DeleteResult>
+BBBB;
 
     private $validXml3 = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-            <Deleted>
-                <Key>multipart.data</Key>
-            </Deleted>
-            <Deleted>
-                <Key>test.jpg</Key>
-            </Deleted>
-            <Deleted>
-                <Key>demo.jpg</Key>
-            </Deleted>
-        </DeleteResult>
-        BBBB;
+<?xml version="1.0" ?>
+<DeleteResult>
+    <Deleted>
+        <Key>multipart.data</Key>
+    </Deleted>
+    <Deleted>
+        <Key>test.jpg</Key>
+    </Deleted>
+    <Deleted>
+        <Key>demo.jpg</Key>
+    </Deleted>
+</DeleteResult>
+BBBB;
 
     private $validXml4 = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-            <EncodingType>url</EncodingType>
-            <Deleted>
-                <Key>multipart%2F.data</Key>
-            </Deleted>
-            <Deleted>
-                <Key>test%2F.jpg</Key>
-            </Deleted>
-            <Deleted>
-                <Key>demo%2F.jpg</Key>
-            </Deleted>
-        </DeleteResult>
-        BBBB;
-        
+<?xml version="1.0" ?>
+<DeleteResult>
+    <EncodingType>url</EncodingType>
+    <Deleted>
+        <Key>multipart%2F.data</Key>
+    </Deleted>
+    <Deleted>
+        <Key>test%2F.jpg</Key>
+    </Deleted>
+    <Deleted>
+        <Key>demo%2F.jpg</Key>
+    </Deleted>
+</DeleteResult>
+BBBB;
+
     private $invalidXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <DeleteResult>
-        </DeleteResult>
-        BBBB;
+<?xml version="1.0" ?>
+<DeleteResult>
+</DeleteResult>
+BBBB;
 
     public function testParseValidXml()
     {

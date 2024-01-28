@@ -2,6 +2,7 @@
 
 namespace OSS\Result;
 
+use OSS\Core\OssException;
 use OSS\Core\OssUtil;
 use OSS\Model\ObjectVersionInfo;
 use OSS\Model\ObjectVersionListInfo;
@@ -17,11 +18,12 @@ class ListObjectVersionsResult extends Result
     /**
      * Parse the xml data returned by the ListObjectVersions interface
      *
-     * return ObjectVersionListInfo
+     * @return ObjectVersionListInfo
+     * @throws OssException
      */
     protected function parseDataFromResponse()
     {
-        $xml = simplexml_load_string($this->rawResponse->body); 
+        $xml = simplexml_load_string($this->rawResponse->body);
         $encodingType = isset($xml->EncodingType) ? strval($xml->EncodingType) : "";
         $objectVersionList = $this->parseObjecVersionList($xml, $encodingType);
         $deleteMarkerList = $this->parseDeleteMarkerList($xml, $encodingType);
@@ -40,8 +42,8 @@ class ListObjectVersionsResult extends Result
         $delimiter = OssUtil::decodeKey($delimiter, $encodingType);
         $isTruncated = isset($xml->IsTruncated) ? strval($xml->IsTruncated) : "";
 
-        return new ObjectVersionListInfo($bucketName, $prefix, $keyMarker, $nextKeyMarker, 
-            $versionIdMarker, $nextVersionIdMarker,$maxKeys, $delimiter, $isTruncated,
+        return new ObjectVersionListInfo($bucketName, $prefix, $keyMarker, $nextKeyMarker,
+            $versionIdMarker, $nextVersionIdMarker, $maxKeys, $delimiter, $isTruncated,
             $objectVersionList, $deleteMarkerList, $prefixList);
     }
 

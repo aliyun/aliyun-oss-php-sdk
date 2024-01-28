@@ -10,24 +10,24 @@ class GetBucketRequestPaymentResultTest extends \PHPUnit\Framework\TestCase
 {
 
     private $validXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <RequestPaymentConfiguration>
-          <Payer>Requester</Payer>
-        </RequestPaymentConfiguration>
-        BBBB;
-    
+<?xml version="1.0" ?>
+<RequestPaymentConfiguration>
+  <Payer>Requester</Payer>
+</RequestPaymentConfiguration>
+BBBB;
+
     private $validXml2 = <<<BBBB
-        <?xml version="1.0" ?>
-        <RequestPaymentConfiguration>
-          <Payer>BucketOwner</Payer>
-        </RequestPaymentConfiguration>
-        BBBB;
+<?xml version="1.0" ?>
+<RequestPaymentConfiguration>
+  <Payer>BucketOwner</Payer>
+</RequestPaymentConfiguration>
+BBBB;
 
     private $invalidXml = <<<BBBB
-        <?xml version="1.0" ?>
-        <RequestPaymentConfiguration>
-        </RequestPaymentConfiguration>
-        BBBB;
+<?xml version="1.0" ?>
+<RequestPaymentConfiguration>
+</RequestPaymentConfiguration>
+BBBB;
 
     public function testParseValidXml()
     {
