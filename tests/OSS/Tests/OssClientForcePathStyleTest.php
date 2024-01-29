@@ -16,18 +16,14 @@ class OssClientForcePathStyleTest extends TestOssClientBase
 {
     public function testForcePathStyle()
     {
-        $accessKeyId = getenv("OSS_ACCESS_KEY_ID");
-        $accessKeySecret = getenv("OSS_ACCESS_KEY_SECRET");
-        $endpoint = getenv('OSS_ENDPOINT');
-        $provider = new StaticCredentialsProvider($accessKeyId, $accessKeySecret);
         $config = array(
-            'endpoint' => $endpoint,
-            'provider' => $provider,
+            'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4,
             'hostType' => OssClient::OSS_HOST_TYPE_PATH_STYLE,
         );
-        $ossClient = new OssClient($config);
+        $this->ossClient = Common::getOssClient($config);
+
         try {
-            $ossClient->getBucketInfo($this->bucket);
+            $this->ossClient->getBucketInfo($this->bucket);
         } catch (OssException $e) {
             $this->assertEquals($e->getErrorCode(), "SecondLevelDomainForbidden");
             $this->assertTrue(true);
@@ -35,15 +31,17 @@ class OssClientForcePathStyleTest extends TestOssClientBase
 
         try {
             $object = "oss-php-sdk-test/upload-test-object-name.txt";
-            $ossClient->putObject($this->bucket, $object, 'hi oss');
+            $this->ossClient->putObject($this->bucket, $object, 'hi oss');
         } catch (OssException $e) {
             $this->assertEquals($e->getErrorCode(), "SecondLevelDomainForbidden");
             $this->assertTrue(true);
         }
 
         try {
-            $strUrl = $endpoint . "/" . $this->bucket . "/" . $object;
-            $signUrl = $ossClient->signUrl($this->bucket, $object, 3600);
+            $endpoint = Common::getEndpoint();
+            $endpoint = str_replace(array('http://', 'https://'), '', $endpoint);
+            $strUrl = $this->bucket . '.' . $endpoint . "/" . $object;
+            $signUrl = $this->ossClient->signUrl($this->bucket, $object, 3600);
             $this->assertTrue(strpos($signUrl, $strUrl) !== false);
         } catch (OssException $e) {
             $this->assertFalse(true);
