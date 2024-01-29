@@ -3068,7 +3068,7 @@ class OssClient
     private function auth($options)
     {
         OssUtil::validateOptions($options);
-           //Validates object
+        //Validates object
         if ($this->isCheckObject($options)) {
             //object name encoding must be UTF-8
             //$this->authPrecheckObjectEncoding($options);
@@ -3317,7 +3317,7 @@ class OssClient
      */
     private function generateHostname($bucket)
     {
-        if ($this->hostType === self::OSS_HOST_TYPE_IP) {
+        if ($this->hostType === self::OSS_HOST_TYPE_IP || $this->hostType === self::OSS_HOST_TYPE_PATH_STYLE) {
             $hostname = $this->hostname;
         } elseif ($this->hostType === self::OSS_HOST_TYPE_CNAME) {
             $hostname = $this->hostname;
@@ -3340,7 +3340,7 @@ class OssClient
         $paths = array();
         // +bucket
         if ('' !== $bucket) {
-            if ($this->hostType === self::OSS_HOST_TYPE_IP) {
+            if ($this->hostType === self::OSS_HOST_TYPE_IP || $this->hostType === self::OSS_HOST_TYPE_PATH_STYLE) {
                 $paths[] = $bucket;
             }
         }
@@ -3682,6 +3682,7 @@ class OssClient
     const OSS_HOST_TYPE_IP = "ip";  //http://1.1.1.1/bucket/object
     const OSS_HOST_TYPE_SPECIAL = 'special'; //http://bucket.guizhou.gov/object
     const OSS_HOST_TYPE_CNAME = "cname";  //http://mydomain.com/object
+    const OSS_HOST_TYPE_PATH_STYLE = "path-style";  //http://oss-cn-hangzhou.aliyuncs.com/bucket/object
     //OSS ACL array
     static $OSS_ACL_TYPES = array(
         self::OSS_ACL_TYPE_PRIVATE,
