@@ -107,18 +107,37 @@ class OssClientSignatureTest extends TestOssClientBase
             }
         }
 
+        // Set StrictObjectName false
         $object = "?a.file";
         $timeout = 3600;
         $options = array('Content-Type' => 'txt');
+        $config = array(
+            'strictObjectName' => false
+        );
+        $ossClient = Common::getOssClient($config);
         try {
-            $this->ossClient->setStrictObjectName(false);
-            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $signedUrl = $ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
             $this->assertTrue(true);
         } catch (OssException $e) {
             print_r($e->getMessage());
             $this->assertFalse(true);
         }
 
+        // V4
+        $object = "?a.file";
+        $timeout = 3600;
+        $options = array('Content-Type' => 'txt');
+        $config = array(
+            'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
+        );
+        $ossClient = Common::getOssClient($config);
+        try {
+            $signedUrl = $ossClient->signUrl($this->bucket, $object, $timeout, "PUT", $options);
+            $this->assertTrue(true);
+        } catch (OssException $e) {
+            print_r($e->getMessage());
+            $this->assertFalse(true);
+        }
     }
 
     function testGetgenPreSignedUrlForGettingObject()
