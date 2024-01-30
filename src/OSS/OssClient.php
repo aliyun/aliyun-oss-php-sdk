@@ -178,8 +178,21 @@ class OssClient
         $this->region = isset($config['region']) ? $config['region'] : '';
         $this->cloudBoxId = isset($config['cloudBoxId']) ? $config['cloudBoxId'] : '';
 
-        $signatureVersion = isset($config['signatureVersion']) ? $config['signatureVersion'] : self::OSS_SIGNATURE_VERSION_V1;
+        // $enableStrictObjName
+        $this->enableStrictObjName = true;
+        if (isset($config['strictObjectName'])) {
+            if ($config['strictObjectName'] === false) {
+                $this->enableStrictObjName = false;
+            }
+        }
+
+        // sign version
+        $signatureVersion = self::OSS_SIGNATURE_VERSION_V1;
+        if (isset($config['signatureVersion']) && $config['signatureVersion'] === self::OSS_SIGNATURE_VERSION_V4) {
+            $signatureVersion = self::OSS_SIGNATURE_VERSION_V4;
+        }
         if ($signatureVersion === self::OSS_SIGNATURE_VERSION_V4) {
+            $this->enableStrictObjName = false;
             $this->signer = new SignerV4();
         } else {
             $this->signer = new SignerV1();
@@ -3267,17 +3280,6 @@ class OssClient
      */
     public function setSignStsInUrl($enable)
     {
-        $this->enableStsInUrl = $enable;
-    }
-
-    /**
-     * Enable/disable strict object name.
-     *
-     * @param boolean $enable
-     */
-    public function setStrictObjectName($enable)
-    {
-        $this->enableStrictObjName = $enable;
     }
 
     /**
@@ -3743,7 +3745,7 @@ class OssClient
      */
     private $provider;
     private $hostname;
-    private $enableStrictObjName = true;
+    private $enableStrictObjName;
     private $timeout = 0;
     private $connectTimeout = 0;
     private $cloudBoxId = null;
