@@ -109,9 +109,22 @@ abstract class Result
         if (empty($body) || false === strpos($body, '<?xml')) {
             return '';
         }
-        $xml = simplexml_load_string($body);
-        if (isset($xml->Message)) {
-            return strval($xml->Message);
+        try {
+            $xml = simplexml_load_string($body);
+            if (isset($xml->Message)) {
+                return strval($xml->Message);
+            }
+        } catch (\Exception $e) {
+            $start = strpos($body, '<Message>');
+            if ($start === false) {
+                return '';
+            }
+            $start += 9;
+            $end = strpos($body, '</Message>', $start);
+            if ($end === false) {
+                return '';
+            }
+            return substr($body, $start, $end - $start);
         }
         return '';
     }
@@ -127,9 +140,22 @@ abstract class Result
         if (empty($body) || false === strpos($body, '<?xml')) {
             return '';
         }
-        $xml = simplexml_load_string($body);
-        if (isset($xml->Code)) {
-            return strval($xml->Code);
+        try {
+            $xml = simplexml_load_string($body);
+            if (isset($xml->Code)) {
+                return strval($xml->Code);
+            }
+        } catch (\Exception $e) {
+            $start = strpos($body, '<Code>');
+            if ($start === false) {
+                return '';
+            }
+            $start += 6;
+            $end = strpos($body, '</Code>', $start);
+            if ($end === false) {
+                return '';
+            }
+            return substr($body, $start, $end - $start);
         }
         return '';
     }
