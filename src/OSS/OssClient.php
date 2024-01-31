@@ -197,6 +197,15 @@ class OssClient
         } else {
             $this->signer = new SignerV1();
         }
+
+        //checkObjectEncoding
+        $this->checkObjectEncoding = false;
+        if (isset($config['checkObjectEncoding'])) {
+            if ($config['checkObjectEncoding'] === true) {
+                $this->checkObjectEncoding = true;
+            }
+        }
+
         self::checkEnv();
     }
 
@@ -215,7 +224,6 @@ class OssClient
         $this->precheckOptions($options);
         $options[self::OSS_BUCKET] = '';
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $response = $this->auth($options);
         $result = new ListBucketsResult($response);
         return $result->getData();
@@ -235,7 +243,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_HEADERS][self::OSS_ACL] = $acl;
         if (isset($options[self::OSS_STORAGE])) {
             $this->precheckStorage($options[self::OSS_STORAGE]);
@@ -262,7 +269,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
         return $result->getData();
@@ -280,7 +286,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new ExistResult($response);
@@ -300,7 +305,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'location';
         $response = $this->auth($options);
         $result = new GetLocationResult($response);
@@ -320,7 +324,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_HEAD;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $response = $this->auth($options);
         $result = new HeaderResult($response);
         return $result->getData();
@@ -339,7 +342,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
         $result = new AclResult($response);
@@ -360,7 +362,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_HEADERS][self::OSS_ACL] = $acl;
         $options[self::OSS_SUB_RESOURCE] = 'acl';
         $response = $this->auth($options);
@@ -425,7 +426,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'logging';
         $response = $this->auth($options);
         $result = new GetLoggingResult($response);
@@ -448,7 +448,6 @@ class OssClient
         $this->precheckBucket($targetBucket, 'targetbucket is not allowed empty');
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'logging';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
 
@@ -472,7 +471,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'logging';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -493,7 +491,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'website';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $websiteConfig->serializeToXml();
@@ -515,7 +512,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'website';
         $response = $this->auth($options);
         $result = new GetWebsiteResult($response);
@@ -535,7 +531,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'website';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -556,7 +551,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'cors';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $corsConfig->serializeToXml();
@@ -578,7 +572,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'cors';
         $response = $this->auth($options);
         $result = new GetCorsResult($response);
@@ -598,7 +591,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'cors';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -619,7 +611,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
@@ -645,7 +636,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_CNAME] = '';
         $response = $this->auth($options);
         $result = new GetCnameResult($response);
@@ -666,7 +656,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
@@ -692,7 +681,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $cnameConfig = new CnameConfig();
         $cnameConfig->addCname($cname);
@@ -717,7 +705,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_COMP] = 'token';
         $options[self::OSS_CNAME] = $cname;
         $response = $this->auth($options);
@@ -859,7 +846,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'live';
         $options[self::OSS_QUERY_STRING] = array(
             'prefix' => isset($options['prefix']) ? $options['prefix'] : '',
@@ -1041,7 +1027,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'lifecycle';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $lifecycleConfig->serializeToXml();
@@ -1063,7 +1048,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'lifecycle';
         $response = $this->auth($options);
         $result = new GetLifecycleResult($response);
@@ -1083,7 +1067,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'lifecycle';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -1105,7 +1088,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'referer';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $refererConfig->serializeToXml();
@@ -1128,7 +1110,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'referer';
         $response = $this->auth($options);
         $result = new GetRefererResult($response);
@@ -1150,7 +1131,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'qos';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $storageCapacityConfig = new StorageCapacityConfig($storageCapacity);
@@ -1173,7 +1153,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'qos';
         $response = $this->auth($options);
         $result = new GetStorageCapacityResult($response);
@@ -1193,7 +1172,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'bucketInfo';
         $response = $this->auth($options);
         $result = new GetBucketInfoResult($response);
@@ -1213,7 +1191,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'stat';
         $response = $this->auth($options);
         $result = new GetBucketStatResult($response);
@@ -1234,7 +1211,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'policy';
         $options[self::OSS_CONTENT_TYPE] = 'application/json';
         $options[self::OSS_CONTENT] = $policy;
@@ -1256,7 +1232,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'policy';
         $response = $this->auth($options);
         $result = new BodyResult($response);
@@ -1276,7 +1251,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'policy';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -1297,7 +1271,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'encryption';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $sseConfig->serializeToXml();
@@ -1319,7 +1292,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'encryption';
         $response = $this->auth($options);
         $result = new GetBucketEncryptionResult($response);
@@ -1339,7 +1311,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'encryption';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -1360,7 +1331,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'requestPayment';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $config = new RequestPaymentConfig($payer);
@@ -1383,7 +1353,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'requestPayment';
         $response = $this->auth($options);
         $result = new GetBucketRequestPaymentResult($response);
@@ -1404,7 +1373,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $options[self::OSS_CONTENT] = $taggingConfig->serializeToXml();
@@ -1426,7 +1394,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
         $response = $this->auth($options);
         $result = new GetBucketTagsResult($response);
@@ -1448,7 +1415,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         if (empty($tags)) {
             $options[self::OSS_SUB_RESOURCE] = self::OSS_TAGGING;
         } else {
@@ -1478,7 +1444,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'versioning';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $config = new VersioningConfig($status);
@@ -1501,7 +1466,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'versioning';
         $response = $this->auth($options);
         $result = new GetBucketVersioningResult($response);
@@ -1522,7 +1486,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'worm';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $config = new InitiateWormConfig($day);
@@ -1545,7 +1508,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_DELETE;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'worm';
         $response = $this->auth($options);
         $result = new PutSetDeleteResult($response);
@@ -1566,7 +1528,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_WORM_ID] = $wormId;
         $options[self::OSS_CONTENT] = '';
         $response = $this->auth($options);
@@ -1589,7 +1550,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_WORM_ID] = $wormId;
         $options[self::OSS_SUB_RESOURCE] = 'wormExtend';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
@@ -1613,7 +1573,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'worm';
         $response = $this->auth($options);
         $result = new GetBucketWormResult($response);
@@ -1635,7 +1594,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_PUT;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $config = new TransferAccelerationConfig();
@@ -1658,7 +1616,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'transferAcceleration';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $response = $this->auth($options);
@@ -1686,7 +1643,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
         $options[self::OSS_QUERY_STRING] = array_merge(
             $query,
@@ -1724,7 +1680,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
         $temp = array(
             self::OSS_LIST_TYPE => 2,
@@ -1766,7 +1721,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'versions';
         $query = isset($options[self::OSS_QUERY_STRING]) ? $options[self::OSS_QUERY_STRING] : array();
         $options[self::OSS_QUERY_STRING] = array_merge(
@@ -2166,7 +2120,6 @@ class OssClient
         }
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'delete';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $quiet = 'false';
@@ -2201,7 +2154,6 @@ class OssClient
         }
         $options[self::OSS_METHOD] = self::OSS_HTTP_POST;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'delete';
         $options[self::OSS_CONTENT_TYPE] = 'application/xml';
         $quiet = 'false';
@@ -2610,7 +2562,6 @@ class OssClient
         $this->precheckCommon($bucket, NULL, $options, false);
         $options[self::OSS_METHOD] = self::OSS_HTTP_GET;
         $options[self::OSS_BUCKET] = $bucket;
-        $options[self::OSS_CHECK_OBJECT] = false;
         $options[self::OSS_SUB_RESOURCE] = 'uploads';
 
         foreach (array('delimiter', 'key-marker', 'max-uploads', 'prefix', 'upload-id-marker') as $param) {
@@ -3031,18 +2982,7 @@ class OssClient
         return $this->getValue($options, self::OSS_CHECK_MD5, false, true, true);
     }
 
-    /**
-     * Get Check Object Value
-     *
-     * @param array $options
-     * @return bool|null
-     */
-    private function isCheckObject($options)
-    {
-        return $this->getValue($options, self::OSS_CHECK_OBJECT, true, true);
-    }
-
-    /**
+     /**
      * Gets value of the specified key from the options
      *
      * @param array $options
@@ -3107,11 +3047,8 @@ class OssClient
     private function auth($options)
     {
         OssUtil::validateOptions($options);
-        //Validates object
-        if ($this->isCheckObject($options)) {
-            //object name encoding must be UTF-8
-            //$this->authPrecheckObjectEncoding($options);
-        }
+        //Object Encoding
+        $this->authPrecheckObjectEncoding($options);
         //Validates ACL
         $this->authPrecheckAcl($options);
         $cred = $this->provider->getCredentials();
@@ -3305,20 +3242,29 @@ class OssClient
      */
     private function authPrecheckObjectEncoding(&$options)
     {
-        $tmp_object = $options[self::OSS_OBJECT];
-        try {
-            if (OssUtil::isGb2312($options[self::OSS_OBJECT])) {
-                $options[self::OSS_OBJECT] = iconv('GB2312', "UTF-8", $options[self::OSS_OBJECT]);
-            } elseif (OssUtil::checkChar($options[self::OSS_OBJECT], true)) {
-                $options[self::OSS_OBJECT] = iconv('GBK', "UTF-8", $options[self::OSS_OBJECT]);
-            }
-        } catch (\Exception $e) {
-            try {
-                $tmp_object = iconv(mb_detect_encoding($tmp_object), "UTF-8", $tmp_object);
-            } catch (\Exception $e) {
-            }
+        if ($this->checkObjectEncoding !== true) {
+            return;
         }
-        $options[self::OSS_OBJECT] = $tmp_object;
+
+        if (!isset($options[self::OSS_OBJECT])) {
+            return;
+        }
+
+        try {
+            $tmp_object = $options[self::OSS_OBJECT];
+            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encode = mb_detect_encoding($tmp_object, $encoding);
+            if ($encode === 'UTF-8' || $encode === false) {
+                return;
+            }
+            $tmp_object = iconv($encode, "UTF-8", $tmp_object);
+            if ($tmp_object === false) {
+                return;
+            }
+            $options[self::OSS_OBJECT] = $tmp_object;
+        } catch (\Exception $e) {
+            //IGNORE
+        }
     }
 
     /**
@@ -3754,4 +3700,6 @@ class OssClient
      * @var SignerV1|SignerV4
      */
     private $signer;
+
+    private $checkObjectEncoding = false;
 }

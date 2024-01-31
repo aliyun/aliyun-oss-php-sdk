@@ -769,6 +769,54 @@ class OssClientObjectTest extends TestOssClientBase
         }
     }
 
+    public function testObjectKeyWithNonUTF8Name()
+    {
+        $object = "中文测试.txt";
+        $hexObject = bin2hex($object);
+        $gbkObject = iconv('UTF-8', 'GBK', $object);
+        $hexGbkObject = bin2hex($gbkObject);
+        $content = "hello world";
+
+        $this->assertEquals("e4b8ade69687e6b58be8af952e747874", $hexObject);
+        $this->assertEquals("d6d0cec4b2e2cad42e747874", $hexGbkObject);
+
+        try {
+            $this->ossClient->putObject($this->bucket, $gbkObject, $content);
+            $this->assertTrue(false);
+        } catch (OssException $e) {
+            $this->assertEquals('InvalidArgument', $e->getErrorCode());
+            $this->assertEquals('The characters encoding must be utf-8.', $e->getErrorMessage());
+        } catch (\Exception $e) {
+            $this->assertTrue(false);
+        }
+
+        //enable object encoding check
+        $config = array(
+            'checkObjectEncoding' => true,
+        );
+        $ossClient = Common::getOssClient($config);
+        try {
+            $ossClient->putObject($this->bucket, $gbkObject, $content);
+            $content1 = $this->ossClient->getObject($this->bucket, $object);
+            $content2 = $ossClient->getObject($this->bucket, $gbkObject);
+            $this->assertEquals($content, $content1);
+            $this->assertEquals($content, $content2);
+        } catch (\Exception $e) {
+            $this->assertTrue(false);
+        }
+        
+        // ascii
+        try {
+            $ossClient->putObject($this->bucket, '1234', 'ascii');
+            $content1 = $this->ossClient->getObject($this->bucket, '1234');
+            $content2 = $ossClient->getObject($this->bucket, '1234');
+            $this->assertEquals('ascii', $content1);
+            $this->assertEquals('ascii', $content2);
+        } catch (\Exception $e) {
+            $this->assertTrue(false);
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

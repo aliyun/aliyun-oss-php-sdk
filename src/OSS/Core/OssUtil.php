@@ -193,7 +193,6 @@ class OssUtil
      *
      * @param array $options
      * @throws OssException
-     * @return boolean
      */
     public static function validateOptions($options)
     {
@@ -372,7 +371,8 @@ BBB;
      * Get the host:port from endpoint.
      *
      * @param string $endpoint the endpoint.
-     * @return boolean
+     * @return string
+     * @throws OssException
      */
     public static function getHostPortFromEndpoint($endpoint)
     {
