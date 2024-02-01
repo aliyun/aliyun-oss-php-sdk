@@ -917,8 +917,15 @@ class OssClientObjectTest extends TestOssClientBase
         }
 
         try {
-            unlink($filePath1);
-            unlink($filePath2);
+            if (phpversion() < "7.0.0") {
+                unlink($gbkfilePath1);
+                unlink($gbkfilePath2);
+                rmdir($gbkfileFolder);
+            } else {
+                unlink($filePath1);
+                unlink($filePath2);
+                rmdir($fileFolder);
+            }
         } catch (\Exception $e) {
         }
     }
