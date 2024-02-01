@@ -836,18 +836,29 @@ class OssClientObjectTest extends TestOssClientBase
         $hexfilePath1 = bin2hex($filePath1);
         $hexGbkfilePath2 = bin2hex($gbkfilePath2);
 
-        //$this->assertEquals("e4b8ade69687e69687e4bbb6e5908d312e747874", $hexfilePath1);
-        //$this->assertEquals("d6d0cec4cec4bcfec3fb322e747874", $hexGbkfilePath2);
-        try {
-            mkdir($fileFolder);
-        } catch (\Exception $e) {
-        }
-        OssUtil::generateFile($filePath1, 200 * 1024);
-        OssUtil::generateFile($filePath2, 202 * 1024);
-
-        try {
+        $content1 = '';
+        $content2 = '';
+        if (version_compare(phpversion(), '7.0.0', '<')) {
+            try {
+                mkdir($gbkfileFolder);
+            } catch (\Exception $e) {
+            }
+            OssUtil::generateFile($gbkfilePath1, 200 * 1024);
+            OssUtil::generateFile($gbkfilePath2, 202 * 1024);
+            $content1 = file_get_contents($gbkfilePath1);
+            $content2 = file_get_contents($gbkfilePath2);
+        } else {
+            try {
+                mkdir($fileFolder);
+            } catch (\Exception $e) {
+            }
+            OssUtil::generateFile($filePath1, 200 * 1024);
+            OssUtil::generateFile($filePath2, 202 * 1024);
             $content1 = file_get_contents($filePath1);
             $content2 = file_get_contents($filePath2);
+        }
+
+        try {
 
             // upload file
             $this->ossClient->uploadFile($this->bucket, '123', $filePath1);
@@ -886,6 +897,20 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertEquals(2, count($objectList));
             $this->assertEquals('dir/中文文件名1.txt', $objectList[0]->getKey());
             $this->assertEquals('dir/中文文件名2.txt', $objectList[1]->getKey());
+
+            // uploadDir
+            if (version_compare(phpversion(), '7.0.0', '<')) {
+                $this->ossClient->uploadDir($this->bucket, "gbkdir", $gbkfileFolder);
+                $options = array(
+                    'delimiter' => '',
+                    'prefix' => "gbkdir",
+                );
+                $listObjectInfo = $this->ossClient->listObjects($this->bucket, $options);
+                $objectList = $listObjectInfo->getObjectList();
+                $this->assertEquals(2, count($objectList));
+                $this->assertEquals('gbkdir/中文文件名1.txt', $objectList[0]->getKey());
+                $this->assertEquals('gbkdir/中文文件名2.txt', $objectList[1]->getKey());
+            }
 
         } catch (OssException $e) {
             $this->assertFalse(true);
