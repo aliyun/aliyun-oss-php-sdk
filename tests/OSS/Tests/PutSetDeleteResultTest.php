@@ -6,7 +6,7 @@ use OSS\Core\OssException;
 use OSS\Http\ResponseCore;
 use OSS\Result\PutSetDeleteResult;
 
-class ResultTest extends \PHPUnit\Framework\TestCase
+class PutSetDeleteResultTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testNullResponse()
