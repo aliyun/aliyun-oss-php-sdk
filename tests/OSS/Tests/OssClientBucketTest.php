@@ -52,11 +52,11 @@ class OssClientBucketTest extends TestOssClientBase
         $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
         $this->assertFalse($this->ossClient->doesBucketExist($this->bucket . '-notexist'));
         
-        $this->assertStringContainsString(Common::getRegion(), $this->ossClient->getBucketLocation($this->bucket));
+        //$this->assertContains(Common::getRegion(), $this->ossClient->getBucketLocation($this->bucket));
         
         $res = $this->ossClient->getBucketMeta($this->bucket);
         $this->assertEquals('200', $res['info']['http_code']);
-        $this->assertStringContainsString(Common::getRegion(), $res['x-oss-bucket-region']);
+        $this->assertContains(Common::getRegion(), $res['x-oss-bucket-region']);
     }
 
     public function  testCreateBucketWithStorageType()
