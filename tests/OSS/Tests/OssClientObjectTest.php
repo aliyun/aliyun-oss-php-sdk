@@ -805,7 +805,7 @@ class OssClientObjectTest extends TestOssClientBase
         } catch (\Exception $e) {
             $this->assertTrue(false);
         }
-        
+
         // ascii
         try {
             $ossClient->putObject($this->bucket, '1234', 'ascii');
@@ -825,29 +825,41 @@ class OssClientObjectTest extends TestOssClientBase
             return;
         }
 
-        $fileFolder = __DIR__ . DIRECTORY_SEPARATOR . "中文目录";
-        $filePath1 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名1.txt";
-        $filePath2 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名2.txt";
-
-        $gbkfileFolder = iconv('UTF-8', 'GBK', $fileFolder);
-        $gbkfilePath1 = iconv('UTF-8', 'GBK', $filePath1);
-        $gbkfilePath2 = iconv('UTF-8', 'GBK', $filePath2);
-
-        $hexfilePath1 = bin2hex($filePath1);
-        $hexGbkfilePath2 = bin2hex($gbkfilePath2);
-
-        //$this->assertEquals("e4b8ade69687e69687e4bbb6e5908d312e747874", $hexfilePath1);
-        //$this->assertEquals("d6d0cec4cec4bcfec3fb322e747874", $hexGbkfilePath2);
         try {
-            mkdir($fileFolder);
-        } catch (\Exception $e) {
-        }
-        OssUtil::generateFile($filePath1, 200 * 1024);
-        OssUtil::generateFile($filePath2, 202 * 1024);
 
-        try {
-            $content1 = file_get_contents($filePath1);
-            $content2 = file_get_contents($filePath2);
+            $fileFolder = __DIR__ . DIRECTORY_SEPARATOR . "中文目录";
+            $filePath1 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名1.txt";
+            $filePath2 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名2.txt";
+
+            $gbkfileFolder = iconv('UTF-8', 'GBK', $fileFolder);
+            $gbkfilePath1 = iconv('UTF-8', 'GBK', $filePath1);
+            $gbkfilePath2 = iconv('UTF-8', 'GBK', $filePath2);
+
+            $hexfilePath1 = bin2hex($filePath1);
+            $hexGbkfilePath2 = bin2hex($gbkfilePath2);
+
+            //$this->assertEquals("e4b8ade69687e69687e4bbb6e5908d312e747874", $hexfilePath1);
+            //$this->assertEquals("d6d0cec4cec4bcfec3fb322e747874", $hexGbkfilePath2);
+            if (phpversion() < "7.0.0") {
+                if (!file_exists($gbkfileFolder)) {
+                    mkdir($gbkfileFolder);
+                }
+                OssUtil::generateFile($gbkfilePath1, 200 * 1024);
+                OssUtil::generateFile($gbkfilePath2, 202 * 1024);
+            } else {
+                if (!file_exists($fileFolder)) {
+                    mkdir($fileFolder);
+                }
+                OssUtil::generateFile($filePath1, 200 * 1024);
+                OssUtil::generateFile($filePath2, 202 * 1024);
+            }
+            if (phpversion() < "7.0.0") {
+                $content1 = file_get_contents($gbkfilePath1);
+                $content2 = file_get_contents($gbkfilePath2);
+            } else {
+                $content1 = file_get_contents($filePath1);
+                $content2 = file_get_contents($filePath2);
+            }
 
             // upload file
             $this->ossClient->uploadFile($this->bucket, '123', $filePath1);
@@ -862,9 +874,8 @@ class OssClientObjectTest extends TestOssClientBase
             // append file
             $position = $this->ossClient->appendFile($this->bucket, 'append-file', $filePath1, 0);
             $position = $this->ossClient->appendFile($this->bucket, 'append-file', $gbkfilePath2, $position);
-
             $res = $this->ossClient->getObject($this->bucket, 'append-file');
-            $this->assertEquals($content1.$content2, $res);
+            $this->assertEquals($content1 . $content2, $res);
 
             // multi paet
             $this->ossClient->multiuploadFile($this->bucket, 'multi-file-123', $filePath1, array(OssClient::OSS_PART_SIZE => 1));
@@ -890,11 +901,14 @@ class OssClientObjectTest extends TestOssClientBase
         } catch (OssException $e) {
             $this->assertFalse(true);
         }
-
-        try {
+        if (phpversion() < "7.0.0") {
+            unlink($gbkfilePath1);
+            unlink($gbkfilePath2);
+            rmdir($gbkfileFolder);
+        } else {
             unlink($filePath1);
             unlink($filePath2);
-        } catch (\Exception $e) {
+            rmdir($fileFolder);
         }
     }
 
