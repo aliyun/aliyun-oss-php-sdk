@@ -206,6 +206,21 @@ class OssClient
             }
         }
 
+        //filePathCompatible
+        $this->filePathCompatible = false;
+        if (version_compare(phpversion(), '7.0.0', '<')) {
+            if (OssUtil::isWin()) {
+                $this->filePathCompatible = true;
+            }
+        }
+        if (isset($config['filePathCompatible'])) {
+            if ($config['filePathCompatible'] === true) {
+                $this->filePathCompatible = true;
+            } else if ($config['filePathCompatible'] === false) {
+                $this->filePathCompatible = false;
+            }
+        }
+
         self::checkEnv();
     }
 
@@ -1867,7 +1882,7 @@ class OssClient
     {
         $this->precheckCommon($bucket, $object, $options);
         OssUtil::throwOssExceptionWithMessageIfEmpty($file, "file path is invalid");
-        $file = OssUtil::encodePath($file);
+        $file = $this->encodeFilePath($file);
         if (!file_exists($file)) {
             throw new OssException($file . " file does not exist");
         }
@@ -1985,7 +2000,7 @@ class OssClient
         $this->precheckCommon($bucket, $object, $options);
 
         OssUtil::throwOssExceptionWithMessageIfEmpty($file, "file path is invalid");
-        $file = OssUtil::encodePath($file);
+        $file = $this->encodeFilePath($file);
         if (!file_exists($file)) {
             throw new OssException($file . " file does not exist");
         }
@@ -2651,7 +2666,7 @@ class OssClient
         if (empty($file)) {
             throw new OssException("parameter invalid, file is empty");
         }
-        $uploadFile = OssUtil::encodePath($file);
+        $uploadFile = $this->encodeFilePath($file);
         if (!isset($options[self::OSS_CONTENT_TYPE])) {
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $uploadFile);
         }
@@ -2750,7 +2765,7 @@ class OssClient
         if (!is_string($prefix)) throw new OssException("parameter error, prefix is not string");
         if (empty($localDirectory)) throw new OssException("parameter error, localDirectory is empty");
         $directory = $localDirectory;
-        $directory = OssUtil::encodePath($directory);
+        $directory = $this->encodeFilePath($directory);
         //If it's not the local directory, throw OSSException.
         if (!is_dir($directory)) {
             throw new OssException('parameter error: ' . $directory . ' is not a directory, please check it');
@@ -2768,7 +2783,9 @@ class OssClient
                 self::OSS_PART_SIZE => self::OSS_MIN_PART_SIZE,
                 self::OSS_CHECK_MD5 => $checkMd5,
             );
-            $realObject = (!empty($prefix) ? $prefix . '/' : '') . $item['file'];
+            //mbstring to utf-8
+            $fileName = $this->decodeFilePath($item['file']);
+            $realObject = (!empty($prefix) ? $prefix . '/' : '') . $fileName;
 
             try {
                 $this->multiuploadFile($bucket, $realObject, $item['path'], $options);
@@ -3486,6 +3503,69 @@ class OssClient
     }
 
     /**
+     * Encodes the file path from UTF-8 to GBK.
+     *
+     * @param $filepath
+     * @return string
+     */
+    private function encodeFilePath($filepath)
+    {
+        if ($this->filePathCompatible !== true) {
+            return $filepath;
+        }
+
+        if (empty($filepath)) {
+            return $filepath;
+        }
+
+        try {
+            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encode = mb_detect_encoding($filepath, $encoding);
+            if ($encode !== 'UTF-8') {
+                return $filepath;
+            }
+            $tmp = iconv($encode, 'GBK', $filepath);
+            if ($tmp !== false) {
+                $filepath = $tmp;
+            }
+        } catch (\Exception $e) {
+            //IGNORE
+        }
+        return $filepath;
+    }
+
+     /**
+     * Decodes the file path from GBK  to UTF-8.
+     *
+     * @param $filepath
+     * @return string
+     */
+    private function decodeFilePath($filepath)
+    {
+        if ($this->filePathCompatible !== true) {
+            return $filepath;
+        }
+        if (empty($filepath)) {
+            return $filepath;
+        }
+
+        try {
+            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encode = mb_detect_encoding($filepath, $encoding);
+            if ($encode === 'UTF-8' || $encode === false) {
+                return $filepath;
+            }
+            $tmp = iconv($encode, 'UTF-8', $filepath);
+            if ($tmp !== false) {
+                $filepath = $tmp;
+            }
+        } catch (\Exception $e) {
+            //IGNORE
+        }
+        return $filepath;
+    }
+
+    /**
      * Check if all dependent extensions are installed correctly.
      * For now only "curl" is needed.
      * @throws OssException
@@ -3702,4 +3782,6 @@ class OssClient
     private $signer;
 
     private $checkObjectEncoding = false;
+
+    private $filePathCompatible;
 }

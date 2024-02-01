@@ -3,6 +3,7 @@
 namespace OSS\Tests;
 
 use OSS\Core\OssException;
+use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'TestOssClientBase.php';
@@ -814,6 +815,86 @@ class OssClientObjectTest extends TestOssClientBase
             $this->assertEquals('ascii', $content2);
         } catch (\Exception $e) {
             $this->assertTrue(false);
+        }
+    }
+
+    public function testEncodeFilePath()
+    {
+        if (!OssUtil::isWin()) {
+            $this->assertTrue(true);
+            return;
+        }
+
+        $fileFolder = __DIR__ . DIRECTORY_SEPARATOR . "中文目录";
+        $filePath1 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名1.txt";
+        $filePath2 = $fileFolder . DIRECTORY_SEPARATOR . "中文文件名2.txt";
+
+        $gbkfileFolder = iconv('UTF-8', 'GBK', $fileFolder);
+        $gbkfilePath1 = iconv('UTF-8', 'GBK', $filePath1);
+        $gbkfilePath2 = iconv('UTF-8', 'GBK', $filePath2);
+
+        $hexfilePath1 = bin2hex($filePath1);
+        $hexGbkfilePath2 = bin2hex($gbkfilePath2);
+
+        //$this->assertEquals("e4b8ade69687e69687e4bbb6e5908d312e747874", $hexfilePath1);
+        //$this->assertEquals("d6d0cec4cec4bcfec3fb322e747874", $hexGbkfilePath2);
+        try {
+            mkdir($fileFolder);
+        } catch (\Exception $e) {
+        }
+        OssUtil::generateFile($filePath1, 200 * 1024);
+        OssUtil::generateFile($filePath2, 202 * 1024);
+
+        try {
+            $content1 = file_get_contents($filePath1);
+            $content2 = file_get_contents($filePath2);
+
+            // upload file
+            $this->ossClient->uploadFile($this->bucket, '123', $filePath1);
+            $this->ossClient->uploadFile($this->bucket, '234', $gbkfilePath2);
+
+            $res = $this->ossClient->getObject($this->bucket, '123');
+            $this->assertEquals($content1, $res);
+
+            $res = $this->ossClient->getObject($this->bucket, '234');
+            $this->assertEquals($content2, $res);
+
+            // append file
+            $position = $this->ossClient->appendFile($this->bucket, 'append-file', $filePath1, 0);
+            $position = $this->ossClient->appendFile($this->bucket, 'append-file', $gbkfilePath2, $position);
+
+            $res = $this->ossClient->getObject($this->bucket, 'append-file');
+            $this->assertEquals($content1.$content2, $res);
+
+            // multi paet
+            $this->ossClient->multiuploadFile($this->bucket, 'multi-file-123', $filePath1, array(OssClient::OSS_PART_SIZE => 1));
+            $this->ossClient->multiuploadFile($this->bucket, 'multi-file-234', $gbkfilePath2, array(OssClient::OSS_PART_SIZE => 1));
+            $res = $this->ossClient->getObject($this->bucket, 'multi-file-123');
+            $this->assertEquals($content1, $res);
+
+            $res = $this->ossClient->getObject($this->bucket, 'multi-file-234');
+            $this->assertEquals($content2, $res);
+
+            // uploadDir
+            $this->ossClient->uploadDir($this->bucket, "dir", $fileFolder);
+            $options = array(
+                'delimiter' => '',
+                'prefix' => "dir",
+            );
+            $listObjectInfo = $this->ossClient->listObjects($this->bucket, $options);
+            $objectList = $listObjectInfo->getObjectList();
+            $this->assertEquals(2, count($objectList));
+            $this->assertEquals('dir/中文文件名1.txt', $objectList[0]->getKey());
+            $this->assertEquals('dir/中文文件名2.txt', $objectList[1]->getKey());
+
+        } catch (OssException $e) {
+            $this->assertFalse(true);
+        }
+
+        try {
+            unlink($filePath1);
+            unlink($filePath2);
+        } catch (\Exception $e) {
         }
     }
 
