@@ -26,7 +26,7 @@ class Common
         try {
             $provider = new StaticCredentialsProvider(
                 getenv('OSS_ACCESS_KEY_ID'), 
-                getenv('OSS_ACCESS_KEY_SECRET'),
+                getenv('OSS_ACCESS_KEY_SECRET')
             );
             $config = array(
                 'region' => self::getRegion(),
@@ -64,7 +64,7 @@ class Common
             $provider = new StaticCredentialsProvider(
                 $response->Credentials->AccessKeyId, 
                 $response->Credentials->AccessKeySecret,
-                $response->Credentials->SecurityToken,
+                $response->Credentials->SecurityToken
             );
             $config = array(
                 'region' => self::getRegion(),
