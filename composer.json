@@ -15,7 +15,7 @@
     },
     "require-dev" : {
         "phpunit/phpunit": "*",
-        "satooshi/php-coveralls": "*"
+        "php-coveralls/php-coveralls": "*"
     },
     "minimum-stability": "stable",
     "autoload": {
