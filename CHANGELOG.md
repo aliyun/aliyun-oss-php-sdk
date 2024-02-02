@@ -1,5 +1,16 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.7.0 / 2024-02-02
+* Added: support signature version 4.
+* Added: support checkObjectEndcoding option.
+* Added: support strictObjectName option.
+* Added: support filePathCompatible option.
+* Added: support path style.
+* Added: support environment variables credentials provider.
+* Update: add filed for some api.
+* Fixed: fix some bugs.
+
+* 
 ## v2.6.0 / 2022-08-03
 * Added: support credentials provider.
 * Fixed: compatible with swoole curl handler.
