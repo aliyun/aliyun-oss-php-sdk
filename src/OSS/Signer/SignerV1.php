@@ -24,7 +24,9 @@ class SignerV1 implements SignerInterface
         $resourcePath = $this->getResourcePath($options);
         $queryString = parse_url($request->request_url, PHP_URL_QUERY);
         $query = array();
-        parse_str($queryString, $query);
+        if ($queryString) {
+            parse_str($queryString, $query);
+        }
         $stringToSign = $this->calcStringToSign($method, $date, $headers, $resourcePath, $query);
 //        printf("sign str:%s" . PHP_EOL, $stringToSign);
         $options['string_to_sign'] = $stringToSign;
