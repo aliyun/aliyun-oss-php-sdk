@@ -15,7 +15,7 @@ class SignerV1 implements SignerInterface
             $request->add_header('Date', gmdate('D, d M Y H:i:s \G\M\T'));
         }
         // Credentials information
-        if (strlen($credentials->getSecurityToken()) > 0) {
+        if (!empty($credentials->getSecurityToken())) {
             $request->add_header("x-oss-security-token", $credentials->getSecurityToken());
         }
         $headers = $request->request_headers;
@@ -24,7 +24,9 @@ class SignerV1 implements SignerInterface
         $resourcePath = $this->getResourcePath($options);
         $queryString = parse_url($request->request_url, PHP_URL_QUERY);
         $query = array();
-        parse_str($queryString, $query);
+        if ($queryString !== null) {
+            parse_str($queryString, $query);
+        }
         $stringToSign = $this->calcStringToSign($method, $date, $headers, $resourcePath, $query);
 //        printf("sign str:%s" . PHP_EOL, $stringToSign);
         $options['string_to_sign'] = $stringToSign;
@@ -43,9 +45,11 @@ class SignerV1 implements SignerInterface
         $parsed_url = parse_url($request->request_url);
         $queryString = isset($parsed_url['query']) ? $parsed_url['query'] : '';
         $query = array();
-        parse_str($queryString, $query);
+        if ($queryString !== null) {
+            parse_str($queryString, $query);
+        }
         // Credentials information
-        if (strlen($credentials->getSecurityToken()) > 0) {
+        if (!empty($credentials->getSecurityToken())) {
             $query["security-token"] = $credentials->getSecurityToken();
         }
         $method = strtoupper($request->method);

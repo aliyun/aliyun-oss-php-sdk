@@ -27,7 +27,7 @@ class SignerV4 implements SignerInterface
             $request->add_header("x-oss-content-sha256", 'UNSIGNED-PAYLOAD');
         }
         // Credentials information
-        if (strlen($credentials->getSecurityToken()) > 0) {
+        if (!empty($credentials->getSecurityToken())) {
             $request->add_header("x-oss-security-token", $credentials->getSecurityToken());
         }
         $headers = $request->request_headers;
@@ -39,7 +39,9 @@ class SignerV4 implements SignerInterface
         $additionalHeaders = $this->getCommonAdditionalHeaders($request, $options);
         $queryString = parse_url($request->request_url, PHP_URL_QUERY);
         $query = array();
-        parse_str($queryString, $query);
+        if ($queryString !== null) {
+            parse_str($queryString, $query);
+        }
         $canonicalRequest = $this->calcCanonicalRequest($method, $resourcePath, $query, $headers, $additionalHeaders);
         $stringToSign = $this->calcStringToSign($datetime, $scope, $canonicalRequest);
 //        printf('canonical request:%s' . PHP_EOL, $canonicalRequest);
@@ -77,8 +79,10 @@ class SignerV4 implements SignerInterface
         $additionalHeaders = $this->getCommonAdditionalHeaders($request, $options);
         $queryString = parse_url($request->request_url, PHP_URL_QUERY);
         $query = array();
-        parse_str($queryString, $query);
-        if (strlen($credentials->getSecurityToken()) > 0) {
+        if ($queryString !== null) {
+            parse_str($queryString, $query);
+        }
+        if (!empty($credentials->getSecurityToken())) {
             $query["x-oss-security-token"] = $credentials->getSecurityToken();
         }
         $query["x-oss-signature-version"] = 'OSS4-HMAC-SHA256';
@@ -126,11 +130,11 @@ class SignerV4 implements SignerInterface
                 $lowk = strtolower($key);
                 if ($this->isDefaultSignedHeader($lowk)) {
                     continue;
-                } 
+                }
                 $addHeaders[$lowk] = '';
             }
             $headers = array();
-            foreach ($request->request_headers as  $key => $value) {
+            foreach ($request->request_headers as $key => $value) {
                 $lowk = strtolower($key);
                 if (isset($addHeaders[$lowk])) {
                     $headers[$lowk] = '';
