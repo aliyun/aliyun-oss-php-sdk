@@ -42,6 +42,53 @@ BBBB;
 </ListAllMyBucketsResult>
 BBBB;
 
+
+    private $errorBody = <<< BBBB
+<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+  <Code>NoSuchBucket</Code>
+  <Message>The specified bucket does not exist.</Message>
+  <RequestId>566B870D207FB3044302EB0A</RequestId>
+  <HostId>hello.oss-test.aliyun-inc.com</HostId>
+  <BucketName>hello</BucketName>
+</Error>
+BBBB;
+
+    private $xml = <<<BBBB
+<?xml version="1.0" encoding="UTF-8"?>
+<ListAllMyBucketsResult>
+  <Owner>
+    <ID>ut_test_put_bucket</ID>
+    <DisplayName>ut_test_put_bucket</DisplayName>
+  </Owner>
+  <Buckets>
+    <Bucket>
+      <CreationDate>2015-12-17T18:12:43.000Z</CreationDate>
+      <ExtranetEndpoint>oss-cn-shanghai.aliyuncs.com</ExtranetEndpoint>
+      <IntranetEndpoint>oss-cn-shanghai-internal.aliyuncs.com</IntranetEndpoint>
+      <Location>oss-cn-shanghai</Location>
+      <Name>app-base-oss</Name>
+      <Region>cn-shanghai</Region>
+      <StorageClass>Standard</StorageClass>
+    </Bucket>
+    <Bucket>
+      <CreationDate>2014-12-25T11:21:04.000Z</CreationDate>
+      <ExtranetEndpoint>oss-cn-hangzhou.aliyuncs.com</ExtranetEndpoint>
+      <IntranetEndpoint>oss-cn-hangzhou-internal.aliyuncs.com</IntranetEndpoint>
+      <Location>oss-cn-hangzhou</Location>
+      <Name>atestleo23</Name>
+      <Region>cn-hangzhou</Region>
+      <StorageClass>IA</StorageClass>
+    </Bucket>
+    <Bucket>
+      <CreationDate>2014-12-25T11:21:04.000Z</CreationDate>
+      <Location>oss-cn-hangzhou</Location>
+      <Name>atestleo23</Name>
+    </Bucket>
+  </Buckets>
+</ListAllMyBucketsResult>
+BBBB;
+
     public function testParseValidXml()
     {
         $response = new ResponseCore(array(), $this->validXml, 200);
@@ -69,18 +116,7 @@ BBBB;
         $errorHeader = array(
             'x-oss-request-id' => '1a2b-3c4d'
         );
-
-        $errorBody = <<< BBBB
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Error>
-          <Code>NoSuchBucket</Code>
-          <Message>The specified bucket does not exist.</Message>
-          <RequestId>566B870D207FB3044302EB0A</RequestId>
-          <HostId>hello.oss-test.aliyun-inc.com</HostId>
-          <BucketName>hello</BucketName>
-        </Error>
-        BBBB;
-        $response = new ResponseCore($errorHeader, $errorBody, 403);
+        $response = new ResponseCore($errorHeader, $this->errorBody, 403);
         try {
             new ListBucketsResult($response);
         } catch (OssException $e) {
@@ -91,48 +127,13 @@ BBBB;
             $this->assertEquals($e->getRequestId(), '1a2b-3c4d');
             $this->assertEquals($e->getErrorCode(), 'NoSuchBucket');
             $this->assertEquals($e->getErrorMessage(), 'The specified bucket does not exist.');
-            $this->assertEquals($e->getDetails(), $errorBody);
+            $this->assertEquals($e->getDetails(), $this->errorBody);
         }
     }
 
     public function testParseXml2()
     {
-      $xml = <<<BBBB
-      <?xml version="1.0" encoding="UTF-8"?>
-      <ListAllMyBucketsResult>
-        <Owner>
-          <ID>ut_test_put_bucket</ID>
-          <DisplayName>ut_test_put_bucket</DisplayName>
-        </Owner>
-        <Buckets>
-          <Bucket>
-            <CreationDate>2015-12-17T18:12:43.000Z</CreationDate>
-            <ExtranetEndpoint>oss-cn-shanghai.aliyuncs.com</ExtranetEndpoint>
-            <IntranetEndpoint>oss-cn-shanghai-internal.aliyuncs.com</IntranetEndpoint>
-            <Location>oss-cn-shanghai</Location>
-            <Name>app-base-oss</Name>
-            <Region>cn-shanghai</Region>
-            <StorageClass>Standard</StorageClass>
-          </Bucket>
-          <Bucket>
-            <CreationDate>2014-12-25T11:21:04.000Z</CreationDate>
-            <ExtranetEndpoint>oss-cn-hangzhou.aliyuncs.com</ExtranetEndpoint>
-            <IntranetEndpoint>oss-cn-hangzhou-internal.aliyuncs.com</IntranetEndpoint>
-            <Location>oss-cn-hangzhou</Location>
-            <Name>atestleo23</Name>
-            <Region>cn-hangzhou</Region>
-            <StorageClass>IA</StorageClass>
-          </Bucket>
-          <Bucket>
-            <CreationDate>2014-12-25T11:21:04.000Z</CreationDate>
-            <Location>oss-cn-hangzhou</Location>
-            <Name>atestleo23</Name>
-          </Bucket>
-        </Buckets>
-      </ListAllMyBucketsResult>
-      BBBB;
-
-        $response = new ResponseCore(array(), $xml, 200);
+        $response = new ResponseCore(array(), $this->xml, 200);
         $result = new ListBucketsResult($response);
         $this->assertTrue($result->isOK());
         $this->assertNotNull($result->getData());
