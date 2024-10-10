@@ -2372,7 +2372,7 @@ class OssClient
         $options[self::OSS_OBJECT] = $object;
         $options[self::OSS_SUB_RESOURCE] = 'x-oss-async-process';
         $options[self::OSS_CONTENT_TYPE] = 'application/octet-stream';
-        $options[self::OSS_CONTENT] = 'x-oss-async-process='.$asyncProcess;
+        $options[self::OSS_CONTENT] = 'x-oss-async-process=' . $asyncProcess;
         $response = $this->auth($options);
         $result = new BodyResult($response);
         return $result->getData();
@@ -2999,7 +2999,7 @@ class OssClient
         return $this->getValue($options, self::OSS_CHECK_MD5, false, true, true);
     }
 
-     /**
+    /**
      * Gets value of the specified key from the options
      *
      * @param array $options
@@ -3269,7 +3269,7 @@ class OssClient
 
         try {
             $tmp_object = $options[self::OSS_OBJECT];
-            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encoding = array('UTF-8', 'GB2312', 'GBK');
             $encode = mb_detect_encoding($tmp_object, $encoding);
             if ($encode === 'UTF-8' || $encode === false) {
                 return;
@@ -3354,6 +3354,12 @@ class OssClient
         $query = array();
         $queryList = array(
             self::OSS_PART_NUM,
+            'response-content-type',
+            'response-content-language',
+            'response-cache-control',
+            'response-content-encoding',
+            'response-expires',
+            'response-content-disposition',
             self::OSS_UPLOAD_ID,
             self::OSS_COMP,
             self::OSS_LIVE_CHANNEL_STATUS,
@@ -3381,6 +3387,7 @@ class OssClient
         if (isset($options[self::OSS_SUB_RESOURCE])) {
             $query[$options[self::OSS_SUB_RESOURCE]] = '';
         }
+
         return OssUtil::toQueryString($query);
     }
 
@@ -3519,7 +3526,7 @@ class OssClient
         }
 
         try {
-            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encoding = array('UTF-8', 'GB2312', 'GBK');
             $encode = mb_detect_encoding($filepath, $encoding);
             if ($encode !== 'UTF-8') {
                 return $filepath;
@@ -3534,7 +3541,7 @@ class OssClient
         return $filepath;
     }
 
-     /**
+    /**
      * Decodes the file path from GBK  to UTF-8.
      *
      * @param $filepath
@@ -3550,7 +3557,7 @@ class OssClient
         }
 
         try {
-            $encoding = array('UTF-8','GB2312', 'GBK');
+            $encoding = array('UTF-8', 'GB2312', 'GBK');
             $encode = mb_detect_encoding($filepath, $encoding);
             if ($encode === 'UTF-8' || $encode === false) {
                 return $filepath;
