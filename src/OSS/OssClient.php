@@ -169,6 +169,11 @@ class OssClient
             throw new OssException("endpoint is empty");
         }
         $this->hostname = $this->checkEndpoint($endpoint, $isCName);
+        if (isset($config['forcePathStyle'])) {
+            if ($config['forcePathStyle'] === true) {
+                $this->hostType = self::OSS_HOST_TYPE_PATH_STYLE;
+            }
+        }
         $this->requestProxy = $requestProxy;
         if (!$provider instanceof CredentialsProvider) {
             throw new OssException("provider must be an instance of CredentialsProvider");
@@ -3333,6 +3338,9 @@ class OssClient
         if ('' !== $bucket) {
             if ($this->hostType === self::OSS_HOST_TYPE_IP || $this->hostType === self::OSS_HOST_TYPE_PATH_STYLE) {
                 $paths[] = $bucket;
+                if ('' === $object) {
+                    $paths[] = '';
+                }
             }
         }
         // + object
