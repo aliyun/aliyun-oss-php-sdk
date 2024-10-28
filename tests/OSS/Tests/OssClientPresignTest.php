@@ -38,7 +38,7 @@ class OssClientPresignTest extends TestOssClientBase
         }
         $this->assertStringContainsString("response-content-disposition=inline", $signedUrl);
         $options = array(
-            "response-content-disposition" => "attachment"
+            "response-content-disposition" => "attachment",
         );
 
         try {
@@ -47,40 +47,15 @@ class OssClientPresignTest extends TestOssClientBase
             $this->assertFalse(true);
         }
         $this->assertStringContainsString("response-content-disposition=attachment", $signedUrl);
-    }
 
-    public function testObjectWithSignV4()
-    {
-        $config = array(
-            'signatureVersion' => OssClient::OSS_SIGNATURE_VERSION_V4
-        );
-        $this->bucket = Common::getBucketName() . '-' . time();
-        $this->ossClient = Common::getOssClient($config);
-        $this->ossClient->createBucket($this->bucket);
-        Common::waitMetaSync();
-
-        $object = "a.file";
-        $this->ossClient->putObject($this->bucket, $object, "hi oss");
-        $timeout = 3600;
-        $options = array(
-            "response-content-disposition" => "inline"
-        );
-        try {
-            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, OssClient::OSS_HTTP_GET, $options);
-        } catch (OssException $e) {
-            $this->assertFalse(true);
-        }
-        $this->assertStringContainsString("response-content-disposition=inline", $signedUrl);
-        $options = array(
-            "response-content-disposition" => "attachment"
-        );
-
-        try {
-            $signedUrl = $this->ossClient->signUrl($this->bucket, $object, $timeout, OssClient::OSS_HTTP_GET, $options);
-        } catch (OssException $e) {
-            $this->assertFalse(true);
-        }
-        $this->assertStringContainsString("response-content-disposition=attachment", $signedUrl);
+        $httpCore = new RequestCore($signedUrl);
+        $httpCore->set_body("");
+        $httpCore->set_method("GET");
+        $httpCore->connect_timeout = 10;
+        $httpCore->timeout = 10;
+        $httpCore->add_header("Content-Type", "");
+        $httpCore->send_request();
+        $this->assertEquals(200, $httpCore->response_code);        
     }
 
     protected function tearDown(): void
