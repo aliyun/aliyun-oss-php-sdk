@@ -3140,6 +3140,13 @@ class OssClient
             $headers[self::OSS_CONTENT_MD5] = base64_encode(md5($options[self::OSS_CONTENT], true));
         }
 
+        if (isset($options[self::OSS_REGISTERED_STREAMING_READ_CALLBACK])){
+            $request->register_streaming_read_callback($options[self::OSS_REGISTERED_STREAMING_READ_CALLBACK]);
+        }
+        if (isset($options[self::OSS_REGISTERED_STREAMING_WRITE_CALLBACK])){
+            $request->register_streaming_write_callback($options[self::OSS_REGISTERED_STREAMING_WRITE_CALLBACK]);
+        }
+
         if (isset($options[self::OSS_CALLBACK])) {
             $headers[self::OSS_CALLBACK] = base64_encode($options[self::OSS_CALLBACK]);
         }
@@ -3745,6 +3752,9 @@ class OssClient
     const OSS_ENCODING_TYPE_URL = "url";
 
     const OSS_LIST_TYPE = "list-type";
+
+    const OSS_REGISTERED_STREAMING_READ_CALLBACK = 'registered-streaming-read-callback';
+    const OSS_REGISTERED_STREAMING_WRITE_CALLBACK = 'registered-streaming-write-callback';
 
     // Domain Types
     const OSS_HOST_TYPE_NORMAL = "normal";//http://bucket.oss-cn-hangzhou.aliyuncs.com/object
