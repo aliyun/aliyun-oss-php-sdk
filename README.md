@@ -6,6 +6,11 @@
 
 ## [README of Chinese](https://github.com/aliyun/aliyun-oss-php-sdk/blob/master/README-CN.md)
 
+## About OSS SDK for Go PHP V2
+> - OSS SDK for PHP V2([alibabacloud-oss-php-sdk-v2](https://github.com/aliyun/alibabacloud-oss-php-sdk-v2)) beta version has been released, it is a major rewrite of OSS SDK for PHP V1 (aliyun-oss-php-sdk).
+> - V2 simplifies underlying operations such as identification authentication, automatic retry of failed requests, and error handling. It provides flexible parameter configuration methods and rich advanced operations, such as paginator, transmission managers. This comprehensively improves development efficiency and experience.
+
+
 ## Overview
 
 Alibaba Cloud Object Storage Service (OSS) is a cloud storage service provided by Alibaba Cloud, featuring a massive capacity, security, a low cost, and high reliability. You can upload and download data on any application anytime and anywhere by calling APIs, and perform simple management of data through the web console. The OSS can store any type of files and therefore applies to various websites, development enterprises and developers.
