@@ -3150,6 +3150,15 @@ class OssClient
         if (!isset($headers[self::OSS_ACCEPT_ENCODING])) {
             $headers[self::OSS_ACCEPT_ENCODING] = '';
         }
+        
+//        for check from option['Cache-Control'] exists
+        if (isset($options[self::OSS_CACHE_CONTROL])) {
+            $headers[self::OSS_CACHE_CONTROL] = $options[self::OSS_CACHE_CONTROL];
+        }
+//        for check from option['Expires'] exists
+        if (isset($options[self::OSS_EXPIRES])) {
+            $headers[self::OSS_EXPIRES] = $options[self::OSS_EXPIRES];
+        }
 
         if (!isset($headers[self::OSS_CONTENT_TYPE])) {
             $headers[self::OSS_CONTENT_TYPE] = self::DEFAULT_CONTENT_TYPE;
