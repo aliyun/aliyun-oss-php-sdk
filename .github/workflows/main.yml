@@ -32,5 +32,10 @@ jobs:
         if: ${{ matrix.php-version >= '8.0' }}
         run: vendor/bin/phpunit --migrate-configuration
 
-      - name: Run Unit Tests
+      - name: Run Unit Tests (PHP 5.6)
+        if: ${{ matrix.php-version == '5.6' }}
+        run: vendor/bin/phpunit --configuration phpunit-5.6.xml --testsuite UnitTest
+
+      - name: Run Unit Tests (PHP 7.0+)
+        if: ${{ matrix.php-version != '5.6' }}
         run: vendor/bin/phpunit --testsuite UnitTest

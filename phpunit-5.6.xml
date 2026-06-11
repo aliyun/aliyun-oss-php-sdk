@@ -56,6 +56,9 @@
 			<exclude>./tests/OSS/Tests/ObjectAclTest.php</exclude>
 			<exclude>./tests/OSS/Tests/CallbackTest.php</exclude>
 			<exclude>./tests/OSS/Tests/ContentTypeTest.php</exclude>
+			<!-- PHP 7+ syntax (return type declarations) -->
+			<exclude>./tests/OSS/Tests/PutSetDeleteResultTest.php</exclude>
+			<exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
 		</testsuite>
 		<testsuite name="FunctionTest">
 			<directory>./tests</directory>
