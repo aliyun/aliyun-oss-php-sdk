@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-phar:
+    name: Build PHAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: phar, curl, mbstring, openssl, xml
+          tools: phar-composer
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress
+
+      - name: Build PHAR
+        run: |
+          version=$(grep 'const OSS_VERSION' src/OSS/OssClient.php | grep -oE '[0-9.]+')
+          phar-composer build . aliyun-oss-php-sdk-${version}.phar
+
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(grep 'const OSS_VERSION' src/OSS/OssClient.php | grep -oE '[0-9.]+')
+          gh release upload ${{ github.event.release.tag_name }} aliyun-oss-php-sdk-${version}.phar
