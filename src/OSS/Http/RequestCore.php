@@ -475,7 +475,7 @@ class RequestCore
      */
     public function set_seek_position($position)
     {
-        $this->seek_position = isset($position) ? (integer)$position : null;
+        $this->seek_position = isset($position) ? (int)$position : null;
 
         return $this;
     }
@@ -849,7 +849,10 @@ class RequestCore
 
         $parsed_response = $this->process_response($curl_handle, $this->response);
 
-        curl_close($curl_handle);
+
+        if (PHP_VERSION_ID < 80500) {
+            curl_close($curl_handle);
+        }
         unset($curl_handle);
 
         if ($parse) {
