@@ -2839,7 +2839,7 @@ class OssClient
         $cred = $this->provider->getCredentials();
         //method
         if (self::OSS_HTTP_GET !== $method && self::OSS_HTTP_PUT !== $method) {
-//            throw new OssException("method is invalid");
+            throw new OssException("method is invalid");
         }
         // Should https or http be used?
         $scheme = $this->useSSL ? 'https://' : 'http://';
