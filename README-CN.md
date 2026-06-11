@@ -6,6 +6,11 @@
 
 ## [README of English](https://github.com/aliyun/aliyun-oss-php-sdk/blob/master/README.md)
 
+## 关于 OSS SDK for PHP V2
+> - OSS SDK for PHP V2([alibabacloud-oss-php-sdk-v2](https://github.com/aliyun/alibabacloud-oss-php-sdk-v2)) 测试版已发布, 是对V1（aliyun-oss-php-sdk）代码库的重大改写。
+> - V2是一个全新的版本，简化了底层操作例如身份验证、自动请求重试及错误处理等；提供了灵活友好的参数配置以及丰富的高级接口，例如分页器、传输管理器等，全面提升了开发效率和体验。
+
+
 ## 概述
 
 阿里云对象存储（Object Storage Service，简称OSS），是阿里云对外提供的海量、安全、低成本、高可靠的云存储服务。用户可以通过调用API，在任何应用、任何时间、任何地点上传和下载数据，也可以通过用户Web控制台对数据进行简单的管理。OSS适合存放任意文件类型，适合各种网站、开发企业及开发者使用。
