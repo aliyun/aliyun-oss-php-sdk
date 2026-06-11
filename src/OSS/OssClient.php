@@ -2392,7 +2392,7 @@ class OssClient
      */
     private function computePartSize($partSize)
     {
-        $partSize = (integer)$partSize;
+        $partSize = (int)$partSize;
         if ($partSize <= self::OSS_MIN_PART_SIZE) {
             $partSize = self::OSS_MIN_PART_SIZE;
         } elseif ($partSize > self::OSS_MAX_PART_SIZE) {
@@ -2676,10 +2676,10 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $uploadFile);
         }
 
-        $upload_position = isset($options[self::OSS_SEEK_TO]) ? (integer)$options[self::OSS_SEEK_TO] : 0;
+        $upload_position = isset($options[self::OSS_SEEK_TO]) ? (int)$options[self::OSS_SEEK_TO] : 0;
 
         if (isset($options[self::OSS_CONTENT_LENGTH])) {
-            $upload_file_size = (integer)$options[self::OSS_CONTENT_LENGTH];
+            $upload_file_size = (int)$options[self::OSS_CONTENT_LENGTH];
         } else {
             $upload_file_size = sprintf('%u', filesize($uploadFile));
 
@@ -2713,11 +2713,11 @@ class OssClient
         }
 
         // generates the parts information and upload them one by one
-        $pieces = $this->generateMultiuploadParts($upload_file_size, (integer)$options[self::OSS_PART_SIZE]);
+        $pieces = $this->generateMultiuploadParts($upload_file_size, (int)$options[self::OSS_PART_SIZE]);
         $response_upload_part = array();
         foreach ($pieces as $i => $piece) {
-            $from_pos = $upload_position + (integer)$piece[self::OSS_SEEK_TO];
-            $to_pos = (integer)$piece[self::OSS_LENGTH] + $from_pos - 1;
+            $from_pos = $upload_position + (int)$piece[self::OSS_SEEK_TO];
+            $to_pos = (int)$piece[self::OSS_LENGTH] + $from_pos - 1;
             $up_options = array(
                 self::OSS_FILE_UPLOAD => $uploadFile,
                 self::OSS_PART_NUM => ($i + 1),
