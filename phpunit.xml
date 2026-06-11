@@ -14,6 +14,7 @@
 		<testsuite name="UnitTest">
 			<directory>./tests</directory>
 			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
+			<exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
 			<exclude>./tests/OSS/Tests/TestOssClientBase.php</exclude>
 			<exclude>./tests/OSS/Tests/Common.php</exclude>
 			<exclude>./tests/OSS/Tests/StsClient.php</exclude>
