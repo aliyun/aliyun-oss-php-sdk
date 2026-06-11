@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Unit Tests (PHP 5.6 - 8.0)
         if: ${{ matrix.php-version < '8.1' }}
-        run: vendor/bin/phpunit --testsuite UnitTest --display-deprecations
+        run: vendor/bin/phpunit --testsuite UnitTest
         env:
           PHP_ERROR_REPORTING: E_ALL
 
