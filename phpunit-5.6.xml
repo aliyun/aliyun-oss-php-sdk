@@ -1,68 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
 
+<!-- PHPUnit config for PHP 5.6: excludes tests using PHP 7+ syntax -->
 <phpunit>
 	<filter>
 		<whitelist>
 			<directory suffix=".php">./src</directory>
 		</whitelist>
 	</filter>
-	<logging>
-		<log type="coverage-clover" target="coverage.xml" />
-	</logging>
 	<testsuites>
 		<testsuite name="UnitTest">
 			<directory>./tests</directory>
-			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
-			<exclude>./tests/OSS/Tests/TestOssClientBase.php</exclude>
+			<!-- Helper/Base files -->
 			<exclude>./tests/OSS/Tests/Common.php</exclude>
+			<exclude>./tests/OSS/Tests/TestOssClientBase.php</exclude>
 			<exclude>./tests/OSS/Tests/StsClient.php</exclude>
 			<exclude>./tests/OSS/Tests/AssumeRole.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientSignatureTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientSignatureV4Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientPresignV4Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientPresignTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientRestoreObjectTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectVersioningTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectTaggingTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientMultipartUploadTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectRequestPaymentTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientListObjectsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientListObjectsV2Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientForcePathStyleTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientImageTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketVersioningTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketWebsiteTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketWormTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTransferAccelerationTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketStatTestTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketStorageCapacityTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTagsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketRefererTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketRequestPaymentTest.php</exclude>
+			<!-- Integration tests: extends TestCase but requires OSS credentials -->
+			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
+			<exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
+			<!-- Integration tests: extends TestOssClientBase -->
+			<exclude>./tests/OSS/Tests/CallbackTest.php</exclude>
+			<exclude>./tests/OSS/Tests/ContentTypeTest.php</exclude>
+			<exclude>./tests/OSS/Tests/ObjectAclTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientAsyncProcessObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketCnameTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketCorsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketEncryptionTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketInfoTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketLifecycleTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketLoggingTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketPolicyTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketEncryptionTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketInfoTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketCnameTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketCorsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientAsyncProcessObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketRequestPaymentTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketRefererTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketStatTestTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketStorageCapacityTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTagsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTransferAccelerationTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketVersioningTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketWebsiteTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketWormTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientForcePathStyleTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientImageTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientListObjectsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientListObjectsV2Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientMultipartUploadTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectRequestPaymentTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectTaggingTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectVersioningTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientPresignTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientPresignV4Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientRestoreObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientSignatureTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientSignatureV4Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssTrafficLimitTest.php</exclude>
 			<exclude>./tests/OSS/Tests/SymlinkTest.php</exclude>
-			<exclude>./tests/OSS/Tests/ObjectAclTest.php</exclude>
-			<exclude>./tests/OSS/Tests/CallbackTest.php</exclude>
-			<exclude>./tests/OSS/Tests/ContentTypeTest.php</exclude>
-			<!-- PHP 7+ syntax (return type declarations) -->
+			<!-- PHP 7+ syntax: return type declarations (: void) -->
 			<exclude>./tests/OSS/Tests/PutSetDeleteResultTest.php</exclude>
-			<exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
-		</testsuite>
-		<testsuite name="FunctionTest">
-			<directory>./tests</directory>
-			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>

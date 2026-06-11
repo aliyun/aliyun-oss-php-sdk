@@ -7,59 +7,100 @@
 			<directory suffix=".php">./src</directory>
 		</whitelist>
 	</filter>
-	<logging>
-		<log type="coverage-clover" target="coverage.xml" />
-	</logging>
 	<testsuites>
+		<!-- Unit Tests: 43 files, no OSS credentials required -->
 		<testsuite name="UnitTest">
 			<directory>./tests</directory>
-			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
-			<exclude>./tests/OSS/Tests/TestOssClientBase.php</exclude>
+			<!-- Helper/Base files -->
 			<exclude>./tests/OSS/Tests/Common.php</exclude>
+			<exclude>./tests/OSS/Tests/TestOssClientBase.php</exclude>
 			<exclude>./tests/OSS/Tests/StsClient.php</exclude>
 			<exclude>./tests/OSS/Tests/AssumeRole.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientSignatureTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientSignatureV4Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientPresignV4Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientPresignTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientRestoreObjectTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectVersioningTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectTaggingTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientMultipartUploadTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientObjectRequestPaymentTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientListObjectsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientListObjectsV2Test.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientForcePathStyleTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientImageTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketVersioningTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketWebsiteTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketWormTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTransferAccelerationTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketStatTestTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketStorageCapacityTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketTagsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketRefererTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketRequestPaymentTest.php</exclude>
+			<!-- Integration tests: extends TestCase but requires OSS credentials -->
+			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
+			<exclude>./tests/OSS/Tests/BucketLiveChannelTest.php</exclude>
+			<!-- Integration tests: extends TestOssClientBase -->
+			<exclude>./tests/OSS/Tests/CallbackTest.php</exclude>
+			<exclude>./tests/OSS/Tests/ContentTypeTest.php</exclude>
+			<exclude>./tests/OSS/Tests/ObjectAclTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientAsyncProcessObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketCnameTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketCorsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketEncryptionTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketInfoTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketLifecycleTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketLoggingTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssClientBucketPolicyTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketEncryptionTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketInfoTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketCnameTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientBucketCorsTest.php</exclude>
-			<exclude>./tests/OSS/Tests/OssClientAsyncProcessObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketRequestPaymentTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketRefererTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketStatTestTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketStorageCapacityTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTagsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketTransferAccelerationTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketVersioningTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketWebsiteTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientBucketWormTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientForcePathStyleTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientImageTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientListObjectsTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientListObjectsV2Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientMultipartUploadTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectRequestPaymentTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectTaggingTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientObjectVersioningTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientPresignTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientPresignV4Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientRestoreObjectTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientSignatureTest.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientSignatureV4Test.php</exclude>
+			<exclude>./tests/OSS/Tests/OssClientTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssTrafficLimitTest.php</exclude>
 			<exclude>./tests/OSS/Tests/SymlinkTest.php</exclude>
-			<exclude>./tests/OSS/Tests/ObjectAclTest.php</exclude>
-			<exclude>./tests/OSS/Tests/CallbackTest.php</exclude>
-			<exclude>./tests/OSS/Tests/ContentTypeTest.php</exclude>
 		</testsuite>
-		<testsuite name="FunctionTest">
-			<directory>./tests</directory>
-			<exclude>./tests/OSS/Tests/BucketCnameTest.php</exclude>
+		<!-- Integration Tests: 41 files, requires OSS credentials -->
+		<testsuite name="IntegrationTest">
+			<file>./tests/OSS/Tests/BucketCnameTest.php</file>
+			<file>./tests/OSS/Tests/BucketLiveChannelTest.php</file>
+			<file>./tests/OSS/Tests/CallbackTest.php</file>
+			<file>./tests/OSS/Tests/ContentTypeTest.php</file>
+			<file>./tests/OSS/Tests/ObjectAclTest.php</file>
+			<file>./tests/OSS/Tests/OssClientAsyncProcessObjectTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketCnameTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketCorsTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketEncryptionTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketInfoTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketLifecycleTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketLoggingTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketPolicyTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketRequestPaymentTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketRefererTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketStatTestTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketStorageCapacityTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketTagsTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketTransferAccelerationTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketVersioningTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketWebsiteTest.php</file>
+			<file>./tests/OSS/Tests/OssClientBucketWormTest.php</file>
+			<file>./tests/OSS/Tests/OssClientForcePathStyleTest.php</file>
+			<file>./tests/OSS/Tests/OssClientImageTest.php</file>
+			<file>./tests/OSS/Tests/OssClientListObjectsTest.php</file>
+			<file>./tests/OSS/Tests/OssClientListObjectsV2Test.php</file>
+			<file>./tests/OSS/Tests/OssClientMultipartUploadTest.php</file>
+			<file>./tests/OSS/Tests/OssClientObjectRequestPaymentTest.php</file>
+			<file>./tests/OSS/Tests/OssClientObjectTaggingTest.php</file>
+			<file>./tests/OSS/Tests/OssClientObjectTest.php</file>
+			<file>./tests/OSS/Tests/OssClientObjectVersioningTest.php</file>
+			<file>./tests/OSS/Tests/OssClientPresignTest.php</file>
+			<file>./tests/OSS/Tests/OssClientPresignV4Test.php</file>
+			<file>./tests/OSS/Tests/OssClientRestoreObjectTest.php</file>
+			<file>./tests/OSS/Tests/OssClientSignatureTest.php</file>
+			<file>./tests/OSS/Tests/OssClientSignatureV4Test.php</file>
+			<file>./tests/OSS/Tests/OssClientTest.php</file>
+			<file>./tests/OSS/Tests/OssTrafficLimitTest.php</file>
+			<file>./tests/OSS/Tests/SymlinkTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
