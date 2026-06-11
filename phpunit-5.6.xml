@@ -58,8 +58,6 @@
 			<exclude>./tests/OSS/Tests/OssClientTest.php</exclude>
 			<exclude>./tests/OSS/Tests/OssTrafficLimitTest.php</exclude>
 			<exclude>./tests/OSS/Tests/SymlinkTest.php</exclude>
-			<!-- PHP 7+ syntax: return type declarations (: void) -->
-			<exclude>./tests/OSS/Tests/PutSetDeleteResultTest.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>
