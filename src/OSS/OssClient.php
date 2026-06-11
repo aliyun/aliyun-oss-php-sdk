@@ -2392,7 +2392,7 @@ class OssClient
      */
     private function computePartSize($partSize)
     {
-        $partSize = (integer)$partSize;
+        $partSize = (int)$partSize;
         if ($partSize <= self::OSS_MIN_PART_SIZE) {
             $partSize = self::OSS_MIN_PART_SIZE;
         } elseif ($partSize > self::OSS_MAX_PART_SIZE) {
@@ -2676,10 +2676,10 @@ class OssClient
             $options[self::OSS_CONTENT_TYPE] = $this->getMimeType($object, $uploadFile);
         }
 
-        $upload_position = isset($options[self::OSS_SEEK_TO]) ? (integer)$options[self::OSS_SEEK_TO] : 0;
+        $upload_position = isset($options[self::OSS_SEEK_TO]) ? (int)$options[self::OSS_SEEK_TO] : 0;
 
         if (isset($options[self::OSS_CONTENT_LENGTH])) {
-            $upload_file_size = (integer)$options[self::OSS_CONTENT_LENGTH];
+            $upload_file_size = (int)$options[self::OSS_CONTENT_LENGTH];
         } else {
             $upload_file_size = sprintf('%u', filesize($uploadFile));
 
@@ -2713,11 +2713,11 @@ class OssClient
         }
 
         // generates the parts information and upload them one by one
-        $pieces = $this->generateMultiuploadParts($upload_file_size, (integer)$options[self::OSS_PART_SIZE]);
+        $pieces = $this->generateMultiuploadParts($upload_file_size, (int)$options[self::OSS_PART_SIZE]);
         $response_upload_part = array();
         foreach ($pieces as $i => $piece) {
-            $from_pos = $upload_position + (integer)$piece[self::OSS_SEEK_TO];
-            $to_pos = (integer)$piece[self::OSS_LENGTH] + $from_pos - 1;
+            $from_pos = $upload_position + (int)$piece[self::OSS_SEEK_TO];
+            $to_pos = (int)$piece[self::OSS_LENGTH] + $from_pos - 1;
             $up_options = array(
                 self::OSS_FILE_UPLOAD => $uploadFile,
                 self::OSS_PART_NUM => ($i + 1),
@@ -3102,7 +3102,7 @@ class OssClient
                 } elseif (isset($options[self::OSS_SEEK_TO])) {
                     $stats = fstat($options[self::OSS_FILE_UPLOAD]);
                     if ($stats && $stats[self::OSS_SIZE] >= 0) {
-                        $length = $stats[self::OSS_SIZE] - (integer)$options[self::OSS_SEEK_TO];
+                        $length = $stats[self::OSS_SIZE] - (int)$options[self::OSS_SEEK_TO];
                     }
                 }
                 $request->set_read_stream($options[self::OSS_FILE_UPLOAD], $length);
@@ -3112,13 +3112,13 @@ class OssClient
                 if (isset($options[self::OSS_CONTENT_LENGTH])) {
                     $length = $options[self::OSS_CONTENT_LENGTH];
                 } elseif (isset($options[self::OSS_SEEK_TO]) && isset($length)) {
-                    $length -= (integer)$options[self::OSS_SEEK_TO];
+                    $length -= (int)$options[self::OSS_SEEK_TO];
                 }
                 $request->set_read_stream_size($length);
             }
         }
         if (isset($options[self::OSS_SEEK_TO])) {
-            $request->set_seek_position((integer)$options[self::OSS_SEEK_TO]);
+            $request->set_seek_position((int)$options[self::OSS_SEEK_TO]);
         }
         if (isset($options[self::OSS_FILE_DOWNLOAD])) {
             if (is_resource($options[self::OSS_FILE_DOWNLOAD])) {
@@ -3197,10 +3197,10 @@ class OssClient
 
         $data = new ResponseCore($response_header, $request->get_response_body(), $request->get_response_code());
         //retry if OSS Internal Error
-        if ((integer)$request->get_response_code() === 500) {
+        if ((int)$request->get_response_code() === 500) {
             if ($this->redirects <= $this->maxRetries) {
                 //Sets the sleep time betwen each retry.
-                $delay = (integer)(pow(4, $this->redirects) * 100000);
+                $delay = (int)(pow(4, $this->redirects) * 100000);
                 usleep($delay);
                 $this->redirects++;
                 $data = $this->auth($options);

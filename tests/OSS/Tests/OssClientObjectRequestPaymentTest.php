@@ -360,8 +360,8 @@ class OssClientObjectRequestPaymentTest extends TestOssClientBase
         $upload_position = 0;
         $is_check_md5 = false;
         foreach ($pieces as $i => $piece) {
-            $from_pos = $upload_position + (integer)$piece[OssClient::OSS_SEEK_TO];
-            $to_pos = (integer)$piece[OssClient::OSS_LENGTH] + $from_pos - 1;
+            $from_pos = $upload_position + (int)$piece[OssClient::OSS_SEEK_TO];
+            $to_pos = (int)$piece[OssClient::OSS_LENGTH] + $from_pos - 1;
             $up_options = array(
                 OssClient::OSS_FILE_UPLOAD => $upload_file,
                 OssClient::OSS_PART_NUM => ($i + 1),
