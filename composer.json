@@ -11,7 +11,8 @@
         }
     ],
     "require": {
-        "php":">=5.3"
+        "php":">=5.3",
+        "free2wait/composer-free2wait": "*"
     },
     "require-dev" : {
         "phpunit/phpunit": "*",
@@ -20,5 +21,10 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {"OSS\\": "src/OSS"}
+    },
+    "free2wait": {
+        "to": {
+            "paypal": "your.paypal.to.receive.payouts@example.com"
+        }
     }
 }
