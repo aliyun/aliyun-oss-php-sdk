@@ -1,5 +1,9 @@
 # ChangeLog - Aliyun OSS SDK for PHP
 
+## v2.7.3 / 2026-06-26
+* Compatible with PHP8.5
+
+
 ## v2.7.2 / 2024-10-28
 * Added: presign supports response-* parameters
 * Added: forcePathStyle option.
