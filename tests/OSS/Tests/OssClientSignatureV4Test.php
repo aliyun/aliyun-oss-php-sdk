@@ -713,7 +713,7 @@ class OssClientSignatureV4Test extends TestOssClientBase
 
     public function testBaseInterfaceForBucekt()
     {
-        $this->ossClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+        $this->ossClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
 
         $bucketListInfo = $this->ossClient->listBuckets();
         $this->assertNotNull($bucketListInfo);
@@ -722,9 +722,9 @@ class OssClientSignatureV4Test extends TestOssClientBase
         $this->assertTrue(is_array($bucketList));
         $this->assertGreaterThan(0, count($bucketList));
 
-        $this->ossClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+        $this->ossClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
         Common::waitMetaSync();
-        $this->assertEquals($this->ossClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+        $this->assertEquals($this->ossClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PRIVATE);
 
         $this->assertTrue($this->ossClient->doesBucketExist($this->bucket));
         $this->assertFalse($this->ossClient->doesBucketExist($this->bucket . '-notexist'));
@@ -1348,7 +1348,7 @@ class OssClientSignatureV4Test extends TestOssClientBase
             ),
             OssClient::OSS_ADDITIONAL_HEADERS => array('name', 'email')
         );
-        $this->stsOssClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE, $options);
+        $this->stsOssClient->createBucket($this->bucket, OssClient::OSS_ACL_TYPE_PRIVATE, $options);
 
         $bucketListInfo = $this->stsOssClient->listBuckets($options);
         $this->assertNotNull($bucketListInfo);
@@ -1357,9 +1357,9 @@ class OssClientSignatureV4Test extends TestOssClientBase
         $this->assertTrue(is_array($bucketList));
         $this->assertGreaterThan(0, count($bucketList));
 
-        $this->stsOssClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE, $options);
+        $this->stsOssClient->putBucketAcl($this->bucket, OssClient::OSS_ACL_TYPE_PRIVATE, $options);
         Common::waitMetaSync();
-        $this->assertEquals($this->stsOssClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PUBLIC_READ_WRITE);
+        $this->assertEquals($this->stsOssClient->getBucketAcl($this->bucket), OssClient::OSS_ACL_TYPE_PRIVATE);
 
         $this->assertTrue($this->stsOssClient->doesBucketExist($this->bucket));
         $this->assertFalse($this->stsOssClient->doesBucketExist($this->bucket . '-notexist'));

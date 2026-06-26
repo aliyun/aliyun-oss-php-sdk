@@ -19,7 +19,7 @@ class OssClientObjectVersioningTest extends TestOssClientBase
         $object = 'object';
         $content1 = 'hello';
         $content2 = 'hello world';
-        $ret1 = $this->ossClient->putObject($this->bucket, $object, $content1, array(OssClient::OSS_HEADERS => array('x-oss-object-acl' => 'public-read', 'x-oss-tagging' => 'key1=value1')));
+        $ret1 = $this->ossClient->putObject($this->bucket, $object, $content1, array(OssClient::OSS_HEADERS => array('x-oss-object-acl' => 'private', 'x-oss-tagging' => 'key1=value1')));
         $ret2 = $this->ossClient->putObject($this->bucket, $object, $content2, array(OssClient::OSS_HEADERS => array('x-oss-object-acl' => 'private', 'x-oss-tagging' => 'key2=value2')));
 
         $this->assertTrue(isset($ret1[OssClient::OSS_HEADER_VERSION_ID]));
@@ -65,14 +65,14 @@ class OssClientObjectVersioningTest extends TestOssClientBase
         $acl1 = $this->ossClient->getObjectAcl($this->bucket, $object, array(OssClient::OSS_VERSION_ID => $versionId1));
         $acl2 = $this->ossClient->getObjectAcl($this->bucket, $object, array(OssClient::OSS_VERSION_ID => $versionId2));
 
-        $this->assertEquals('public-read', $acl1);
+        $this->assertEquals('private', $acl1);
         $this->assertEquals('private', $acl2);
         $this->assertEquals('private', $acl);
 
-        $this->ossClient->putObjectAcl($this->bucket, $object, 'public-read-write', array(OssClient::OSS_VERSION_ID => $versionId1));
+        $this->ossClient->putObjectAcl($this->bucket, $object, 'private', array(OssClient::OSS_VERSION_ID => $versionId1));
         $acl = $this->ossClient->getObjectAcl($this->bucket, $object);
         $acl1 = $this->ossClient->getObjectAcl($this->bucket, $object, array(OssClient::OSS_VERSION_ID => $versionId1));
-        $this->assertEquals('public-read-write', $acl1);
+        $this->assertEquals('private', $acl1);
         $this->assertEquals('private', $acl);
 
         //tagging
