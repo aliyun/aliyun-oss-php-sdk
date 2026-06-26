@@ -44,7 +44,9 @@ class StsClient
             throw new OssException($errors->Code);
         }
 
-        curl_close($curl_handle);
+        if (PHP_VERSION_ID < 80500) {
+            curl_close($curl_handle);
+        }
 
         return $response;
     }

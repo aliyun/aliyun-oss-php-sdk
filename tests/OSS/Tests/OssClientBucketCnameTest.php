@@ -15,10 +15,7 @@ class OssClientBucketCnameTest extends TestOssClientBase
     public function testBucketCname()
     {
         $bucketName = $this->bucket . '-cname';
-        $client = new OssClient(
-            getenv('OSS_ACCESS_KEY_ID'),
-            getenv('OSS_ACCESS_KEY_SECRET'),
-            "oss-ap-southeast-2.aliyuncs.com", false);
+        $client = $this->ossClient;
 
         $client->createBucket($bucketName);
 

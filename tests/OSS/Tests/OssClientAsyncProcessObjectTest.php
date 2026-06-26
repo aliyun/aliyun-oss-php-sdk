@@ -28,7 +28,9 @@ class OssClientAsyncProcessObjectTest extends TestOssClientBase
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_exec($ch);
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80500) {
+            curl_close($ch);
+        }
         fclose($fp);
 
         $this->local_file = $file_name;
