@@ -2240,6 +2240,7 @@ class OssClient
         $options[self::OSS_BUCKET] = $bucket;
         $options[self::OSS_METHOD] = self::OSS_HTTP_HEAD;
         $options[self::OSS_OBJECT] = $object;
+        $options[self::OSS_SUB_RESOURCE] = 'objectMeta';
         $response = $this->auth($options);
         $result = new ExistResult($response);
         return $result->getData();
