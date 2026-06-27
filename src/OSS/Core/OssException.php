@@ -18,7 +18,7 @@ class OssException extends \Exception
     {
         if (is_array($details)) {
             $message = $details['code'] . ': ' . $details['message']
-                     . ' RequestId: ' . $details['request-id'];
+                     . ' RequestId: ' . $details['request-id'] . " EC:".$details['ec'];
             parent::__construct($message);
             $this->details = $details;
         } else {
@@ -50,5 +50,9 @@ class OssException extends \Exception
     public function getDetails()
     {
         return isset($this->details['body']) ? $this->details['body'] : '';
+    }
+
+    public function getEc(){
+        return isset($this->details['ec']) ? $this->details['ec'] : '';
     }
 }
